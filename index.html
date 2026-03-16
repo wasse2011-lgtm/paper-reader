@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0f1117">
+<title>PubMed Paper Reader</title>
+<link rel="manifest" href="./manifest.json">
+<style>
+/* ── リセット & 基本 ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0f1117;
+  --bg-card: #1a1d27;
+  --bg-card-hover: #222636;
+  --bg-detail: #13151d;
+  --bg-input: #1e2130;
+  --text: #e4e4e7;
+  --text-dim: #9193a0;
+  --text-faint: #5c5e6e;
+  --accent: #60a5fa;
+  --accent-dim: #2563eb;
+  --green: #4ade80;
+  --green-dim: rgba(74, 222, 128, 0.15);
+  --border: #2a2d3a;
+  --radius: 12px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+
+/* ── ヘッダー ── */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: calc(var(--safe-top) + 8px) 16px 8px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.header-title {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.header-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.sync-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--accent-dim);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity .2s;
+}
+.sync-btn:active { opacity: .7; }
+.sync-btn.syncing .sync-icon { animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  flex-shrink: 0;
+}
+.status-dot.offline { background: #f87171; }
+
+/* ── 検索バー ── */
+.search-bar {
+  position: relative;
+  margin-bottom: 10px;
+}
+
+.search-input {
+  width: 100%;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px 10px 36px;
+  color: var(--text);
+  font-size: 14px;
+  outline: none;
+  transition: border-color .2s;
+}
+.search-input:focus { border-color: var(--accent); }
+.search-input::placeholder { color: var(--text-faint); }
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-faint);
+  font-size: 14px;
+}
+
+/* ── フィルタ ── */
+.filters {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-bottom: 2px;
+}
+.filters::-webkit-scrollbar { display: none; }
+
+.filter-chip {
+  flex-shrink: 0;
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .2s;
+  white-space: nowrap;
+}
+.filter-chip.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.filter-chip.checked-filter.active {
+  background: var(--green);
+  color: #000;
+  border-color: var(--green);
+}
+
+/* ── 論文リスト ── */
+.paper-list {
+  padding: 12px 16px calc(var(--safe-bottom) + 20px);
+}
+
+.paper-count {
+  font-size: 12px;
+  color: var(--text-faint);
+  margin-bottom: 10px;
+}
+
+.paper-card {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: background .15s;
+  border: 1px solid transparent;
+}
+.paper-card:active { background: var(--bg-card-hover); }
+.paper-card.is-checked { border-left: 3px solid var(--green); }
+
+.paper-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.paper-label {
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--accent-dim);
+  color: var(--accent);
+  letter-spacing: 0.03em;
+}
+
+.paper-date {
+  font-size: 11px;
+  color: var(--text-faint);
+  flex-shrink: 0;
+}
+
+.paper-title {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+  margin-bottom: 4px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.paper-journal {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.paper-memo-indicator {
+  font-size: 11px;
+  color: var(--accent);
+  margin-top: 4px;
+}
+
+/* ── 詳細画面 ── */
+.detail-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: var(--bg-detail);
+  transform: translateX(100%);
+  transition: transform .3s ease;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.detail-overlay.open { transform: translateX(0); }
+
+.detail-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: calc(var(--safe-top) + 10px) 16px 10px;
+  background: var(--bg-detail);
+  border-bottom: 1px solid var(--border);
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.detail-header-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-dim);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.detail-body {
+  padding: 16px 16px calc(var(--safe-bottom) + 40px);
+}
+
+.detail-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.detail-meta-item {
+  font-size: 12px;
+  color: var(--text-dim);
+  background: var(--bg-input);
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+.detail-section {
+  margin-bottom: 20px;
+}
+
+.detail-section-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 6px;
+}
+
+.detail-title {
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+
+.detail-abstract {
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--text);
+  white-space: pre-wrap;
+}
+
+.detail-abstract-en {
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--text-dim);
+  white-space: pre-wrap;
+}
+
+.detail-authors {
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+
+.detail-link {
+  display: inline-block;
+  margin-top: 8px;
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* ── チェック & メモ ── */
+.detail-actions {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.check-toggle {
+  width: 44px;
+  height: 26px;
+  border-radius: 13px;
+  border: none;
+  background: var(--border);
+  position: relative;
+  cursor: pointer;
+  transition: background .2s;
+  flex-shrink: 0;
+}
+.check-toggle.on { background: var(--green); }
+.check-toggle::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform .2s;
+}
+.check-toggle.on::after { transform: translateX(18px); }
+
+.check-label {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.memo-textarea {
+  width: 100%;
+  min-height: 100px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  color: var(--text);
+  font-size: 14px;
+  font-family: inherit;
+  line-height: 1.6;
+  resize: vertical;
+  outline: none;
+}
+.memo-textarea:focus { border-color: var(--accent); }
+.memo-textarea::placeholder { color: var(--text-faint); }
+
+.memo-save-hint {
+  font-size: 11px;
+  color: var(--text-faint);
+  margin-top: 6px;
+}
+
+/* ── 初期設定画面 ── */
+.setup-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 32px 24px;
+  text-align: center;
+}
+
+.setup-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.setup-desc {
+  font-size: 14px;
+  color: var(--text-dim);
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+.setup-input {
+  width: 100%;
+  max-width: 400px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  color: var(--text);
+  font-size: 14px;
+  font-family: monospace;
+  outline: none;
+  margin-bottom: 12px;
+}
+.setup-input:focus { border-color: var(--accent); }
+.setup-input::placeholder { color: var(--text-faint); }
+
+.setup-btn {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 32px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.setup-btn:active { opacity: .8; }
+
+.setup-note {
+  font-size: 12px;
+  color: var(--text-faint);
+  margin-top: 16px;
+  line-height: 1.5;
+  max-width: 400px;
+}
+
+/* ── 空状態 ── */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-faint);
+}
+.empty-state-icon { font-size: 48px; margin-bottom: 12px; }
+.empty-state-text { font-size: 14px; line-height: 1.6; }
+
+/* ── ローディング ── */
+.loading-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: var(--accent);
+  z-index: 999;
+  transition: width .3s;
+}
+
+/* ── トースト通知 ── */
+.toast {
+  position: fixed;
+  bottom: calc(var(--safe-bottom) + 24px);
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: var(--bg-card);
+  color: var(--text);
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  z-index: 999;
+  transition: transform .3s ease;
+  box-shadow: 0 4px 20px rgba(0,0,0,.4);
+  white-space: nowrap;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- ===== 初期設定画面 ===== -->
+<div id="setupScreen" class="setup-screen" style="display:none;">
+  <div class="setup-title">PubMed Paper Reader</div>
+  <div class="setup-desc">GAS Web AppのURLとAPIキーを設定してください。</div>
+  <input id="setupUrl" class="setup-input" placeholder="GAS Web App URL (https://script.google.com/...)" />
+  <input id="setupKey" class="setup-input" placeholder="API Secret Key" />
+  <button class="setup-btn" onclick="saveSetup()">設定を保存</button>
+  <div class="setup-note">
+    GAS Web AppをデプロイしたURL（/exec で終わるもの）と、<br>
+    Config.gs に設定した API_SECRET を入力してください。
+  </div>
+</div>
+
+<!-- ===== メイン画面 ===== -->
+<div id="mainApp" style="display:none;">
+  <div class="loading-bar" id="loadingBar" style="width:0"></div>
+
+  <div class="header">
+    <div class="header-top">
+      <div class="header-title">📄 Paper Reader</div>
+      <div class="header-actions">
+        <div class="status-dot" id="statusDot" title="オンライン"></div>
+        <button class="sync-btn" id="syncBtn" onclick="syncData()">
+          <span class="sync-icon">↻</span> 同期
+        </button>
+      </div>
+    </div>
+    <div class="search-bar">
+      <span class="search-icon">🔍</span>
+      <input class="search-input" id="searchInput" placeholder="タイトル・キーワードで検索" oninput="renderList()" />
+    </div>
+    <div class="filters" id="filtersContainer"></div>
+  </div>
+
+  <div class="paper-list" id="paperList"></div>
+</div>
+
+<!-- ===== 詳細画面 ===== -->
+<div class="detail-overlay" id="detailOverlay">
+  <div class="detail-header">
+    <button class="back-btn" onclick="closeDetail()">← 戻る</button>
+    <div class="detail-header-title" id="detailHeaderTitle"></div>
+  </div>
+  <div class="detail-body" id="detailBody"></div>
+</div>
+
+<!-- ===== トースト ===== -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// アプリケーション本体
+// ============================================================
+
+// ── グローバル状態 ──
+let APP_CONFIG = { url: '', key: '' };
+let allPapers = [];
+let activeQueryFilter = null;  // null = 全て
+let showCheckedOnly = false;
+let currentDetailPmid = null;
+let pendingUpdates = [];       // オフライン時の未同期変更
+let isOnline = navigator.onLine;
+
+// ── IndexedDB ──
+const DB_NAME = 'PaperReaderDB';
+const DB_VERSION = 1;
+
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = e => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains('papers')) {
+        db.createObjectStore('papers', { keyPath: 'pmid' });
+      }
+      if (!db.objectStoreNames.contains('pending')) {
+        db.createObjectStore('pending', { keyPath: 'pmid' });
+      }
+      if (!db.objectStoreNames.contains('config')) {
+        db.createObjectStore('config', { keyPath: 'key' });
+      }
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+async function dbGetAll(storeName) {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(storeName, 'readonly');
+    const store = tx.objectStore(storeName);
+    const req = store.getAll();
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+async function dbPut(storeName, data) {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(storeName, 'readwrite');
+    const store = tx.objectStore(storeName);
+    store.put(data);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+async function dbDelete(storeName, key) {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(storeName, 'readwrite');
+    const store = tx.objectStore(storeName);
+    store.delete(key);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+async function dbClear(storeName) {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(storeName, 'readwrite');
+    const store = tx.objectStore(storeName);
+    store.clear();
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+// ── 設定管理 ──
+async function loadConfig() {
+  try {
+    const configs = await dbGetAll('config');
+    const cfg = configs.find(c => c.key === 'appConfig');
+    if (cfg && cfg.url && cfg.apiKey) {
+      APP_CONFIG.url = cfg.url;
+      APP_CONFIG.key = cfg.apiKey;
+      return true;
+    }
+  } catch (e) { console.error('Config load error:', e); }
+  return false;
+}
+
+async function saveSetup() {
+  const url = document.getElementById('setupUrl').value.trim();
+  const key = document.getElementById('setupKey').value.trim();
+  if (!url || !key) {
+    showToast('URLとAPIキーの両方を入力してください');
+    return;
+  }
+  APP_CONFIG.url = url;
+  APP_CONFIG.key = key;
+  await dbPut('config', { key: 'appConfig', url, apiKey: key });
+  document.getElementById('setupScreen').style.display = 'none';
+  document.getElementById('mainApp').style.display = '';
+  syncData();
+}
+
+// ── API通信 ──
+async function apiGet(action) {
+  const url = `${APP_CONFIG.url}?action=${action}&key=${encodeURIComponent(APP_CONFIG.key)}`;
+  const resp = await fetch(url, { redirect: 'follow' });
+  if (!resp.ok) throw new Error(`API error: ${resp.status}`);
+  return resp.json();
+}
+
+async function apiPost(body) {
+  body.key = APP_CONFIG.key;
+  const resp = await fetch(APP_CONFIG.url, {
+    method: 'POST',
+    redirect: 'follow',
+    headers: { 'Content-Type': 'text/plain' }, // GAS doPost requires text/plain for CORS
+    body: JSON.stringify(body),
+  });
+  if (!resp.ok) throw new Error(`API error: ${resp.status}`);
+  return resp.json();
+}
+
+// ── データ同期 ──
+async function syncData() {
+  if (!isOnline) {
+    showToast('オフラインです');
+    return;
+  }
+
+  const btn = document.getElementById('syncBtn');
+  btn.classList.add('syncing');
+  showLoading(30);
+
+  try {
+    // 1. 未同期のチェック・メモ変更をPush
+    const pending = await dbGetAll('pending');
+    if (pending.length > 0) {
+      await apiPost({ action: 'bulkUpdate', updates: pending });
+      await dbClear('pending');
+    }
+    showLoading(50);
+
+    // 2. 全データをPull
+    const data = await apiGet('list');
+    showLoading(80);
+
+    if (data.papers) {
+      // ローカルの未同期変更をマージ
+      const localPapers = await dbGetAll('papers');
+      const localMap = new Map(localPapers.map(p => [p.pmid, p]));
+
+      for (const paper of data.papers) {
+        const local = localMap.get(paper.pmid);
+        // ローカルに未同期変更がある場合は保持（ただし上でpushしたはず）
+        if (local && local._pendingSync) {
+          paper.checked = local.checked;
+          paper.memo = local.memo;
+        }
+        await dbPut('papers', paper);
+      }
+
+      allPapers = data.papers;
+      // 日付降順でソート
+      allPapers.sort((a, b) => compareDates(b, a));
+      renderFilters();
+      renderList();
+      showToast(`同期完了: ${allPapers.length} 件`);
+    }
+  } catch (e) {
+    console.error('Sync error:', e);
+    showToast('同期エラー: ' + e.message);
+  } finally {
+    btn.classList.remove('syncing');
+    showLoading(100);
+    setTimeout(() => showLoading(0), 300);
+  }
+}
+
+function compareDates(a, b) {
+  const da = a.fetchedDate || a.pubDate || '';
+  const db = b.fetchedDate || b.pubDate || '';
+  return da < db ? -1 : da > db ? 1 : 0;
+}
+
+// ── ローカルからデータ読み込み ──
+async function loadLocalData() {
+  try {
+    const papers = await dbGetAll('papers');
+    allPapers = papers.sort((a, b) => compareDates(b, a));
+    renderFilters();
+    renderList();
+  } catch (e) {
+    console.error('Local data load error:', e);
+  }
+}
+
+// ── フィルタ描画 ──
+function renderFilters() {
+  const container = document.getElementById('filtersContainer');
+  const labels = [...new Set(allPapers.map(p => p.queryLabel).filter(Boolean))];
+
+  let html = '';
+
+  // 全て
+  html += `<button class="filter-chip${activeQueryFilter === null ? ' active' : ''}" onclick="setQueryFilter(null)">すべて</button>`;
+
+  // クエリ別
+  for (const label of labels) {
+    const isActive = activeQueryFilter === label;
+    html += `<button class="filter-chip${isActive ? ' active' : ''}" onclick="setQueryFilter('${escapeHtml(label)}')">${escapeHtml(label)}</button>`;
+  }
+
+  // チェック済み
+  html += `<button class="filter-chip checked-filter${showCheckedOnly ? ' active' : ''}" onclick="toggleCheckedFilter()">✓ チェック済み</button>`;
+
+  container.innerHTML = html;
+}
+
+function setQueryFilter(label) {
+  activeQueryFilter = label;
+  renderFilters();
+  renderList();
+}
+
+function toggleCheckedFilter() {
+  showCheckedOnly = !showCheckedOnly;
+  renderFilters();
+  renderList();
+}
+
+// ── リスト描画 ──
+function renderList() {
+  const container = document.getElementById('paperList');
+  const searchTerm = document.getElementById('searchInput').value.trim().toLowerCase();
+
+  let filtered = allPapers;
+
+  // クエリフィルタ
+  if (activeQueryFilter !== null) {
+    filtered = filtered.filter(p => p.queryLabel === activeQueryFilter);
+  }
+
+  // チェック済みフィルタ
+  if (showCheckedOnly) {
+    filtered = filtered.filter(p => p.checked);
+  }
+
+  // キーワード検索
+  if (searchTerm) {
+    filtered = filtered.filter(p =>
+      (p.titleJa || '').toLowerCase().includes(searchTerm) ||
+      (p.titleEn || '').toLowerCase().includes(searchTerm) ||
+      (p.abstractJa || '').toLowerCase().includes(searchTerm) ||
+      (p.journal || '').toLowerCase().includes(searchTerm) ||
+      (p.authors || '').toLowerCase().includes(searchTerm) ||
+      (p.memo || '').toLowerCase().includes(searchTerm)
+    );
+  }
+
+  if (filtered.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">📭</div>
+        <div class="empty-state-text">
+          ${allPapers.length === 0 ? '論文データがありません。<br>「同期」ボタンでデータを取得してください。' : '条件に一致する論文がありません。'}
+        </div>
+      </div>`;
+    return;
+  }
+
+  let html = `<div class="paper-count">${filtered.length} 件</div>`;
+
+  for (const p of filtered) {
+    const checkedClass = p.checked ? ' is-checked' : '';
+    const memoHtml = p.memo ? `<div class="paper-memo-indicator">📝 メモあり</div>` : '';
+
+    html += `
+      <div class="paper-card${checkedClass}" onclick="openDetail('${p.pmid}')">
+        <div class="paper-card-header">
+          <span class="paper-label">${escapeHtml(p.queryLabel || '')}</span>
+          <span class="paper-date">${formatDate(p.pubDate)}</span>
+        </div>
+        <div class="paper-title">${escapeHtml(p.titleJa || p.titleEn || '(No title)')}</div>
+        <div class="paper-journal">${escapeHtml(p.journal || '')}</div>
+        ${memoHtml}
+      </div>`;
+  }
+
+  container.innerHTML = html;
+}
+
+// ── 詳細画面 ──
+function openDetail(pmid) {
+  const paper = allPapers.find(p => p.pmid === pmid);
+  if (!paper) return;
+
+  currentDetailPmid = pmid;
+  const overlay = document.getElementById('detailOverlay');
+  const body = document.getElementById('detailBody');
+  const headerTitle = document.getElementById('detailHeaderTitle');
+
+  headerTitle.textContent = paper.queryLabel || '';
+
+  const pubmedUrl = `https://pubmed.ncbi.nlm.nih.gov/${paper.pmid}/`;
+  const doiUrl = paper.doi ? `https://doi.org/${paper.doi}` : '';
+
+  body.innerHTML = `
+    <div class="detail-title">${escapeHtml(paper.titleJa || paper.titleEn || '')}</div>
+
+    <div class="detail-meta">
+      <span class="detail-meta-item">${escapeHtml(paper.journal || '')}</span>
+      <span class="detail-meta-item">${formatDate(paper.pubDate)}</span>
+      <span class="detail-meta-item">PMID: ${paper.pmid}</span>
+    </div>
+
+    <div class="detail-section">
+      <div class="detail-section-label">アブストラクト（日本語）</div>
+      <div class="detail-abstract">${escapeHtml(paper.abstractJa || '(アブストラクトなし)')}</div>
+    </div>
+
+    <div class="detail-section">
+      <div class="detail-section-label">Abstract（原文）</div>
+      <div class="detail-abstract-en">${escapeHtml(paper.abstractEn || '(No abstract)')}</div>
+    </div>
+
+    <div class="detail-section">
+      <div class="detail-section-label">著者</div>
+      <div class="detail-authors">${escapeHtml(paper.authors || '(Unknown)')}</div>
+    </div>
+
+    <div class="detail-section">
+      <div class="detail-section-label">原文タイトル</div>
+      <div class="detail-abstract-en">${escapeHtml(paper.titleEn || '')}</div>
+    </div>
+
+    <div>
+      <a class="detail-link" href="${pubmedUrl}" target="_blank" rel="noopener">PubMedで開く ↗</a>
+      ${doiUrl ? `<br><a class="detail-link" href="${doiUrl}" target="_blank" rel="noopener">DOI: ${escapeHtml(paper.doi)} ↗</a>` : ''}
+    </div>
+
+    <div class="detail-actions">
+      <div class="check-row">
+        <button class="check-toggle${paper.checked ? ' on' : ''}" id="checkToggle" onclick="toggleCheck()"></button>
+        <span class="check-label">チェック済み</span>
+      </div>
+      <div class="detail-section-label">メモ</div>
+      <textarea class="memo-textarea" id="memoTextarea" placeholder="メモを入力..." onblur="saveMemo()">${escapeHtml(paper.memo || '')}</textarea>
+      <div class="memo-save-hint">フォーカスを外すと自動保存されます</div>
+    </div>
+  `;
+
+  overlay.classList.add('open');
+}
+
+function closeDetail() {
+  document.getElementById('detailOverlay').classList.remove('open');
+  currentDetailPmid = null;
+}
+
+async function toggleCheck() {
+  if (!currentDetailPmid) return;
+  const paper = allPapers.find(p => p.pmid === currentDetailPmid);
+  if (!paper) return;
+
+  paper.checked = !paper.checked;
+  const toggle = document.getElementById('checkToggle');
+  toggle.classList.toggle('on', paper.checked);
+
+  await saveChange(paper);
+  renderList();
+}
+
+async function saveMemo() {
+  if (!currentDetailPmid) return;
+  const paper = allPapers.find(p => p.pmid === currentDetailPmid);
+  if (!paper) return;
+
+  const textarea = document.getElementById('memoTextarea');
+  if (!textarea) return;
+
+  const newMemo = textarea.value;
+  if (newMemo === paper.memo) return;
+
+  paper.memo = newMemo;
+  await saveChange(paper);
+  renderList();
+  showToast('メモを保存しました');
+}
+
+async function saveChange(paper) {
+  // IndexedDBに保存
+  await dbPut('papers', { ...paper });
+
+  if (isOnline) {
+    // オンラインなら即座にAPIに送信
+    try {
+      await apiPost({
+        action: 'update',
+        pmid: paper.pmid,
+        checked: paper.checked,
+        memo: paper.memo,
+      });
+    } catch (e) {
+      // 送信失敗したらpendingに追加
+      console.error('Update push failed:', e);
+      await dbPut('pending', { pmid: paper.pmid, checked: paper.checked, memo: paper.memo });
+    }
+  } else {
+    // オフラインならpendingに追加
+    await dbPut('pending', { pmid: paper.pmid, checked: paper.checked, memo: paper.memo });
+  }
+}
+
+// ── ユーティリティ ──
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  // "2025-Mar-15" or "2025-03-15" or ISO string
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d)) return dateStr;
+    return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}`;
+  } catch {
+    return dateStr;
+  }
+}
+
+function showLoading(pct) {
+  document.getElementById('loadingBar').style.width = pct + '%';
+}
+
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+// ── オンライン/オフライン監視 ──
+window.addEventListener('online', () => {
+  isOnline = true;
+  document.getElementById('statusDot').classList.remove('offline');
+  document.getElementById('statusDot').title = 'オンライン';
+  showToast('オンラインに復帰しました');
+  // 未同期データがあればpush
+  syncData();
+});
+
+window.addEventListener('offline', () => {
+  isOnline = false;
+  document.getElementById('statusDot').classList.add('offline');
+  document.getElementById('statusDot').title = 'オフライン';
+  showToast('オフラインモード');
+});
+
+// ── 初期化 ──
+async function init() {
+  // Service Worker登録
+  if ('serviceWorker' in navigator) {
+    try {
+      await navigator.serviceWorker.register('./sw.js');
+    } catch (e) {
+      console.log('SW registration failed:', e);
+    }
+  }
+
+  // 設定確認
+  const hasConfig = await loadConfig();
+  if (!hasConfig) {
+    document.getElementById('setupScreen').style.display = '';
+    return;
+  }
+
+  document.getElementById('mainApp').style.display = '';
+
+  // ローカルデータを先に表示
+  await loadLocalData();
+
+  // オンラインなら同期
+  if (isOnline) {
+    syncData();
+  }
+}
+
+init();
+</script>
+</body>
+</html>
