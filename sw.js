@@ -4,7 +4,7 @@
  * 論文データ自体はIndexedDB（アプリ側）で管理する。
  */
 
-const CACHE_NAME = 'paper-reader-v2';
+const CACHE_NAME = 'paper-reader-v3';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -39,7 +39,8 @@ self.addEventListener('fetch', event => {
 
   // GAS APIへのリクエストはService Workerを介さない
   if (url.hostname.includes('script.google.com') ||
-      url.hostname.includes('googleapis.com')) {
+      url.hostname.includes('googleapis.com') ||
+      url.hostname.includes('googleusercontent.com')) {
     return;
   }
 
