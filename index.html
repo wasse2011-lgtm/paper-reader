@@ -677,21 +677,43 @@ async function saveSetup() {
 // ── API通信 ──
 async function apiGet(action) {
   const url = `${APP_CONFIG.url}?action=${action}&key=${encodeURIComponent(APP_CONFIG.key)}`;
-  const resp = await fetch(url, { redirect: 'follow' });
-  if (!resp.ok) throw new Error(`API error: ${resp.status}`);
-  return resp.json();
+  return gasRequest_('GET', url, null);
 }
 
 async function apiPost(body) {
   body.key = APP_CONFIG.key;
-  const resp = await fetch(APP_CONFIG.url, {
-    method: 'POST',
-    redirect: 'follow',
-    headers: { 'Content-Type': 'text/plain' }, // GAS doPost requires text/plain for CORS
-    body: JSON.stringify(body),
+  return gasRequest_('POST', APP_CONFIG.url, JSON.stringify(body));
+}
+
+/**
+ * GAS Web App用のリクエスト関数
+ * Safari(iOS)のfetch()はGASの302リダイレクトチェーンで失敗することがあるため、
+ * XMLHttpRequestを使用する。
+ */
+function gasRequest_(method, url, body) {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open(method, url, true);
+    xhr.timeout = 30000; // 30秒タイムアウト
+    xhr.onload = function () {
+      try {
+        const data = JSON.parse(xhr.responseText);
+        resolve(data);
+      } catch (e) {
+        reject(new Error('JSON parse error: ' + xhr.responseText.substring(0, 200)));
+      }
+    };
+    xhr.onerror = function () {
+      reject(new Error('Network error'));
+    };
+    xhr.ontimeout = function () {
+      reject(new Error('Timeout (30s)'));
+    };
+    if (method === 'POST') {
+      xhr.setRequestHeader('Content-Type', 'text/plain');
+    }
+    xhr.send(body);
   });
-  if (!resp.ok) throw new Error(`API error: ${resp.status}`);
-  return resp.json();
 }
 
 // ── データ同期 ──
