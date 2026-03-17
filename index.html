@@ -19,698 +19,415 @@
 }
 html,body{height:100%;background:var(--bg);color:var(--text);
   font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP',sans-serif;
-  font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;overscroll-behavior:none;}
-
-/* ── ヘッダー ── */
+  font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
 .header{position:sticky;top:0;z-index:100;padding:calc(var(--safe-top)+8px) 16px 8px;background:var(--bg);border-bottom:1px solid var(--border)}
 .header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .header-title{font-size:18px;font-weight:700;letter-spacing:-.02em}
 .header-actions{display:flex;gap:8px;align-items:center}
-.sync-btn{display:flex;align-items:center;gap:6px;background:var(--accent-dim);color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:13px;font-weight:600;cursor:pointer;transition:opacity .2s}
+.sync-btn{display:flex;align-items:center;gap:6px;background:var(--accent-dim);color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:13px;font-weight:600;cursor:pointer}
 .sync-btn:active{opacity:.7}
 .sync-btn.syncing .sync-icon{animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .status-dot{width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0}
 .status-dot.offline{background:#f87171}
-
-/* 検索バー */
 .search-bar{position:relative;margin-bottom:10px}
-.search-input{width:100%;background:var(--bg-input);border:1px solid var(--border);border-radius:10px;padding:10px 12px 10px 36px;color:var(--text);font-size:14px;outline:none;transition:border-color .2s}
+.search-input{width:100%;background:var(--bg-input);border:1px solid var(--border);border-radius:10px;padding:10px 12px 10px 36px;color:var(--text);font-size:14px;outline:none}
 .search-input:focus{border-color:var(--accent)}
 .search-input::placeholder{color:var(--text-faint)}
 .search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-faint);font-size:14px}
-
-/* フィルタ */
 .filters{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px}
 .filters::-webkit-scrollbar{display:none}
-.filter-chip{flex-shrink:0;padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text-dim);font-size:12px;font-weight:500;cursor:pointer;transition:all .2s;white-space:nowrap}
+.filter-chip{flex-shrink:0;padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text-dim);font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap}
 .filter-chip.active{background:var(--accent);color:#fff;border-color:var(--accent)}
-.filter-chip.active-green{background:var(--green);color:#000;border-color:var(--green)}
-.filter-chip.active-amber{background:var(--amber);color:#000;border-color:var(--amber)}
-.filter-badge{display:inline-block;margin-left:4px;padding:0 5px;border-radius:8px;font-size:10px;font-weight:700;background:rgba(255,255,255,.2)}
-
-/* ── 論文リスト ── */
+.filter-chip.act-g{background:var(--green);color:#000;border-color:var(--green)}
+.filter-chip.act-a{background:var(--amber);color:#000;border-color:var(--amber)}
+.fbadge{display:inline-block;margin-left:4px;padding:0 5px;border-radius:8px;font-size:10px;font-weight:700;background:rgba(255,255,255,.2)}
 .paper-list{padding:12px 16px calc(var(--safe-bottom)+20px)}
 .paper-count{font-size:12px;color:var(--text-faint);margin-bottom:10px}
-
-/* スワイプ可能カード */
-.paper-card-wrapper{position:relative;overflow:hidden;border-radius:var(--radius);margin-bottom:10px}
-.swipe-bg{position:absolute;top:0;bottom:0;right:0;width:90px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;border-radius:var(--radius);pointer-events:none}
-.swipe-bg.to-read{background:var(--green);color:#000}
-.swipe-bg.to-unread{background:var(--amber);color:#000}
-.paper-card{position:relative;z-index:1;background:var(--bg-card);border-radius:var(--radius);padding:14px 16px;cursor:pointer;border:1px solid transparent;touch-action:pan-y}
-.paper-card.is-read{opacity:.6;border-left:3px solid var(--green)}
-.paper-card-header{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:4px}
-.paper-label{flex-shrink:0;font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;background:var(--accent-dim);color:var(--accent);letter-spacing:.03em}
-.paper-date{font-size:11px;color:var(--text-faint);flex-shrink:0}
-.paper-title{font-size:14px;font-weight:600;line-height:1.5;margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.paper-journal{font-size:12px;color:var(--text-dim)}
-.paper-bottom-row{display:flex;align-items:center;justify-content:space-between;margin-top:6px}
-.paper-memo-indicator{font-size:11px;color:var(--accent)}
-
-/* ★ 一覧用 */
-.star-row{display:flex;gap:2px}
-.star-btn{background:none;border:none;font-size:16px;padding:0 1px;cursor:pointer;color:var(--text-faint);line-height:1;-webkit-tap-highlight-color:transparent}
-.star-btn.on{color:var(--amber)}
-
-/* ── 詳細画面 ── */
+.pcw{position:relative;overflow:hidden;border-radius:var(--radius);margin-bottom:10px}
+.swbg{position:absolute;top:0;bottom:0;right:0;width:90px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;border-radius:var(--radius);pointer-events:none}
+.swbg.tr{background:var(--green);color:#000}
+.swbg.tu{background:var(--amber);color:#000}
+.pc{position:relative;z-index:1;background:var(--bg-card);border-radius:var(--radius);padding:14px 16px;cursor:pointer;border:1px solid transparent;touch-action:pan-y}
+.pc.rd{opacity:.55;border-left:3px solid var(--green)}
+.pch{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:4px}
+.plbl{flex-shrink:0;font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;background:var(--accent-dim);color:var(--accent);letter-spacing:.03em}
+.pdt{font-size:11px;color:var(--text-faint);flex-shrink:0}
+.ptt{font-size:14px;font-weight:600;line-height:1.5;margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.pjn{font-size:12px;color:var(--text-dim)}
+.pbot{display:flex;align-items:center;justify-content:space-between;margin-top:6px}
+.pmemo{font-size:11px;color:var(--accent)}
+.sr{display:flex;gap:1px}
+.sb{background:none;border:none;font-size:16px;padding:0 1px;cursor:pointer;color:var(--text-faint);line-height:1;-webkit-tap-highlight-color:transparent}
+.sb.on{color:var(--amber)}
 .detail-overlay{position:fixed;inset:0;z-index:200;background:var(--bg-detail);transform:translateX(100%);transition:transform .3s ease;overflow-y:auto;-webkit-overflow-scrolling:touch;will-change:transform}
 .detail-overlay.open{transform:translateX(0)}
-.detail-header{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:8px;padding:calc(var(--safe-top)+10px) 16px 10px;background:var(--bg-detail);border-bottom:1px solid var(--border)}
-.back-btn{background:none;border:none;color:var(--accent);font-size:16px;cursor:pointer;padding:4px;display:flex;align-items:center}
-.detail-header-title{font-size:14px;font-weight:600;color:var(--text-dim);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;flex:1}
-.detail-nav{display:flex;gap:4px}
-.nav-btn{background:none;border:1px solid var(--border);color:var(--text-dim);border-radius:8px;width:34px;height:34px;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.nav-btn:disabled{opacity:.3;cursor:default}
-.nav-btn:active:not(:disabled){background:var(--bg-input)}
-.detail-body{padding:16px 16px calc(var(--safe-bottom)+40px)}
-.detail-meta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
-.detail-meta-item{font-size:12px;color:var(--text-dim);background:var(--bg-input);padding:4px 10px;border-radius:6px}
-.detail-section{margin-bottom:20px}
-.detail-section-label{font-size:11px;font-weight:700;color:var(--text-faint);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
-.detail-title{font-size:17px;font-weight:700;line-height:1.5;margin-bottom:16px}
-.detail-abstract{font-size:14px;line-height:1.8;white-space:pre-wrap}
-.detail-abstract-en{font-size:13px;line-height:1.7;color:var(--text-dim);white-space:pre-wrap}
-.detail-authors{font-size:13px;color:var(--text-dim);line-height:1.6}
-.detail-link{display:inline-block;margin-top:8px;color:var(--accent);text-decoration:none;font-size:13px;font-weight:500}
-
-/* 折りたたみ */
-.collapsible{margin-bottom:20px}
-.collapsible-toggle{display:flex;align-items:center;gap:6px;background:none;border:none;color:var(--text-faint);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;cursor:pointer;padding:0;margin-bottom:6px}
-.collapsible-arrow{transition:transform .2s;font-size:10px}
-.collapsible-toggle.open .collapsible-arrow{transform:rotate(90deg)}
-.collapsible-body{display:none;animation:fadeIn .2s ease}
-.collapsible-body.open{display:block}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-
-/* コピーボタン */
-.copy-btn-group{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
-.copy-btn{display:flex;align-items:center;gap:6px;padding:10px 14px;border:1px solid var(--border);border-radius:10px;background:var(--bg-input);color:var(--text);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;flex:1;justify-content:center;min-width:0}
-.copy-btn:active{background:var(--accent-dim);border-color:var(--accent)}
-.copy-btn-icon{font-size:15px;flex-shrink:0}
-
-/* チェック & メモ & ★ 詳細用 */
-.detail-actions{margin-top:24px;padding-top:20px;border-top:1px solid var(--border)}
-.action-row{display:flex;align-items:center;gap:10px;margin-bottom:14px}
-.check-toggle{width:44px;height:26px;border-radius:13px;border:none;background:var(--border);position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
-.check-toggle.on{background:var(--green)}
-.check-toggle::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .2s}
-.check-toggle.on::after{transform:translateX(18px)}
-.action-label{font-size:14px;font-weight:500}
-.detail-stars{display:flex;gap:4px}
-.detail-star-btn{background:none;border:none;font-size:24px;padding:2px;cursor:pointer;color:var(--text-faint);-webkit-tap-highlight-color:transparent}
-.detail-star-btn.on{color:var(--amber)}
-.memo-textarea{width:100%;min-height:100px;background:var(--bg-input);border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--text);font-size:14px;font-family:inherit;line-height:1.6;resize:vertical;outline:none}
-.memo-textarea:focus{border-color:var(--accent)}
-.memo-textarea::placeholder{color:var(--text-faint)}
-.memo-save-hint{font-size:11px;color:var(--text-faint);margin-top:6px}
-
-/* 初期設定画面 */
+.dh{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:8px;padding:calc(var(--safe-top)+10px) 16px 10px;background:var(--bg-detail);border-bottom:1px solid var(--border)}
+.bbtn{background:none;border:none;color:var(--accent);font-size:16px;cursor:pointer;padding:4px;display:flex;align-items:center}
+.dht{font-size:14px;font-weight:600;color:var(--text-dim);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;flex:1}
+.dnav{display:flex;gap:4px}
+.nbtn{background:none;border:1px solid var(--border);color:var(--text-dim);border-radius:8px;width:34px;height:34px;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.nbtn:disabled{opacity:.3}
+.nbtn:active:not(:disabled){background:var(--bg-input)}
+.dbody{padding:16px 16px calc(var(--safe-bottom)+40px)}
+.dmeta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.dmi{font-size:12px;color:var(--text-dim);background:var(--bg-input);padding:4px 10px;border-radius:6px}
+.dsec{margin-bottom:20px}
+.dsl{font-size:11px;font-weight:700;color:var(--text-faint);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.dtitle{font-size:17px;font-weight:700;line-height:1.5;margin-bottom:16px}
+.dabs{font-size:14px;line-height:1.8;white-space:pre-wrap}
+.dabse{font-size:13px;line-height:1.7;color:var(--text-dim);white-space:pre-wrap}
+.dauth{font-size:13px;color:var(--text-dim);line-height:1.6}
+.dlink{display:inline-block;margin-top:8px;color:var(--accent);text-decoration:none;font-size:13px;font-weight:500}
+.coll{margin-bottom:20px}
+.ctog{display:flex;align-items:center;gap:6px;background:none;border:none;color:var(--text-faint);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;cursor:pointer;padding:0;margin-bottom:6px}
+.carr{transition:transform .2s;font-size:10px}
+.ctog.op .carr{transform:rotate(90deg)}
+.cbod{display:none}
+.cbod.op{display:block}
+.cpgrp{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.cpbtn{display:flex;align-items:center;gap:6px;padding:10px 14px;border:1px solid var(--border);border-radius:10px;background:var(--bg-input);color:var(--text);font-size:13px;font-weight:500;cursor:pointer;flex:1;justify-content:center}
+.cpbtn:active{background:var(--accent-dim);border-color:var(--accent)}
+.dact{margin-top:24px;padding-top:20px;border-top:1px solid var(--border)}
+.arow{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.ctgl{width:44px;height:26px;border-radius:13px;border:none;background:var(--border);position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
+.ctgl.on{background:var(--green)}
+.ctgl::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .2s}
+.ctgl.on::after{transform:translateX(18px)}
+.albl{font-size:14px;font-weight:500}
+.dstars{display:flex;gap:4px}
+.dsb{background:none;border:none;font-size:24px;padding:2px;cursor:pointer;color:var(--text-faint);-webkit-tap-highlight-color:transparent}
+.dsb.on{color:var(--amber)}
+.mtxt{width:100%;min-height:100px;background:var(--bg-input);border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--text);font-size:14px;font-family:inherit;line-height:1.6;resize:vertical;outline:none}
+.mtxt:focus{border-color:var(--accent)}
+.mtxt::placeholder{color:var(--text-faint)}
+.mhint{font-size:11px;color:var(--text-faint);margin-top:6px}
 .setup-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:32px 24px;text-align:center}
 .setup-title{font-size:22px;font-weight:700;margin-bottom:8px}
 .setup-desc{font-size:14px;color:var(--text-dim);margin-bottom:24px;line-height:1.6}
-.setup-input{width:100%;max-width:400px;background:var(--bg-input);border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--text);font-size:14px;font-family:monospace;outline:none;margin-bottom:12px}
-.setup-input:focus{border-color:var(--accent)}
-.setup-input::placeholder{color:var(--text-faint)}
-.setup-btn{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:12px 32px;font-size:15px;font-weight:600;cursor:pointer}
-.setup-btn:active{opacity:.8}
-.setup-note{font-size:12px;color:var(--text-faint);margin-top:16px;line-height:1.5;max-width:400px}
-
-/* 空状態 */
-.empty-state{text-align:center;padding:60px 20px;color:var(--text-faint)}
-.empty-state-icon{font-size:48px;margin-bottom:12px}
-.empty-state-text{font-size:14px;line-height:1.6}
-
-/* ローディング & トースト */
-.loading-bar{position:fixed;top:0;left:0;height:3px;background:var(--accent);z-index:999;transition:width .3s}
+.sinp{width:100%;max-width:400px;background:var(--bg-input);border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--text);font-size:14px;font-family:monospace;outline:none;margin-bottom:12px}
+.sinp:focus{border-color:var(--accent)}
+.sinp::placeholder{color:var(--text-faint)}
+.sbtn{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:12px 32px;font-size:15px;font-weight:600;cursor:pointer}
+.sbtn:active{opacity:.8}
+.snote{font-size:12px;color:var(--text-faint);margin-top:16px;line-height:1.5;max-width:400px}
+.empty{text-align:center;padding:60px 20px;color:var(--text-faint)}
+.empty-icon{font-size:48px;margin-bottom:12px}
+.empty-text{font-size:14px;line-height:1.6}
+.lbar{position:fixed;top:0;left:0;height:3px;background:var(--accent);z-index:999;transition:width .3s}
 .toast{position:fixed;bottom:calc(var(--safe-bottom)+24px);left:50%;transform:translateX(-50%) translateY(100px);background:var(--bg-card);color:var(--text);padding:10px 20px;border-radius:10px;font-size:13px;font-weight:500;z-index:999;transition:transform .3s ease;box-shadow:0 4px 20px rgba(0,0,0,.4);white-space:nowrap}
 .toast.show{transform:translateX(-50%) translateY(0)}
 </style>
 </head>
 <body>
-
-<div id="setupScreen" class="setup-screen" style="display:none;">
+<div id="setupScreen" class="setup-screen" style="display:none">
   <div class="setup-title">PubMed Paper Reader</div>
   <div class="setup-desc">GAS Web AppのURLとAPIキーを設定してください。</div>
-  <input id="setupUrl" class="setup-input" placeholder="GAS Web App URL (https://script.google.com/...)" />
-  <input id="setupKey" class="setup-input" placeholder="API Secret Key" />
-  <button class="setup-btn" onclick="saveSetup()">設定を保存</button>
-  <div class="setup-note">
-    GAS Web AppをデプロイしたURL（/exec で終わるもの）と、<br>
-    Config.gs に設定した API_SECRET を入力してください。
-  </div>
+  <input id="setupUrl" class="sinp" placeholder="GAS Web App URL (https://script.google.com/...)" />
+  <input id="setupKey" class="sinp" placeholder="API Secret Key" />
+  <button class="sbtn" onclick="saveSetup()">設定を保存</button>
+  <div class="snote">GAS Web AppをデプロイしたURL（/exec で終わるもの）と、Config.gs に設定した API_SECRET を入力してください。</div>
 </div>
 
-<div id="mainApp" style="display:none;">
-  <div class="loading-bar" id="loadingBar" style="width:0"></div>
+<div id="mainApp" style="display:none">
+  <div class="lbar" id="lbar" style="width:0"></div>
   <div class="header">
     <div class="header-top">
       <div class="header-title">📄 Paper Reader</div>
       <div class="header-actions">
-        <div class="status-dot" id="statusDot" title="オンライン"></div>
-        <button class="sync-btn" id="syncBtn" onclick="syncData()">
-          <span class="sync-icon">↻</span> 同期
-        </button>
+        <div class="status-dot" id="statusDot"></div>
+        <button class="sync-btn" id="syncBtn" onclick="syncData()"><span class="sync-icon">↻</span> 同期</button>
       </div>
     </div>
     <div class="search-bar">
       <span class="search-icon">🔍</span>
-      <input class="search-input" id="searchInput" placeholder="タイトル・キーワードで検索" oninput="renderList()" />
+      <input class="search-input" id="searchInput" placeholder="タイトル・キーワードで検索" />
     </div>
-    <div class="filters" id="filtersContainer"></div>
+    <div class="filters" id="filters"></div>
   </div>
-  <div class="paper-list" id="paperList"></div>
+  <div class="paper-list" id="plist"></div>
 </div>
 
-<div class="detail-overlay" id="detailOverlay">
-  <div class="detail-header">
-    <button class="back-btn" onclick="closeDetail()">← 戻る</button>
-    <div class="detail-header-title" id="detailHeaderTitle"></div>
-    <div class="detail-nav">
-      <button class="nav-btn" id="navPrev" onclick="navDetail(-1)">◀</button>
-      <button class="nav-btn" id="navNext" onclick="navDetail(1)">▶</button>
+<div class="detail-overlay" id="dov">
+  <div class="dh">
+    <button class="bbtn" id="backBtn">← 戻る</button>
+    <div class="dht" id="dht"></div>
+    <div class="dnav">
+      <button class="nbtn" id="np" title="前">◀</button>
+      <button class="nbtn" id="nn" title="次">▶</button>
     </div>
   </div>
-  <div class="detail-body" id="detailBody"></div>
+  <div class="dbody" id="dbody"></div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-// ============================================================
-// グローバル状態
-// ============================================================
-let APP_CONFIG = { url: '', key: '' };
-let allPapers = [];
-let filteredPapers = []; // 現在のフィルタ適用後リスト（詳細ナビ用）
-let activeFilter = 'all';     // 'all' | 'unread' | 'interested' | ラベル名
-let currentDetailPmid = null;
-let isOnline = navigator.onLine;
+// ─── 高速ユーティリティ ───
+const _escMap = {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'};
+function E(s){return s?String(s).replace(/[&<>"']/g,c=>_escMap[c]):''}
+function fmtD(s){if(!s)return'';try{const d=new Date(s);if(isNaN(d))return s;return d.getFullYear()+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0')}catch{return s}}
+function showL(p){document.getElementById('lbar').style.width=p+'%'}
+let _toastT;function showT(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(_toastT);_toastT=setTimeout(()=>t.classList.remove('show'),2500)}
 
-const AI_PROMPT = `論文検索してヒットした論文をお渡しします。この論文の具体的な臨床への役立つ情報を抽出をして教えてください。さらに、関連する背景知識も検索し、簡潔に教えてください。さらに疑問となりそうな事について深掘りを提案してください。`;
-
-// ============================================================
-// IndexedDB
-// ============================================================
-const DB_NAME = 'PaperReaderDB';
-const DB_VERSION = 2;
-
-function openDB() {
-  return new Promise((resolve, reject) => {
-    const req = indexedDB.open(DB_NAME, DB_VERSION);
-    req.onupgradeneeded = e => {
-      const db = e.target.result;
-      if (!db.objectStoreNames.contains('papers')) db.createObjectStore('papers', { keyPath: 'pmid' });
-      if (!db.objectStoreNames.contains('pending')) db.createObjectStore('pending', { keyPath: 'pmid' });
-      if (!db.objectStoreNames.contains('config')) db.createObjectStore('config', { keyPath: 'key' });
-    };
-    req.onsuccess = () => resolve(req.result);
-    req.onerror = () => reject(req.error);
+// ─── IndexedDB（バッチ対応）───
+const DB='PaperReaderDB',DBV=2;
+function openDB(){return new Promise((r,j)=>{const q=indexedDB.open(DB,DBV);q.onupgradeneeded=e=>{const d=e.target.result;['papers','pending','config'].forEach(n=>{if(!d.objectStoreNames.contains(n))d.createObjectStore(n,{keyPath:n==='papers'||n==='pending'?'pmid':'key'})});};q.onsuccess=()=>r(q.result);q.onerror=()=>j(q.error)})}
+async function dbGetAll(s){const d=await openDB();return new Promise((r,j)=>{const t=d.transaction(s,'readonly');const q=t.objectStore(s).getAll();q.onsuccess=()=>r(q.result);q.onerror=()=>j(q.error)})}
+async function dbPut(s,data){const d=await openDB();return new Promise((r,j)=>{const t=d.transaction(s,'readwrite');t.objectStore(s).put(data);t.oncomplete=()=>r();t.onerror=()=>j(t.error)})}
+async function dbClear(s){const d=await openDB();return new Promise((r,j)=>{const t=d.transaction(s,'readwrite');t.objectStore(s).clear();t.oncomplete=()=>r();t.onerror=()=>j(t.error)})}
+// 一括書き込み（1トランザクション）
+async function dbPutBatch(s,items){
+  if(!items.length)return;
+  const d=await openDB();
+  return new Promise((r,j)=>{
+    const t=d.transaction(s,'readwrite');
+    const st=t.objectStore(s);
+    for(const item of items)st.put(item);
+    t.oncomplete=()=>r();
+    t.onerror=()=>j(t.error);
   });
 }
-async function dbGetAll(store) { const db = await openDB(); return new Promise((r,j)=>{const tx=db.transaction(store,'readonly');const s=tx.objectStore(store);const q=s.getAll();q.onsuccess=()=>r(q.result);q.onerror=()=>j(q.error)}); }
-async function dbPut(store, data) { const db = await openDB(); return new Promise((r,j)=>{const tx=db.transaction(store,'readwrite');tx.objectStore(store).put(data);tx.oncomplete=()=>r();tx.onerror=()=>j(tx.error)}); }
-async function dbClear(store) { const db = await openDB(); return new Promise((r,j)=>{const tx=db.transaction(store,'readwrite');tx.objectStore(store).clear();tx.oncomplete=()=>r();tx.onerror=()=>j(tx.error)}); }
 
-// ============================================================
-// 設定管理
-// ============================================================
-async function loadConfig() {
-  try {
-    const configs = await dbGetAll('config');
-    const cfg = configs.find(c => c.key === 'appConfig');
-    if (cfg && cfg.url && cfg.apiKey) { APP_CONFIG.url = cfg.url; APP_CONFIG.key = cfg.apiKey; return true; }
-  } catch (e) { console.error('Config load error:', e); }
-  return false;
-}
-async function saveSetup() {
-  const url = document.getElementById('setupUrl').value.trim();
-  const key = document.getElementById('setupKey').value.trim();
-  if (!url || !key) { showToast('URLとAPIキーの両方を入力してください'); return; }
-  APP_CONFIG.url = url; APP_CONFIG.key = key;
-  await dbPut('config', { key: 'appConfig', url, apiKey: key });
-  document.getElementById('setupScreen').style.display = 'none';
-  document.getElementById('mainApp').style.display = '';
-  syncData();
+// ─── 状態 ───
+let CFG={url:'',key:''},papers=[],filtered=[],activeF='all',curPmid=null,online=navigator.onLine;
+const AI_PROMPT=`論文検索してヒットした論文をお渡しします。そのアブストラクトの翻訳、具体的な臨床への役立つ情報を抽出をして教えてください。さらに、関連する背景知識も検索し、簡潔に教えてください。さらに疑問となりそうな事について深掘りを提案してください。`;
+
+// ─── 設定 ───
+async function loadCfg(){try{const c=await dbGetAll('config');const o=c.find(x=>x.key==='appConfig');if(o&&o.url&&o.apiKey){CFG.url=o.url;CFG.key=o.apiKey;return true}}catch(e){}return false}
+async function saveSetup(){
+  const u=document.getElementById('setupUrl').value.trim(),k=document.getElementById('setupKey').value.trim();
+  if(!u||!k){showT('URLとAPIキーを入力してください');return}
+  CFG.url=u;CFG.key=k;await dbPut('config',{key:'appConfig',url:u,apiKey:k});
+  document.getElementById('setupScreen').style.display='none';document.getElementById('mainApp').style.display='';syncData();
 }
 
-// ============================================================
-// JSONP API通信
-// ============================================================
-let jsonpCounter = 0;
-function jsonpRequest_(params) {
-  return new Promise((resolve, reject) => {
-    const cb = `__jp_${Date.now()}_${jsonpCounter++}`;
-    const timer = setTimeout(() => { cleanup(); reject(new Error('Timeout (30s)')); }, 30000);
-    function cleanup() { clearTimeout(timer); delete window[cb]; const el = document.getElementById(cb); if (el) el.remove(); }
-    window[cb] = data => { cleanup(); resolve(data); };
-    const qs = new URLSearchParams({ ...params, key: APP_CONFIG.key, callback: cb });
-    const s = document.createElement('script');
-    s.id = cb; s.src = `${APP_CONFIG.url}?${qs.toString()}`;
-    s.onerror = () => { cleanup(); reject(new Error('JSONP load failed')); };
-    document.head.appendChild(s);
-  });
-}
-async function apiGet(action) { return jsonpRequest_({ action }); }
-async function apiPost(body) { const { key, ...rest } = body; return jsonpRequest_({ action: rest.action, data: JSON.stringify(rest) }); }
+// ─── JSONP ───
+let _jc=0;
+function jp(params){return new Promise((res,rej)=>{
+  const cb='_j'+Date.now()+'_'+ _jc++;
+  const tm=setTimeout(()=>{cl();rej(new Error('Timeout'))},30000);
+  function cl(){clearTimeout(tm);delete window[cb];const e=document.getElementById(cb);if(e)e.remove()}
+  window[cb]=d=>{cl();res(d)};
+  const qs=new URLSearchParams({...params,key:CFG.key,callback:cb});
+  const s=document.createElement('script');s.id=cb;s.src=CFG.url+'?'+qs;s.onerror=()=>{cl();rej(new Error('JSONP failed'))};document.head.appendChild(s);
+})}
+function apiG(a){return jp({action:a})}
+function apiP(b){const{key,...r}=b;return jp({action:r.action,data:JSON.stringify(r)})}
 
-// ============================================================
-// データ同期
-// ============================================================
-async function syncData() {
-  if (!isOnline) { showToast('オフラインです'); return; }
-  const btn = document.getElementById('syncBtn');
-  btn.classList.add('syncing'); showLoading(30);
-  try {
-    const pending = await dbGetAll('pending');
-    if (pending.length > 0) { await apiPost({ action: 'bulkUpdate', updates: pending }); await dbClear('pending'); }
-    showLoading(50);
-    const data = await apiGet('list');
-    showLoading(80);
-    if (data.papers) {
-      for (const p of data.papers) { p.rating = p.rating || 0; p.checked = !!p.checked; await dbPut('papers', p); }
-      allPapers = data.papers;
-      sortPapers_();
-      renderFilters(); renderList();
-      showToast(`同期完了: ${allPapers.length} 件`);
+// ─── 同期 ───
+async function syncData(){
+  if(!online){showT('オフラインです');return}
+  const btn=document.getElementById('syncBtn');btn.classList.add('syncing');showL(30);
+  try{
+    const pend=await dbGetAll('pending');
+    if(pend.length)try{await apiP({action:'bulkUpdate',updates:pend});await dbClear('pending')}catch(e){console.warn('Pending push fail:',e)}
+    showL(50);
+    const data=await apiG('list');showL(80);
+    if(data.papers){
+      const items=data.papers.map(p=>({...p,rating:p.rating||0,checked:!!p.checked}));
+      await dbPutBatch('papers',items);
+      papers=items;sortP();renderF();renderL();
+      showT('同期完了: '+papers.length+'件');
     }
-  } catch (e) { console.error('Sync error:', e); showToast('同期エラー: ' + e.message); }
-  finally { btn.classList.remove('syncing'); showLoading(100); setTimeout(() => showLoading(0), 300); }
+  }catch(e){console.error('Sync:',e);showT('同期エラー: '+e.message)}
+  finally{btn.classList.remove('syncing');showL(100);setTimeout(()=>showL(0),300)}
 }
-async function loadLocalData() {
-  try {
-    const papers = await dbGetAll('papers');
-    allPapers = papers.map(p => ({ ...p, rating: p.rating || 0, checked: !!p.checked }));
-    sortPapers_();
-    renderFilters(); renderList();
-  } catch (e) { console.error('Local load error:', e); }
+async function loadLocal(){
+  try{papers=(await dbGetAll('papers')).map(p=>({...p,rating:p.rating||0,checked:!!p.checked}));sortP();renderF();renderL()}catch(e){}
 }
-function sortPapers_() {
-  allPapers.sort((a, b) => {
-    // 未読を上に
-    if (a.checked !== b.checked) return a.checked ? 1 : -1;
-    // 同じ既読状態内で新しい順
-    return compareDates(b, a);
-  });
-}
-function compareDates(a, b) {
-  const da = a.fetchedDate || a.pubDate || '';
-  const db = b.fetchedDate || b.pubDate || '';
-  return da < db ? -1 : da > db ? 1 : 0;
-}
+function sortP(){papers.sort((a,b)=>{if(a.checked!==b.checked)return a.checked?1:-1;const da=a.fetchedDate||a.pubDate||'',db=b.fetchedDate||b.pubDate||'';return da<db?1:da>db?-1:0})}
 
-// ============================================================
-// フィルタ
-// ============================================================
-function renderFilters() {
-  const container = document.getElementById('filtersContainer');
-  const labels = [...new Set(allPapers.map(p => p.queryLabel).filter(Boolean))];
-  const unreadCount = allPapers.filter(p => !p.checked).length;
-  const interestedCount = allPapers.filter(p => p.rating >= 1).length;
+// ─── フィルタ ───
+function getF(f){switch(f){case'all':return papers;case'unread':return papers.filter(p=>!p.checked);case'interested':return papers.filter(p=>p.rating>=1);default:return papers.filter(p=>p.queryLabel===f)}}
+function renderF(){
+  const c=document.getElementById('filters');
+  const labels=[...new Set(papers.map(p=>p.queryLabel).filter(Boolean))];
+  const uc=papers.filter(p=>!p.checked).length,ic=papers.filter(p=>p.rating>=1).length;
+  let h=chip('all','すべて',papers.length,'')+chip('unread','未読',uc,'act-a')+chip('interested','興味あり',ic,'act-g');
+  for(const l of labels)h+=chip(l,l,getF(l).length,'');
+  c.innerHTML=h;
+}
+function chip(id,label,cnt,acls){const a=activeF===id;return`<button class="filter-chip${a?' '+(acls||'active'):''}" data-fid="${id}">${E(label)}<span class="fbadge">${cnt}</span></button>`}
 
-  let html = '';
-  html += chip('all', 'すべて', allPapers.length, '');
-  html += chip('unread', '未読', unreadCount, 'active-amber');
-  html += chip('interested', '興味あり', interestedCount, 'active-green');
-  for (const l of labels) {
-    const cnt = getFiltered_(l).length;
-    html += chip(l, l, cnt, '');
+// ─── リスト描画 ───
+function renderL(){
+  const c=document.getElementById('plist');
+  const s=document.getElementById('searchInput').value.trim().toLowerCase();
+  let list=getF(activeF);
+  if(s)list=list.filter(p=>(p.titleJa||'').toLowerCase().includes(s)||(p.titleEn||'').toLowerCase().includes(s)||(p.abstractJa||'').toLowerCase().includes(s)||(p.journal||'').toLowerCase().includes(s)||(p.authors||'').toLowerCase().includes(s)||(p.memo||'').toLowerCase().includes(s));
+  filtered=list;
+  if(!list.length){c.innerHTML=`<div class="empty"><div class="empty-icon">📭</div><div class="empty-text">${papers.length?'条件に一致する論文がありません。':'論文データがありません。<br>「同期」でデータを取得してください。'}</div></div>`;return}
+  // 文字列構築
+  const parts=new Array(list.length+1);
+  parts[0]=`<div class="paper-count">${list.length}件</div>`;
+  for(let i=0;i<list.length;i++){
+    const p=list[i];
+    const rc=p.checked?' rd':'';
+    const sl=p.checked?'未読':'既読';
+    const sc=p.checked?'tu':'tr';
+    const memo=p.memo?'<span class="pmemo">📝</span>':'';
+    let stars='';for(let j=1;j<=5;j++)stars+=`<button class="sb${j<=p.rating?' on':''}" data-pmid="${p.pmid}" data-star="${j}">★</button>`;
+    parts[i+1]=`<div class="pcw" data-pmid="${p.pmid}"><div class="swbg ${sc}">${sl}</div><div class="pc${rc}" data-pmid="${p.pmid}"><div class="pch"><span class="plbl">${E(p.queryLabel||'')}</span><span class="pdt">${fmtD(p.pubDate)}</span></div><div class="ptt">${E(p.titleJa||p.titleEn||'(No title)')}</div><div class="pjn">${E(p.journal||'')}</div><div class="pbot"><div class="sr">${stars}</div>${memo}</div></div></div>`;
   }
-  container.innerHTML = html;
-}
-function chip(id, label, count, activeClass) {
-  const isActive = activeFilter === id;
-  const cls = isActive ? (activeClass || 'active') : '';
-  return `<button class="filter-chip ${cls}" onclick="setFilter('${id}')">${label}<span class="filter-badge">${count}</span></button>`;
-}
-function setFilter(id) { activeFilter = id; renderFilters(); renderList(); }
-function getFiltered_(filter) {
-  switch (filter) {
-    case 'all': return allPapers;
-    case 'unread': return allPapers.filter(p => !p.checked);
-    case 'interested': return allPapers.filter(p => p.rating >= 1);
-    default: return allPapers.filter(p => p.queryLabel === filter);
-  }
+  c.innerHTML=parts.join('');
 }
 
-// ============================================================
-// リスト描画
-// ============================================================
-function renderList() {
-  const container = document.getElementById('paperList');
-  const searchTerm = document.getElementById('searchInput').value.trim().toLowerCase();
-  let list = getFiltered_(activeFilter);
-  if (searchTerm) {
-    list = list.filter(p =>
-      (p.titleJa||'').toLowerCase().includes(searchTerm) ||
-      (p.titleEn||'').toLowerCase().includes(searchTerm) ||
-      (p.abstractJa||'').toLowerCase().includes(searchTerm) ||
-      (p.journal||'').toLowerCase().includes(searchTerm) ||
-      (p.authors||'').toLowerCase().includes(searchTerm) ||
-      (p.memo||'').toLowerCase().includes(searchTerm)
-    );
-  }
-  filteredPapers = list;
+// ─── イベント委譲（一覧） ───
+let _sx=0,_sy=0,_dx=0,_dir=null,_locked=false,_swCard=null;
 
-  if (list.length === 0) {
-    container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-text">${allPapers.length === 0 ? '論文データがありません。<br>「同期」ボタンでデータを取得してください。' : '条件に一致する論文がありません。'}</div></div>`;
-    return;
-  }
+document.getElementById('plist').addEventListener('touchstart',function(e){
+  const w=e.target.closest('.pcw');if(!w)return;
+  _swCard=w.querySelector('.pc');
+  _sx=e.touches[0].clientX;_sy=e.touches[0].clientY;_dx=0;_dir=null;_locked=false;
+  _swCard.style.transition='none';
+},{passive:true});
 
-  let html = `<div class="paper-count">${list.length} 件</div>`;
-  for (const p of list) {
-    const readClass = p.checked ? ' is-read' : '';
-    const swipeLabel = p.checked ? '未読' : '既読';
-    const swipeClass = p.checked ? 'to-unread' : 'to-read';
-    const memoHtml = p.memo ? `<span class="paper-memo-indicator">📝</span>` : '';
-    const stars = renderStarsHtml_(p.pmid, p.rating, false);
+document.getElementById('plist').addEventListener('touchmove',function(e){
+  if(!_swCard||_locked)return;
+  const cx=e.touches[0].clientX-_sx,cy=e.touches[0].clientY-_sy;
+  if(_dir===null&&(Math.abs(cx)>8||Math.abs(cy)>8))_dir=Math.abs(cy)>Math.abs(cx)?'v':'h';
+  if(_dir==='v'){_locked=true;return}
+  if(_dir==='h'){_dx=Math.min(0,Math.max(-100,cx));_swCard.style.transform=`translateX(${_dx}px)`}
+},{passive:true});
 
-    html += `
-      <div class="paper-card-wrapper" data-pmid="${p.pmid}">
-        <div class="swipe-bg ${swipeClass}">${swipeLabel}</div>
-        <div class="paper-card${readClass}">
-          <div class="paper-card-header" onclick="openDetail('${p.pmid}')">
-            <span class="paper-label">${esc(p.queryLabel||'')}</span>
-            <span class="paper-date">${fmtDate(p.pubDate)}</span>
-          </div>
-          <div class="paper-title" onclick="openDetail('${p.pmid}')">${esc(p.titleJa||p.titleEn||'(No title)')}</div>
-          <div class="paper-journal" onclick="openDetail('${p.pmid}')">${esc(p.journal||'')}</div>
-          <div class="paper-bottom-row">
-            <div class="star-row">${stars}</div>
-            ${memoHtml}
-          </div>
-        </div>
-      </div>`;
-  }
-  container.innerHTML = html;
-  attachSwipeHandlers_();
+document.getElementById('plist').addEventListener('touchend',function(e){
+  if(!_swCard)return;
+  _swCard.style.transition='transform .15s ease';
+  if(_dx<-50){
+    _swCard.style.transform='translateX(-100px)';
+    const pmid=_swCard.closest('.pcw').dataset.pmid;
+    requestAnimationFrame(()=>toggleRead(pmid));
+  }else if(_dir==='h'){_swCard.style.transform='translateX(0)'}
+  _swCard=null;
+},{passive:true});
+
+// ★タップ（委譲）
+document.getElementById('plist').addEventListener('click',function(e){
+  const star=e.target.closest('.sb');
+  if(star){e.stopPropagation();setRating(star.dataset.pmid,+star.dataset.star);return}
+  const card=e.target.closest('.pc');
+  if(card&&!e.target.closest('.sr'))openDetail(card.dataset.pmid);
+});
+
+// フィルタ（委譲）
+document.getElementById('filters').addEventListener('click',function(e){
+  const chip=e.target.closest('.filter-chip');
+  if(chip){activeF=chip.dataset.fid;renderF();renderL()}
+});
+
+// 検索（デバウンス）
+let _searchT;
+document.getElementById('searchInput').addEventListener('input',function(){clearTimeout(_searchT);_searchT=setTimeout(renderL,200)});
+
+// ─── 既読切替 ───
+async function toggleRead(pmid){
+  const p=papers.find(x=>x.pmid===pmid);if(!p)return;
+  p.checked=!p.checked;
+  await saveChange(p);sortP();renderF();renderL();
+  showT(p.checked?'既読にしました':'未読に戻しました');
 }
 
-function renderStarsHtml_(pmid, rating, large) {
-  const size = large ? 'detail-star-btn' : 'star-btn';
-  let html = '';
-  for (let i = 1; i <= 5; i++) {
-    const on = i <= rating ? ' on' : '';
-    html += `<button class="${size}${on}" onclick="event.stopPropagation();setRating('${pmid}',${i})">★</button>`;
-  }
-  return html;
+// ─── ★評価 ───
+async function setRating(pmid,v){
+  const p=papers.find(x=>x.pmid===pmid);if(!p)return;
+  p.rating=p.rating===v?0:v;
+  await saveChange(p);renderF();renderL();
+  if(curPmid===pmid){const el=document.getElementById('ds');if(el)el.innerHTML=dStars(pmid,p.rating)}
 }
 
-// ============================================================
-// スワイプ（既読/未読切替）- 改善版
-// ============================================================
-function attachSwipeHandlers_() {
-  document.querySelectorAll('.paper-card-wrapper').forEach(wrapper => {
-    const card = wrapper.querySelector('.paper-card');
-    let sx = 0, sy = 0, dx = 0, locked = false, dir = null;
+// ─── 詳細 ───
+function dStars(pmid,r){let h='';for(let i=1;i<=5;i++)h+=`<button class="dsb${i<=r?' on':''}" data-star="${i}">★</button>`;return h}
 
-    card.addEventListener('touchstart', e => {
-      sx = e.touches[0].clientX; sy = e.touches[0].clientY;
-      dx = 0; locked = false; dir = null;
-      card.style.transition = 'none';
-    }, { passive: true });
+function openDetail(pmid){
+  const p=papers.find(x=>x.pmid===pmid);if(!p)return;
+  curPmid=pmid;
+  const ov=document.getElementById('dov'),body=document.getElementById('dbody');
+  document.getElementById('dht').textContent=p.queryLabel||'';
+  const pu=`https://pubmed.ncbi.nlm.nih.gov/${p.pmid}/`;
+  const doi=p.doi?`https://doi.org/${p.doi}`:'';
+  body.innerHTML=`
+<div class="dtitle">${E(p.titleJa||p.titleEn||'')}</div>
+<div class="dmeta"><span class="dmi">${E(p.journal||'')}</span><span class="dmi">${fmtD(p.pubDate)}</span><span class="dmi">PMID:${p.pmid}</span></div>
+<div class="dsec"><div class="dsl">アブストラクト（日本語）</div><div class="dabs">${E(p.abstractJa||'(アブストラクトなし)')}</div></div>
+<div class="coll"><button class="ctog" onclick="this.classList.toggle('op');this.nextElementSibling.classList.toggle('op')"><span class="carr">▶</span> Abstract（原文）</button><div class="cbod"><div class="dabse">${E(p.abstractEn||'(No abstract)')}</div></div></div>
+<div class="coll"><button class="ctog" onclick="this.classList.toggle('op');this.nextElementSibling.classList.toggle('op')"><span class="carr">▶</span> 原文タイトル</button><div class="cbod"><div class="dabse">${E(p.titleEn||'')}</div></div></div>
+<div class="dsec"><div class="dsl">著者</div><div class="dauth">${E(p.authors||'')}</div></div>
+<div><a class="dlink" href="${pu}" target="_blank">PubMedで開く ↗</a>${doi?`<br><a class="dlink" href="${doi}" target="_blank">DOI: ${E(p.doi)} ↗</a>`:''}</div>
+<div class="cpgrp"><button class="cpbtn" data-cp="abs">📋 コピー</button><button class="cpbtn" data-cp="ai">🤖 AI用コピー</button></div>
+<div class="dact">
+  <div class="arow"><button class="ctgl${p.checked?' on':''}" id="ctgl"></button><span class="albl">既読</span></div>
+  <div class="arow"><span class="albl" style="margin-right:4px">興味度</span><div class="dstars" id="ds">${dStars(pmid,p.rating)}</div></div>
+  <div class="dsl" style="margin-top:14px">メモ</div>
+  <textarea class="mtxt" id="mtxt" placeholder="メモを入力...">${E(p.memo||'')}</textarea>
+  <div class="mhint">フォーカスを外すと自動保存</div>
+</div>`;
+  updateNav();
+  ov.style.transform='';ov.style.transition='transform .3s ease';ov.classList.add('open');
+}
+function closeDetail(){
+  const ov=document.getElementById('dov');ov.style.transition='transform .3s ease';ov.style.transform='translateX(100%)';
+  setTimeout(()=>{ov.classList.remove('open');ov.style.transform='';ov.style.transition=''},350);curPmid=null;
+}
+function navDetail(dir){if(!curPmid)return;const i=filtered.findIndex(p=>p.pmid===curPmid);const n=i+dir;if(n>=0&&n<filtered.length)openDetail(filtered[n].pmid)}
+function updateNav(){const i=filtered.findIndex(p=>p.pmid===curPmid);document.getElementById('np').disabled=i<=0;document.getElementById('nn').disabled=i<0||i>=filtered.length-1}
 
-    card.addEventListener('touchmove', e => {
-      if (locked) return;
-      const cx = e.touches[0].clientX - sx;
-      const cy = e.touches[0].clientY - sy;
-      if (dir === null && (Math.abs(cx) > 8 || Math.abs(cy) > 8)) {
-        dir = Math.abs(cy) > Math.abs(cx) ? 'v' : 'h';
-      }
-      if (dir === 'v') { locked = true; return; }
-      if (dir === 'h') {
-        dx = Math.min(0, Math.max(-100, cx));
-        card.style.transform = `translateX(${dx}px)`;
-      }
-    }, { passive: true });
+// 詳細イベント委譲
+document.getElementById('dov').addEventListener('click',function(e){
+  const cp=e.target.closest('[data-cp]');
+  if(cp){const m=cp.dataset.cp;m==='abs'?copyAbs():copyAI();return}
+  if(e.target.closest('#ctgl')){toggleReadDetail();return}
+  const sb=e.target.closest('.dsb');
+  if(sb){setRating(curPmid,+sb.dataset.star);return}
+});
+document.getElementById('backBtn').addEventListener('click',closeDetail);
+document.getElementById('np').addEventListener('click',()=>navDetail(-1));
+document.getElementById('nn').addEventListener('click',()=>navDetail(1));
+document.getElementById('dov').addEventListener('focusout',function(e){if(e.target.id==='mtxt')saveMemo()});
 
-    card.addEventListener('touchend', () => {
-      card.style.transition = 'transform .15s ease';
-      if (dx < -50) {
-        card.style.transform = 'translateX(-100px)';
-        const pmid = wrapper.dataset.pmid;
-        requestAnimationFrame(() => toggleReadByPmid(pmid));
-      } else {
-        card.style.transform = 'translateX(0)';
-      }
-    }, { passive: true });
-  });
+async function toggleReadDetail(){
+  if(!curPmid)return;const p=papers.find(x=>x.pmid===curPmid);if(!p)return;
+  p.checked=!p.checked;document.getElementById('ctgl').classList.toggle('on',p.checked);
+  await saveChange(p);sortP();renderF();renderL();
+}
+async function saveMemo(){
+  if(!curPmid)return;const p=papers.find(x=>x.pmid===curPmid);if(!p)return;
+  const ta=document.getElementById('mtxt');if(!ta||ta.value===p.memo)return;
+  p.memo=ta.value;await saveChange(p);renderL();showT('メモを保存しました');
 }
 
-async function toggleReadByPmid(pmid) {
-  const p = allPapers.find(x => x.pmid === pmid);
-  if (!p) return;
-  p.checked = !p.checked;
-  await saveChange(p);
-  sortPapers_();
-  renderFilters();
-  renderList();
-  showToast(p.checked ? '既読にしました' : '未読に戻しました');
-}
+// コピー
+function copyAbs(){const p=papers.find(x=>x.pmid===curPmid);if(!p)return;clip([`Title: ${p.titleEn}`,`Journal: ${p.journal}`,`PMID: ${p.pmid}`,p.doi?`DOI: ${p.doi}`:'',`Authors: ${p.authors}`,'','Abstract:',p.abstractEn||'(No abstract)'].filter(Boolean).join('\n'));showT('コピーしました')}
+function copyAI(){const p=papers.find(x=>x.pmid===curPmid);if(!p)return;clip([AI_PROMPT,'','---','',`Title: ${p.titleEn}`,`Journal: ${p.journal}`,`PMID: ${p.pmid}`,p.doi?`DOI: ${p.doi}`:'',`Authors: ${p.authors}`,'','Abstract:',p.abstractEn||'(No abstract)'].filter(Boolean).join('\n'));showT('AI用コピーしました')}
+function clip(t){if(navigator.clipboard?.writeText)navigator.clipboard.writeText(t).catch(()=>fbClip(t));else fbClip(t)}
+function fbClip(t){const a=document.createElement('textarea');a.value=t;a.style.cssText='position:fixed;left:-9999px';document.body.appendChild(a);a.select();document.execCommand('copy');document.body.removeChild(a)}
 
-// ============================================================
-// ★ 評価
-// ============================================================
-async function setRating(pmid, value) {
-  const p = allPapers.find(x => x.pmid === pmid);
-  if (!p) return;
-  // 同じ値をタップで0に戻す
-  p.rating = p.rating === value ? 0 : value;
-  await saveChange(p);
-  renderFilters();
-  renderList();
-  // 詳細画面が開いていたら★も更新
-  if (currentDetailPmid === pmid) {
-    const el = document.getElementById('detailStars');
-    if (el) el.innerHTML = renderStarsHtml_(pmid, p.rating, true);
-  }
-}
-
-// ============================================================
-// 詳細画面
-// ============================================================
-function openDetail(pmid) {
-  const paper = allPapers.find(p => p.pmid === pmid);
-  if (!paper) return;
-  currentDetailPmid = pmid;
-  const overlay = document.getElementById('detailOverlay');
-  const body = document.getElementById('detailBody');
-  document.getElementById('detailHeaderTitle').textContent = paper.queryLabel || '';
-
-  const pubmedUrl = `https://pubmed.ncbi.nlm.nih.gov/${paper.pmid}/`;
-  const doiUrl = paper.doi ? `https://doi.org/${paper.doi}` : '';
-  const stars = renderStarsHtml_(paper.pmid, paper.rating, true);
-
-  body.innerHTML = `
-    <div class="detail-title">${esc(paper.titleJa||paper.titleEn||'')}</div>
-    <div class="detail-meta">
-      <span class="detail-meta-item">${esc(paper.journal||'')}</span>
-      <span class="detail-meta-item">${fmtDate(paper.pubDate)}</span>
-      <span class="detail-meta-item">PMID: ${paper.pmid}</span>
-    </div>
-
-    <div class="detail-section">
-      <div class="detail-section-label">アブストラクト（日本語）</div>
-      <div class="detail-abstract">${esc(paper.abstractJa||'(アブストラクトなし)')}</div>
-    </div>
-
-    <div class="collapsible">
-      <button class="collapsible-toggle" onclick="toggleCollapse(this)">
-        <span class="collapsible-arrow">▶</span> Abstract（原文）
-      </button>
-      <div class="collapsible-body">
-        <div class="detail-abstract-en">${esc(paper.abstractEn||'(No abstract)')}</div>
-      </div>
-    </div>
-
-    <div class="collapsible">
-      <button class="collapsible-toggle" onclick="toggleCollapse(this)">
-        <span class="collapsible-arrow">▶</span> 原文タイトル
-      </button>
-      <div class="collapsible-body">
-        <div class="detail-abstract-en">${esc(paper.titleEn||'')}</div>
-      </div>
-    </div>
-
-    <div class="detail-section">
-      <div class="detail-section-label">著者</div>
-      <div class="detail-authors">${esc(paper.authors||'(Unknown)')}</div>
-    </div>
-
-    <div>
-      <a class="detail-link" href="${pubmedUrl}" target="_blank" rel="noopener">PubMedで開く ↗</a>
-      ${doiUrl ? `<br><a class="detail-link" href="${doiUrl}" target="_blank" rel="noopener">DOI: ${esc(paper.doi)} ↗</a>` : ''}
-    </div>
-
-    <div class="copy-btn-group">
-      <button class="copy-btn" onclick="copyAbstract('${paper.pmid}')">
-        <span class="copy-btn-icon">📋</span> コピー
-      </button>
-      <button class="copy-btn" onclick="copyWithPrompt('${paper.pmid}')">
-        <span class="copy-btn-icon">🤖</span> AI用コピー
-      </button>
-    </div>
-
-    <div class="detail-actions">
-      <div class="action-row">
-        <button class="check-toggle${paper.checked?' on':''}" id="checkToggle" onclick="toggleRead()"></button>
-        <span class="action-label">既読</span>
-      </div>
-      <div class="action-row">
-        <span class="action-label" style="margin-right:4px">興味度</span>
-        <div class="detail-stars" id="detailStars">${stars}</div>
-      </div>
-      <div class="detail-section-label" style="margin-top:14px">メモ</div>
-      <textarea class="memo-textarea" id="memoTextarea" placeholder="メモを入力..." onblur="saveMemo()">${esc(paper.memo||'')}</textarea>
-      <div class="memo-save-hint">フォーカスを外すと自動保存</div>
-    </div>
-  `;
-
-  updateNavButtons_();
-  overlay.style.transform = '';
-  overlay.style.transition = 'transform .3s ease';
-  overlay.classList.add('open');
-}
-
-function closeDetail() {
-  const overlay = document.getElementById('detailOverlay');
-  overlay.style.transition = 'transform .3s ease';
-  overlay.style.transform = 'translateX(100%)';
-  setTimeout(() => { overlay.classList.remove('open'); overlay.style.transform = ''; overlay.style.transition = ''; }, 350);
-  currentDetailPmid = null;
-}
-
-function toggleCollapse(btn) {
-  btn.classList.toggle('open');
-  const body = btn.nextElementSibling;
-  body.classList.toggle('open');
-}
-
-// 前後ナビ
-function navDetail(dir) {
-  if (!currentDetailPmid) return;
-  const idx = filteredPapers.findIndex(p => p.pmid === currentDetailPmid);
-  if (idx < 0) return;
-  const next = idx + dir;
-  if (next < 0 || next >= filteredPapers.length) return;
-  openDetail(filteredPapers[next].pmid);
-}
-function updateNavButtons_() {
-  const idx = filteredPapers.findIndex(p => p.pmid === currentDetailPmid);
-  document.getElementById('navPrev').disabled = idx <= 0;
-  document.getElementById('navNext').disabled = idx < 0 || idx >= filteredPapers.length - 1;
-}
-
-// 既読切替（詳細画面）
-async function toggleRead() {
-  if (!currentDetailPmid) return;
-  const p = allPapers.find(x => x.pmid === currentDetailPmid);
-  if (!p) return;
-  p.checked = !p.checked;
-  document.getElementById('checkToggle').classList.toggle('on', p.checked);
-  await saveChange(p);
-  sortPapers_(); renderFilters(); renderList();
-}
-
-async function saveMemo() {
-  if (!currentDetailPmid) return;
-  const p = allPapers.find(x => x.pmid === currentDetailPmid);
-  if (!p) return;
-  const ta = document.getElementById('memoTextarea');
-  if (!ta || ta.value === p.memo) return;
-  p.memo = ta.value;
-  await saveChange(p);
-  renderList();
-  showToast('メモを保存しました');
-}
-
-// ============================================================
-// データ保存 + API送信
-// ============================================================
-async function saveChange(paper) {
-  await dbPut('papers', { ...paper });
-  if (isOnline) {
-    try {
-      await apiPost({ action: 'update', pmid: paper.pmid, checked: paper.checked, memo: paper.memo, rating: paper.rating });
-    } catch (e) {
-      console.error('Update push failed:', e);
-      await dbPut('pending', { pmid: paper.pmid, checked: paper.checked, memo: paper.memo, rating: paper.rating });
-    }
-  } else {
-    await dbPut('pending', { pmid: paper.pmid, checked: paper.checked, memo: paper.memo, rating: paper.rating });
-  }
-}
-
-// ============================================================
-// コピー機能
-// ============================================================
-function copyAbstract(pmid) {
-  const p = allPapers.find(x => x.pmid === pmid); if (!p) return;
-  const text = [`Title: ${p.titleEn||''}`,`Journal: ${p.journal||''}`,`PMID: ${p.pmid}`,p.doi?`DOI: ${p.doi}`:'',`Authors: ${p.authors||''}`,'',`Abstract:`,p.abstractEn||'(No abstract)'].filter(Boolean).join('\n');
-  clipCopy_(text); showToast('アブストラクトをコピーしました');
-}
-function copyWithPrompt(pmid) {
-  const p = allPapers.find(x => x.pmid === pmid); if (!p) return;
-  const text = [AI_PROMPT,'','---','',`Title: ${p.titleEn||''}`,`Journal: ${p.journal||''}`,`PMID: ${p.pmid}`,p.doi?`DOI: ${p.doi}`:'',`Authors: ${p.authors||''}`,'',`Abstract:`,p.abstractEn||'(No abstract)'].filter(Boolean).join('\n');
-  clipCopy_(text); showToast('AI用プロンプト付きでコピーしました');
-}
-function clipCopy_(text) {
-  if (navigator.clipboard?.writeText) { navigator.clipboard.writeText(text).catch(() => fbCopy_(text)); } else { fbCopy_(text); }
-}
-function fbCopy_(text) {
-  const ta = document.createElement('textarea'); ta.value = text; ta.style.cssText = 'position:fixed;left:-9999px;';
-  document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
-}
-
-// ============================================================
-// 詳細画面スワイプバック
-// ============================================================
-(function() {
-  let sx=0,sy=0,tracking=false;
-  document.addEventListener('DOMContentLoaded', () => {
-    const ov = document.getElementById('detailOverlay');
-    ov.addEventListener('touchstart', e => {
-      if (e.touches[0].clientX > 30) { tracking=false; return; }
-      sx=e.touches[0].clientX; sy=e.touches[0].clientY; tracking=true; ov.style.transition='none';
-    }, { passive: true });
-    ov.addEventListener('touchmove', e => {
-      if (!tracking) return;
-      const dx=e.touches[0].clientX-sx, dy=e.touches[0].clientY-sy;
-      if (Math.abs(dy)>Math.abs(dx)&&dx<20){tracking=false;return;}
-      if (dx>0) ov.style.transform=`translateX(${dx}px)`;
-    }, { passive: true });
-    ov.addEventListener('touchend', e => {
-      if (!tracking) return; tracking=false;
-      const dx=e.changedTouches[0].clientX-sx;
-      ov.style.transition='transform .3s ease';
-      if (dx>100) closeDetail(); else ov.style.transform='translateX(0)';
-    }, { passive: true });
-  });
+// 詳細スワイプバック
+(function(){let sx=0,tracking=false;
+const ov=document.getElementById('dov');
+ov.addEventListener('touchstart',e=>{if(e.touches[0].clientX>30){tracking=false;return}sx=e.touches[0].clientX;tracking=true;ov.style.transition='none'},{passive:true});
+ov.addEventListener('touchmove',e=>{if(!tracking)return;const dx=e.touches[0].clientX-sx;const dy=Math.abs(e.touches[0].clientY-(e.touches[0].clientY));if(dx>0)ov.style.transform=`translateX(${dx}px)`},{passive:true});
+ov.addEventListener('touchend',e=>{if(!tracking)return;tracking=false;const dx=e.changedTouches[0].clientX-sx;ov.style.transition='transform .3s ease';if(dx>100)closeDetail();else ov.style.transform='translateX(0)'},{passive:true});
 })();
 
-// ============================================================
-// ユーティリティ
-// ============================================================
-function esc(s) { const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
-function fmtDate(s) {
-  if (!s) return '';
-  try { const d=new Date(s); if(isNaN(d)) return s; return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`; } catch { return s; }
+// ─── 保存 ───
+async function saveChange(p){
+  await dbPut('papers',{...p});
+  const payload={pmid:p.pmid,checked:p.checked,memo:p.memo,rating:p.rating};
+  if(online){try{await apiP({action:'update',...payload})}catch(e){await dbPut('pending',payload)}}
+  else await dbPut('pending',payload);
 }
-function showLoading(pct) { document.getElementById('loadingBar').style.width = pct+'%'; }
-function showToast(msg) { const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2500); }
 
-// オンライン/オフライン
-window.addEventListener('online', () => { isOnline=true; document.getElementById('statusDot').classList.remove('offline'); showToast('オンラインに復帰'); syncData(); });
-window.addEventListener('offline', () => { isOnline=false; document.getElementById('statusDot').classList.add('offline'); showToast('オフラインモード'); });
+// ─── オンライン/オフライン ───
+window.addEventListener('online',()=>{online=true;document.getElementById('statusDot').classList.remove('offline');showT('オンラインに復帰');syncData()});
+window.addEventListener('offline',()=>{online=false;document.getElementById('statusDot').classList.add('offline');showT('オフラインモード')});
 
-// 初期化
-async function init() {
-  if ('serviceWorker' in navigator) { try { await navigator.serviceWorker.register('./sw.js'); } catch(e) { console.log('SW fail:', e); } }
-  const ok = await loadConfig();
-  if (!ok) { document.getElementById('setupScreen').style.display=''; return; }
+// ─── 初期化 ───
+async function init(){
+  if('serviceWorker' in navigator)try{await navigator.serviceWorker.register('./sw.js')}catch(e){}
+  if(!await loadCfg()){document.getElementById('setupScreen').style.display='';return}
   document.getElementById('mainApp').style.display='';
-  await loadLocalData();
-  if (isOnline) syncData();
+  await loadLocal();if(online)syncData();
 }
 init();
 </script>
