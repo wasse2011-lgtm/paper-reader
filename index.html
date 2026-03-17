@@ -510,6 +510,89 @@ html, body {
   white-space: nowrap;
 }
 .toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ── スワイプ可能カード ── */
+.paper-card-wrapper {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius);
+  margin-bottom: 10px;
+}
+
+.swipe-bg {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: var(--radius);
+  transition: opacity .2s;
+  pointer-events: none;
+}
+.swipe-bg.read {
+  background: var(--green);
+  color: #000;
+}
+.swipe-bg.unread {
+  background: #f59e0b;
+  color: #000;
+}
+
+.paper-card {
+  position: relative;
+  z-index: 1;
+  transition: transform .2s ease;
+  margin-bottom: 0;
+}
+
+/* ── コピーボタン ── */
+.copy-btn-group {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.copy-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-input);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .15s;
+  flex: 1;
+  justify-content: center;
+  min-width: 0;
+}
+.copy-btn:active {
+  background: var(--accent-dim);
+  border-color: var(--accent);
+}
+.copy-btn-icon {
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+/* ── 詳細画面スワイプバック ── */
+.detail-swipe-edge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 24px;
+  height: 100%;
+  z-index: 20;
+}
 </style>
 </head>
 <body>
@@ -553,6 +636,7 @@ html, body {
 
 <!-- ===== 詳細画面 ===== -->
 <div class="detail-overlay" id="detailOverlay">
+  <div class="detail-swipe-edge" id="detailSwipeEdge"></div>
   <div class="detail-header">
     <button class="back-btn" onclick="closeDetail()">← 戻る</button>
     <div class="detail-header-title" id="detailHeaderTitle"></div>
@@ -885,20 +969,26 @@ function renderList() {
   for (const p of filtered) {
     const checkedClass = p.checked ? ' is-checked' : '';
     const memoHtml = p.memo ? `<div class="paper-memo-indicator">📝 メモあり</div>` : '';
+    const swipeLabel = p.checked ? '未読に戻す' : '既読にする';
+    const swipeClass = p.checked ? 'unread' : 'read';
 
     html += `
-      <div class="paper-card${checkedClass}" onclick="openDetail('${p.pmid}')">
-        <div class="paper-card-header">
-          <span class="paper-label">${escapeHtml(p.queryLabel || '')}</span>
-          <span class="paper-date">${formatDate(p.pubDate)}</span>
+      <div class="paper-card-wrapper" data-pmid="${p.pmid}">
+        <div class="swipe-bg ${swipeClass}">${swipeLabel}</div>
+        <div class="paper-card${checkedClass}" onclick="openDetail('${p.pmid}')">
+          <div class="paper-card-header">
+            <span class="paper-label">${escapeHtml(p.queryLabel || '')}</span>
+            <span class="paper-date">${formatDate(p.pubDate)}</span>
+          </div>
+          <div class="paper-title">${escapeHtml(p.titleJa || p.titleEn || '(No title)')}</div>
+          <div class="paper-journal">${escapeHtml(p.journal || '')}</div>
+          ${memoHtml}
         </div>
-        <div class="paper-title">${escapeHtml(p.titleJa || p.titleEn || '(No title)')}</div>
-        <div class="paper-journal">${escapeHtml(p.journal || '')}</div>
-        ${memoHtml}
       </div>`;
   }
 
   container.innerHTML = html;
+  attachSwipeHandlers_();
 }
 
 // ── 詳細画面 ──
@@ -950,6 +1040,15 @@ function openDetail(pmid) {
       ${doiUrl ? `<br><a class="detail-link" href="${doiUrl}" target="_blank" rel="noopener">DOI: ${escapeHtml(paper.doi)} ↗</a>` : ''}
     </div>
 
+    <div class="copy-btn-group">
+      <button class="copy-btn" onclick="copyAbstract('${paper.pmid}')">
+        <span class="copy-btn-icon">📋</span> アブストラクトをコピー
+      </button>
+      <button class="copy-btn" onclick="copyWithPrompt('${paper.pmid}')">
+        <span class="copy-btn-icon">🤖</span> AI用にコピー
+      </button>
+    </div>
+
     <div class="detail-actions">
       <div class="check-row">
         <button class="check-toggle${paper.checked ? ' on' : ''}" id="checkToggle" onclick="toggleCheck()"></button>
@@ -961,11 +1060,21 @@ function openDetail(pmid) {
     </div>
   `;
 
+  overlay.style.transform = '';
+  overlay.style.transition = 'transform .3s ease';
   overlay.classList.add('open');
 }
 
 function closeDetail() {
-  document.getElementById('detailOverlay').classList.remove('open');
+  const overlay = document.getElementById('detailOverlay');
+  overlay.style.transition = 'transform .3s ease';
+  // inline transformをスライドアウト先に設定してからclass除去
+  overlay.style.transform = 'translateX(100%)';
+  setTimeout(() => {
+    overlay.classList.remove('open');
+    overlay.style.transform = '';
+    overlay.style.transition = '';
+  }, 350);
   currentDetailPmid = null;
 }
 
@@ -1021,6 +1130,171 @@ async function saveChange(paper) {
     // オフラインならpendingに追加
     await dbPut('pending', { pmid: paper.pmid, checked: paper.checked, memo: paper.memo });
   }
+}
+
+// ── カードスワイプ（既読/未読切替）──
+function attachSwipeHandlers_() {
+  const wrappers = document.querySelectorAll('.paper-card-wrapper');
+  wrappers.forEach(wrapper => {
+    const card = wrapper.querySelector('.paper-card');
+    let startX = 0, startY = 0, currentX = 0, swiping = false;
+
+    card.addEventListener('touchstart', e => {
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      currentX = 0;
+      swiping = false;
+      card.style.transition = 'none';
+    }, { passive: true });
+
+    card.addEventListener('touchmove', e => {
+      const dx = e.touches[0].clientX - startX;
+      const dy = e.touches[0].clientY - startY;
+
+      // 縦スクロール優先: 最初の動きが縦方向なら無視
+      if (!swiping && Math.abs(dy) > Math.abs(dx)) return;
+      swiping = true;
+
+      // 左方向のみ（負の値）
+      currentX = Math.min(0, Math.max(-100, dx));
+      card.style.transform = `translateX(${currentX}px)`;
+    }, { passive: true });
+
+    card.addEventListener('touchend', () => {
+      card.style.transition = 'transform .2s ease';
+      if (currentX < -60) {
+        // スワイプ確定: 既読/未読を切替
+        card.style.transform = 'translateX(-100px)';
+        const pmid = wrapper.dataset.pmid;
+        setTimeout(() => {
+          toggleCheckByPmid(pmid);
+        }, 150);
+      } else {
+        card.style.transform = 'translateX(0)';
+      }
+    }, { passive: true });
+  });
+}
+
+async function toggleCheckByPmid(pmid) {
+  const paper = allPapers.find(p => p.pmid === pmid);
+  if (!paper) return;
+  paper.checked = !paper.checked;
+  await saveChange(paper);
+  renderList();
+  showToast(paper.checked ? '既読にしました' : '未読に戻しました');
+}
+
+// ── 詳細画面スワイプバック ──
+(function initDetailSwipe() {
+  let startX = 0, startY = 0, tracking = false;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const overlay = document.getElementById('detailOverlay');
+
+    overlay.addEventListener('touchstart', e => {
+      const touch = e.touches[0];
+      // 画面左端30px以内からのスワイプのみ反応
+      if (touch.clientX > 30) { tracking = false; return; }
+      startX = touch.clientX;
+      startY = touch.clientY;
+      tracking = true;
+      overlay.style.transition = 'none';
+    }, { passive: true });
+
+    overlay.addEventListener('touchmove', e => {
+      if (!tracking) return;
+      const dx = e.touches[0].clientX - startX;
+      const dy = e.touches[0].clientY - startY;
+
+      // 縦スクロールなら中断
+      if (Math.abs(dy) > Math.abs(dx) && dx < 20) {
+        tracking = false;
+        return;
+      }
+
+      if (dx > 0) {
+        overlay.style.transform = `translateX(${dx}px)`;
+      }
+    }, { passive: true });
+
+    overlay.addEventListener('touchend', e => {
+      if (!tracking) return;
+      tracking = false;
+      const dx = e.changedTouches[0].clientX - startX;
+      overlay.style.transition = 'transform .3s ease';
+
+      if (dx > 100) {
+        // スワイプバック確定
+        closeDetail();
+      } else {
+        overlay.style.transform = 'translateX(0)';
+      }
+    }, { passive: true });
+  });
+})();
+
+// ── コピー機能 ──
+const AI_PROMPT_DEFAULT = `論文検索してヒットした論文をお渡しします。そのアブストラクトの翻訳、具体的な臨床への役立つ情報を抽出をして教えてください。さらに、関連する背景知識も検索し、簡潔に教えてください。さらに疑問となりそうな事について深掘りを提案してください。`;
+
+function copyAbstract(pmid) {
+  const paper = allPapers.find(p => p.pmid === pmid);
+  if (!paper) return;
+
+  const text = [
+    `Title: ${paper.titleEn || ''}`,
+    `Journal: ${paper.journal || ''}`,
+    `PMID: ${paper.pmid}`,
+    paper.doi ? `DOI: ${paper.doi}` : '',
+    `Authors: ${paper.authors || ''}`,
+    '',
+    `Abstract:`,
+    paper.abstractEn || '(No abstract)',
+  ].filter(Boolean).join('\n');
+
+  copyToClipboard_(text);
+  showToast('アブストラクトをコピーしました');
+}
+
+function copyWithPrompt(pmid) {
+  const paper = allPapers.find(p => p.pmid === pmid);
+  if (!paper) return;
+
+  const text = [
+    AI_PROMPT_DEFAULT,
+    '',
+    '---',
+    '',
+    `Title: ${paper.titleEn || ''}`,
+    `Journal: ${paper.journal || ''}`,
+    `PMID: ${paper.pmid}`,
+    paper.doi ? `DOI: ${paper.doi}` : '',
+    `Authors: ${paper.authors || ''}`,
+    '',
+    `Abstract:`,
+    paper.abstractEn || '(No abstract)',
+  ].filter(Boolean).join('\n');
+
+  copyToClipboard_(text);
+  showToast('AI用プロンプト付きでコピーしました');
+}
+
+function copyToClipboard_(text) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).catch(() => fallbackCopy_(text));
+  } else {
+    fallbackCopy_(text);
+  }
+}
+
+function fallbackCopy_(text) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;left:-9999px;';
+  document.body.appendChild(ta);
+  ta.select();
+  document.execCommand('copy');
+  document.body.removeChild(ta);
 }
 
 // ── ユーティリティ ──
