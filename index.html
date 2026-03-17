@@ -191,7 +191,7 @@ async function dbPutBatch(s,items){
 
 // ─── 状態 ───
 let CFG={url:'',key:''},papers=[],filtered=[],activeF='all',curPmid=null,online=navigator.onLine;
-const AI_PROMPT=`論文検索してヒットした論文をお渡しします。そのアブストラクトの翻訳、具体的な臨床への役立つ情報を抽出をして教えてください。さらに、関連する背景知識も検索し、簡潔に教えてください。さらに疑問となりそうな事について深掘りを提案してください。`;
+const AI_PROMPT=`論文検索してヒットした論文をお渡しします。この論文の具体的な臨床への役立つ情報を抽出をして教えてください。さらに、関連する背景知識も検索し、簡潔に教えてください。さらに疑問となりそうな事について深掘りを提案してください。`;
 
 // ─── 設定 ───
 async function loadCfg(){try{const c=await dbGetAll('config');const o=c.find(x=>x.key==='appConfig');if(o&&o.url&&o.apiKey){CFG.url=o.url;CFG.key=o.apiKey;return true}}catch(e){}return false}
