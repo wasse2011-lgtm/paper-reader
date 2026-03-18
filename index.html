@@ -13,63 +13,59 @@
 :root{
   --bg:#0f1117;--bgc:#1a1d27;--bgi:#1e2130;--bgd:#13151d;
   --tx:#e4e4e7;--td:#9193a0;--tf:#5c5e6e;
-  --ac:#60a5fa;--acd:#2563eb;--gr:#4ade80;--am:#f59e0b;
+  --ac:#60a5fa;--acd:#2563eb;--gr:#4ade80;--am:#f59e0b;--nw:#f472b6;
   --bd:#2a2d3a;--r:12px;
   --st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px);
 }
 html,body{height:100%;background:var(--bg);color:var(--tx);
   font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP',sans-serif;
-  font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
+  font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;overscroll-behavior-y:contain}
 .hd{position:sticky;top:0;z-index:100;padding:calc(var(--st)+8px) 16px 8px;background:var(--bg);border-bottom:1px solid var(--bd)}
 .ht{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .htl{font-size:18px;font-weight:700}
 .ha{display:flex;gap:8px;align-items:center}
-.sbtn{display:flex;align-items:center;gap:6px;background:var(--acd);color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:13px;font-weight:600;cursor:pointer}
-.sbtn:active{opacity:.7}
-.sbtn.sy .si{animation:sp 1s linear infinite}
+.sybtn{display:flex;align-items:center;gap:6px;background:var(--acd);color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:13px;font-weight:600;cursor:pointer}
+.sybtn:active{opacity:.7}.sybtn.sy .si{animation:sp 1s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
-.sd{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.sd.on{background:var(--gr)}.sd.off{background:#f87171}
+.sd{width:8px;height:8px;border-radius:50%;flex-shrink:0}.sd.on{background:var(--gr)}.sd.off{background:#f87171}
+/* pull-to-refresh */
+.ptr{text-align:center;padding:12px;font-size:13px;color:var(--ac);font-weight:600;transition:max-height .3s,opacity .3s;max-height:0;opacity:0;overflow:hidden}
+.ptr.show{max-height:50px;opacity:1}
+.ptr.loading{color:var(--am)}
+/* new banner */
+.nbanner{display:none;margin:0 16px 8px;padding:10px 14px;background:linear-gradient(135deg,#831843,#be185d);border-radius:10px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;text-align:center;animation:fadeIn .3s}
+.nbanner.show{display:block}
+.nbanner span{font-size:11px;font-weight:400;opacity:.8;margin-left:6px}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
 .sbar{position:relative;margin-bottom:10px}
 .sinp{width:100%;background:var(--bgi);border:1px solid var(--bd);border-radius:10px;padding:10px 12px 10px 36px;color:var(--tx);font-size:14px;outline:none}
 .sinp:focus{border-color:var(--ac)}.sinp::placeholder{color:var(--tf)}
 .sico{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--tf);font-size:14px}
-.fl{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px}
-.fl::-webkit-scrollbar{display:none}
+.fl{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px}.fl::-webkit-scrollbar{display:none}
 .fc{flex-shrink:0;padding:5px 12px;border-radius:20px;border:1px solid var(--bd);background:transparent;color:var(--td);font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap}
 .fc.a{background:var(--ac);color:#fff;border-color:var(--ac)}
 .fc.ag{background:var(--gr);color:#000;border-color:var(--gr)}
 .fc.aa{background:var(--am);color:#000;border-color:var(--am)}
+.fc.ap{background:var(--nw);color:#fff;border-color:var(--nw)}
 .fb{display:inline-block;margin-left:4px;padding:0 5px;border-radius:8px;font-size:10px;font-weight:700;background:rgba(255,255,255,.2)}
-.pl{padding:12px 16px calc(var(--sb)+20px)}
-.pcnt{font-size:12px;color:var(--tf);margin-bottom:10px}
-
-/* カードラッパー */
+.pl{padding:0 16px calc(var(--sb)+20px)}
+.pcnt{font-size:12px;color:var(--tf);margin-bottom:10px;padding-top:12px}
 .cw{position:relative;overflow:hidden;border-radius:var(--r);margin-bottom:10px}
-/* スワイプ背景: 既読カードでは非表示 */
 .swb{position:absolute;top:0;bottom:0;right:0;width:90px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;border-radius:var(--r);pointer-events:none}
-.swb.tr{background:var(--gr);color:#000}
-.swb.tu{background:var(--am);color:#000}
-/* カード本体: 常に不透明な背景 */
+.swb.tr{background:var(--gr);color:#000}.swb.tu{background:var(--am);color:#000}
 .cd{position:relative;z-index:1;background:var(--bgc);border-radius:var(--r);padding:14px 16px;cursor:pointer;border:1px solid transparent;touch-action:pan-y}
-/* 既読カード: opacityではなくテキスト色を暗くする */
-.cd.rd{border-left:3px solid var(--gr)}
-.cd.rd .ptt{color:var(--td)}
-.cd.rd .pjn{color:var(--tf)}
-.cd.rd .plb{opacity:.5}
+.cd.rd{border-left:3px solid var(--gr)}.cd.rd .ptt{color:var(--td)}.cd.rd .pjn{color:var(--tf)}.cd.rd .plb{opacity:.5}
 .ch{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:4px}
 .plb{flex-shrink:0;font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;background:var(--acd);color:var(--ac);letter-spacing:.03em}
+.nwb{font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;background:var(--nw);color:#fff;margin-left:4px;letter-spacing:.05em}
 .pdt{font-size:11px;color:var(--tf);flex-shrink:0}
 .ptt{font-size:14px;font-weight:600;line-height:1.5;margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;color:var(--tx)}
 .pjn{font-size:12px;color:var(--td)}
 .pbt{display:flex;align-items:center;justify-content:space-between;margin-top:6px}
-.pm{font-size:11px;color:var(--ac)}
-.prd{font-size:10px;color:var(--tf);margin-left:8px}
+.pm{font-size:11px;color:var(--ac)}.prd{font-size:10px;color:var(--tf);margin-left:8px}
 .sr{display:flex;gap:1px}
-.st{background:none;border:none;font-size:16px;padding:0 1px;cursor:pointer;color:var(--tf);line-height:1;-webkit-tap-highlight-color:transparent}
-.st.on{color:var(--am)}
-
-/* 詳細 */
+.st{background:none;border:none;font-size:16px;padding:0 1px;cursor:pointer;color:var(--tf);line-height:1;-webkit-tap-highlight-color:transparent}.st.on{color:var(--am)}
+/* detail */
 .dov{position:fixed;inset:0;z-index:200;background:var(--bgd);transform:translateX(100%);transition:transform .3s ease;overflow-y:auto;-webkit-overflow-scrolling:touch;will-change:transform}
 .dov.open{transform:translateX(0)}
 .dh{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:8px;padding:calc(var(--st)+10px) 16px 10px;background:var(--bgd);border-bottom:1px solid var(--bd)}
@@ -78,7 +74,7 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 .dn{display:flex;gap:4px}
 .nb{background:none;border:1px solid var(--bd);color:var(--td);border-radius:8px;width:34px;height:34px;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .nb:disabled{opacity:.3}.nb:active:not(:disabled){background:var(--bgi)}
-.db{padding:16px 16px calc(var(--sb)+40px)}
+.dbdy{padding:16px 16px calc(var(--sb)+40px)}
 .dm{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
 .di{font-size:12px;color:var(--td);background:var(--bgi);padding:4px 10px;border-radius:6px}
 .ds{margin-bottom:20px}
@@ -88,37 +84,37 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 .dae{font-size:13px;line-height:1.7;color:var(--td);white-space:pre-wrap}
 .dau{font-size:13px;color:var(--td);line-height:1.6}
 .dlk{display:inline-block;margin-top:8px;color:var(--ac);text-decoration:none;font-size:13px;font-weight:500}
-.co{margin-bottom:20px}
-.ct{display:flex;align-items:center;gap:6px;background:none;border:none;color:var(--tf);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;cursor:pointer;padding:0;margin-bottom:6px}
-.ca{transition:transform .2s;font-size:10px}
-.ct.op .ca{transform:rotate(90deg)}
-.cb{display:none}.cb.op{display:block}
+.co{margin-bottom:20px}.ct{display:flex;align-items:center;gap:6px;background:none;border:none;color:var(--tf);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;cursor:pointer;padding:0;margin-bottom:6px}
+.ca{transition:transform .2s;font-size:10px}.ct.op .ca{transform:rotate(90deg)}.cb{display:none}.cb.op{display:block}
 .cpg{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
 .cp{display:flex;align-items:center;gap:6px;padding:10px 14px;border:1px solid var(--bd);border-radius:10px;background:var(--bgi);color:var(--tx);font-size:13px;font-weight:500;cursor:pointer;flex:1;justify-content:center}
 .cp:active{background:var(--acd);border-color:var(--ac)}
 .dact{margin-top:24px;padding-top:20px;border-top:1px solid var(--bd)}
 .ar{display:flex;align-items:center;gap:10px;margin-bottom:14px}
 .tgl{width:44px;height:26px;border-radius:13px;border:none;background:var(--bd);position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
-.tgl.on{background:var(--gr)}
-.tgl::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .2s}
-.tgl.on::after{transform:translateX(18px)}
+.tgl.on{background:var(--gr)}.tgl::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .2s}.tgl.on::after{transform:translateX(18px)}
 .al{font-size:14px;font-weight:500}
 .dsr{display:flex;gap:4px}
-.dsb{background:none;border:none;font-size:24px;padding:2px;cursor:pointer;color:var(--tf);-webkit-tap-highlight-color:transparent}
-.dsb.on{color:var(--am)}
+.dsb{background:none;border:none;font-size:24px;padding:2px;cursor:pointer;color:var(--tf);-webkit-tap-highlight-color:transparent}.dsb.on{color:var(--am)}
 .mt{width:100%;min-height:100px;background:var(--bgi);border:1px solid var(--bd);border-radius:10px;padding:12px;color:var(--tx);font-size:14px;font-family:inherit;line-height:1.6;resize:vertical;outline:none}
 .mt:focus{border-color:var(--ac)}.mt::placeholder{color:var(--tf)}
 .mh{font-size:11px;color:var(--tf);margin-top:6px}
+/* next papers */
+.nxsec{margin-top:28px;padding-top:20px;border-top:1px solid var(--bd)}
+.nxsec .dl{margin-bottom:10px}
+.nxcard{background:var(--bgc);border-radius:10px;padding:12px 14px;margin-bottom:8px;cursor:pointer;border:1px solid var(--bd)}
+.nxcard:active{background:var(--bgi)}
+.nxcard .ptt{font-size:13px;-webkit-line-clamp:2;margin-bottom:2px}
+.nxcard .pjn{font-size:11px}
+/* setup */
 .su{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:32px 24px;text-align:center}
 .sut{font-size:22px;font-weight:700;margin-bottom:8px}
 .sud{font-size:14px;color:var(--td);margin-bottom:24px;line-height:1.6}
 .sui{width:100%;max-width:400px;background:var(--bgi);border:1px solid var(--bd);border-radius:10px;padding:12px;color:var(--tx);font-size:14px;font-family:monospace;outline:none;margin-bottom:12px}
 .sui:focus{border-color:var(--ac)}.sui::placeholder{color:var(--tf)}
-.sub{background:var(--ac);color:#fff;border:none;border-radius:10px;padding:12px 32px;font-size:15px;font-weight:600;cursor:pointer}
-.sub:active{opacity:.8}
+.sub{background:var(--ac);color:#fff;border:none;border-radius:10px;padding:12px 32px;font-size:15px;font-weight:600;cursor:pointer}.sub:active{opacity:.8}
 .sun{font-size:12px;color:var(--tf);margin-top:16px;line-height:1.5;max-width:400px}
-.em{text-align:center;padding:60px 20px;color:var(--tf)}
-.emi{font-size:48px;margin-bottom:12px}.emt{font-size:14px;line-height:1.6}
+.em{text-align:center;padding:60px 20px;color:var(--tf)}.emi{font-size:48px;margin-bottom:12px}.emt{font-size:14px;line-height:1.6}
 .lb{position:fixed;top:0;left:0;height:3px;background:var(--ac);z-index:999;transition:width .3s}
 .toast{position:fixed;bottom:calc(var(--sb)+24px);left:50%;transform:translateX(-50%) translateY(100px);background:var(--bgc);color:var(--tx);padding:10px 20px;border-radius:10px;font-size:13px;font-weight:500;z-index:999;transition:transform .3s ease;box-shadow:0 4px 20px rgba(0,0,0,.4);white-space:nowrap}
 .toast.show{transform:translateX(-50%) translateY(0)}
@@ -136,15 +132,17 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 <div id="ma" style="display:none">
   <div class="lb" id="lb" style="width:0"></div>
   <div class="hd">
-    <div class="ht"><div class="htl">📄 Paper Reader</div><div class="ha"><div class="sd" id="sd"></div><button class="sbtn" id="sy" onclick="syncData()"><span class="si">↻</span> 同期</button></div></div>
+    <div class="ht"><div class="htl">📄 Paper Reader</div><div class="ha"><div class="sd" id="sd"></div><button class="sybtn" id="sy" onclick="syncData()"><span class="si">↻</span> 同期</button></div></div>
     <div class="sbar"><span class="sico">🔍</span><input class="sinp" id="si" placeholder="タイトル・キーワードで検索"/></div>
     <div class="fl" id="fl"></div>
   </div>
+  <div class="ptr" id="ptr">↓ 引っ張って同期</div>
+  <div class="nbanner" id="nban"></div>
   <div class="pl" id="pl"></div>
 </div>
 <div class="dov" id="dov">
   <div class="dh"><button class="bb" id="bk">← 戻る</button><div class="dht" id="dht"></div><div class="dn"><button class="nb" id="np">◀</button><button class="nb" id="nn">▶</button></div></div>
-  <div class="db" id="dbdy"></div>
+  <div class="dbdy" id="dbdy"></div>
 </div>
 <div class="toast" id="toast"></div>
 <script>
@@ -153,103 +151,84 @@ function E(s){return s?String(s).replace(/[&<>"']/g,c=>EM[c]):''}
 function fD(s){if(!s)return'';try{const d=new Date(s);return isNaN(d)?s:d.getFullYear()+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0')}catch{return s}}
 function sL(p){document.getElementById('lb').style.width=p+'%'}
 let _tt;function sT(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),2500)}
+function isNew(p){if(!p.fetchedDate)return false;return(Date.now()-new Date(p.fetchedDate).getTime())<7*86400000}
 
 // IDB
 const DBN='PaperReaderDB',DBV=3;
-function oDB(){return new Promise((r,j)=>{const q=indexedDB.open(DBN,DBV);q.onupgradeneeded=e=>{const d=e.target.result;['papers','pending','config'].forEach(n=>{if(!d.objectStoreNames.contains(n))d.createObjectStore(n,{keyPath:n==='config'?'key':'pmid'})});};q.onsuccess=()=>r(q.result);q.onerror=()=>j(q.error)})}
+function oDB(){return new Promise((r,j)=>{const q=indexedDB.open(DBN,DBV);q.onupgradeneeded=e=>{const d=e.target.result;['papers','pending','config'].forEach(n=>{if(!d.objectStoreNames.contains(n))d.createObjectStore(n,{keyPath:n==='config'?'key':'pmid'})})};q.onsuccess=()=>r(q.result);q.onerror=()=>j(q.error)})}
 async function dGA(s){const d=await oDB();return new Promise((r,j)=>{const t=d.transaction(s,'readonly');t.objectStore(s).getAll().onsuccess=e=>r(e.target.result);t.onerror=()=>j(t.error)})}
 async function dP(s,v){const d=await oDB();return new Promise((r,j)=>{const t=d.transaction(s,'readwrite');t.objectStore(s).put(v);t.oncomplete=()=>r();t.onerror=()=>j(t.error)})}
 async function dC(s){const d=await oDB();return new Promise((r,j)=>{const t=d.transaction(s,'readwrite');t.objectStore(s).clear();t.oncomplete=()=>r();t.onerror=()=>j(t.error)})}
 async function dPB(s,items){if(!items.length)return;const d=await oDB();return new Promise((r,j)=>{const t=d.transaction(s,'readwrite');const st=t.objectStore(s);for(const i of items)st.put(i);t.oncomplete=()=>r();t.onerror=()=>j(t.error)})}
 
-// State
 let C={url:'',key:''},P=[],F=[],aF='all',cP=null,ol=navigator.onLine;
 const AIP=`論文検索してヒットした論文をお渡しします。そのアブストラクトの翻訳、具体的な臨床への役立つ情報を抽出をして教えてください。さらに、関連する背景知識も検索し、簡潔に教えてください。さらに疑問となりそうな事について深掘りを提案してください。`;
 
-// Config
 async function lC(){try{const c=await dGA('config');const o=c.find(x=>x.key==='ac');if(o&&o.u&&o.k){C.url=o.u;C.key=o.k;return true}}catch(e){}return false}
-async function saveSetup(){
-  const u=document.getElementById('suUrl').value.trim(),k=document.getElementById('suKey').value.trim();
-  if(!u||!k){sT('URLとAPIキーを入力');return}
-  C.url=u;C.key=k;await dP('config',{key:'ac',u,k});
-  document.getElementById('su').style.display='none';document.getElementById('ma').style.display='';syncData();
-}
+async function saveSetup(){const u=document.getElementById('suUrl').value.trim(),k=document.getElementById('suKey').value.trim();if(!u||!k){sT('URLとAPIキーを入力');return}C.url=u;C.key=k;await dP('config',{key:'ac',u,k});document.getElementById('su').style.display='none';document.getElementById('ma').style.display='';syncData()}
 
-// JSONP
 let _jc=0;
-function jp(p){return new Promise((r,j)=>{
-  const cb='_j'+ _jc++;const tm=setTimeout(()=>{cl();j(new Error('Timeout'))},30000);
-  function cl(){clearTimeout(tm);delete window[cb];const e=document.getElementById(cb);if(e)e.remove()}
-  window[cb]=d=>{cl();r(d)};
-  const q=new URLSearchParams({...p,key:C.key,callback:cb});
-  const s=document.createElement('script');s.id=cb;s.src=C.url+'?'+q;s.onerror=()=>{cl();j(new Error('JSONP failed'))};document.head.appendChild(s);
-})}
+function jp(p){return new Promise((r,j)=>{const cb='_j'+ _jc++;const tm=setTimeout(()=>{cl();j(new Error('Timeout'))},30000);function cl(){clearTimeout(tm);delete window[cb];const e=document.getElementById(cb);if(e)e.remove()}window[cb]=d=>{cl();r(d)};const q=new URLSearchParams({...p,key:C.key,callback:cb});const s=document.createElement('script');s.id=cb;s.src=C.url+'?'+q;s.onerror=()=>{cl();j(new Error('JSONP failed'))};document.head.appendChild(s)})}
 
-// Sync - ローカルデータとマージ
+// Notification
+function reqNotif(){if('Notification'in window&&Notification.permission==='default')Notification.requestPermission()}
+function sendNotif(n){if('Notification'in window&&Notification.permission==='granted')new Notification('📄 Paper Reader',{body:`新着 ${n} 件の論文が追加されました`,icon:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="%230f1117"/><text x="32" y="46" font-size="40" text-anchor="middle" fill="%2360a5fa">📄</text></svg>'})}
+
+// Sync
 async function syncData(){
   if(!ol){sT('オフラインです');return}
   const btn=document.getElementById('sy');btn.classList.add('sy');sL(30);
   try{
-    // Push pending
     const pend=await dGA('pending');
-    if(pend.length)try{await jp({action:'bulkUpdate',data:JSON.stringify({action:'bulkUpdate',updates:pend}),key:C.key});await dC('pending')}catch(e){console.warn('Push fail:',e)}
+    if(pend.length)try{await jp({action:'bulkUpdate',data:JSON.stringify({action:'bulkUpdate',updates:pend}),key:C.key});await dC('pending')}catch(e){}
     sL(50);
-    // Pull
     const data=await jp({action:'list',key:C.key});sL(80);
     if(data.papers){
-      // ローカルデータのマップ（ローカル変更を保持するため）
-      const localMap=new Map();
-      for(const lp of P) localMap.set(lp.pmid,lp);
-      // 未送信の変更があるPMIDセット
+      const localMap=new Map();for(const lp of P)localMap.set(lp.pmid,lp);
       const pendSet=new Set(pend.map(x=>x.pmid));
-
+      const oldPmids=new Set(P.map(p=>p.pmid));
+      let newCount=0;
       const merged=data.papers.map(sp=>{
         const lp=localMap.get(sp.pmid);
-        const item={
-          ...sp,
-          rating:Number(sp.rating)||0,
-          checked:!!sp.checked,
-          // ローカルにのみ存在するフィールドを保持
-          readAt:(lp&&lp.readAt)||''
-        };
-        // pendingに残っていたら（pushが失敗した可能性）ローカルの値を優先
-        if(lp && pendSet.has(sp.pmid)){
-          item.checked=lp.checked;
-          item.memo=lp.memo||sp.memo||'';
-          item.rating=lp.rating;
-          item.readAt=lp.readAt||'';
-        }
-        // サーバーのratingが0でローカルに値がある場合もローカルを優先
-        // （サーバー側に14列目がまだない場合の対策）
-        if(lp && item.rating===0 && lp.rating>0) item.rating=lp.rating;
-        if(lp && !item.readAt && lp.readAt) item.readAt=lp.readAt;
-        if(lp && !item.checked && lp.checked){item.checked=true;item.readAt=lp.readAt||''}
+        const item={...sp,rating:Number(sp.rating)||0,checked:!!sp.checked,readAt:(lp&&lp.readAt)||''};
+        if(lp&&pendSet.has(sp.pmid)){item.checked=lp.checked;item.memo=lp.memo||sp.memo||'';item.rating=lp.rating;item.readAt=lp.readAt||''}
+        if(lp&&item.rating===0&&lp.rating>0)item.rating=lp.rating;
+        if(lp&&!item.readAt&&lp.readAt)item.readAt=lp.readAt;
+        if(lp&&!item.checked&&lp.checked){item.checked=true;item.readAt=lp.readAt||''}
+        if(!oldPmids.has(sp.pmid))newCount++;
         return item;
       });
       await dPB('papers',merged);
-      P=merged;sortP();rF();rL();
-      sT('同期完了: '+P.length+'件');
+      P=merged;sortP();rF();rL();updateBanner();
+      if(newCount>0&&oldPmids.size>0)sendNotif(newCount);
+      sT('同期完了: '+P.length+'件'+(newCount?' (新着'+newCount+'件)':''));
     }
-  }catch(e){console.error(e);sT('同期エラー: '+e.message)}
+  }catch(e){sT('同期エラー: '+e.message)}
   finally{btn.classList.remove('sy');sL(100);setTimeout(()=>sL(0),300)}
 }
-async function loadL(){
-  try{P=(await dGA('papers')).map(p=>({...p,rating:p.rating||0,checked:!!p.checked,readAt:p.readAt||''}));sortP();rF();rL()}catch(e){}
-}
+async function loadL(){try{P=(await dGA('papers')).map(p=>({...p,rating:p.rating||0,checked:!!p.checked,readAt:p.readAt||''}));sortP();rF();rL();updateBanner()}catch(e){}}
 function sortP(){P.sort((a,b)=>{if(a.checked!==b.checked)return a.checked?1:-1;const x=a.fetchedDate||a.pubDate||'',y=b.fetchedDate||b.pubDate||'';return x<y?1:x>y?-1:0})}
 
+// Banner
+function updateBanner(){
+  const nc=P.filter(p=>isNew(p)).length;
+  const ban=document.getElementById('nban');
+  if(nc>0){ban.textContent='';ban.innerHTML=`🆕 新着 ${nc} 件<span>直近7日間</span>`;ban.classList.add('show')}
+  else ban.classList.remove('show');
+}
+
 // Filter
-function gF(f){switch(f){case'all':return P;case'unread':return P.filter(p=>!p.checked);case'interested':return P.filter(p=>p.rating>=1);default:return P.filter(p=>p.queryLabel===f)}}
+function gF(f){switch(f){case'all':return P;case'unread':return P.filter(p=>!p.checked);case'interested':return P.filter(p=>p.rating>=4);case'new':return P.filter(p=>isNew(p));default:return P.filter(p=>p.queryLabel===f)}}
 function rF(){
   const c=document.getElementById('fl');
   const ls=[...new Set(P.map(p=>p.queryLabel).filter(Boolean))];
-  let h=fc('all','すべて',P.length,'')+fc('unread','未読',P.filter(p=>!p.checked).length,'aa')+fc('interested','興味あり',P.filter(p=>p.rating>=1).length,'ag');
+  let h=fc('all','すべて',P.length,'')+fc('unread','未読',P.filter(p=>!p.checked).length,'aa')+fc('new','新着',P.filter(p=>isNew(p)).length,'ap')+fc('interested','興味あり',P.filter(p=>p.rating>=4).length,'ag');
   for(const l of ls)h+=fc(l,l,gF(l).length,'');
   c.innerHTML=h;
 }
 function fc(id,lb,n,ac){return`<button class="fc${aF===id?' '+(ac||'a'):''}" data-f="${id}">${E(lb)}<span class="fb">${n}</span></button>`}
 
-// List render
+// List
 function rL(){
   const c=document.getElementById('pl'),s=document.getElementById('si').value.trim().toLowerCase();
   let list=gF(aF);
@@ -259,84 +238,54 @@ function rL(){
   const a=new Array(list.length+1);
   a[0]=`<div class="pcnt">${list.length}件</div>`;
   for(let i=0;i<list.length;i++){
-    const p=list[i];
-    const rc=p.checked?' rd':'',sl=p.checked?'未読':'既読',sc=p.checked?'tu':'tr';
+    const p=list[i];const rc=p.checked?' rd':'';const sl=p.checked?'未読':'既読';const sc=p.checked?'tu':'tr';
     const memo=p.memo?'<span class="pm">📝</span>':'';
     const rdAt=p.readAt?`<span class="prd">既読 ${fD(p.readAt)}</span>`:'';
+    const nwBadge=isNew(p)?'<span class="nwb">NEW</span>':'';
     let stars='';for(let j=1;j<=5;j++)stars+=`<button class="st${j<=p.rating?' on':''}" data-p="${p.pmid}" data-s="${j}">★</button>`;
-    a[i+1]=`<div class="cw" data-p="${p.pmid}"><div class="swb ${sc}">${sl}</div><div class="cd${rc}" data-p="${p.pmid}"><div class="ch"><span class="plb">${E(p.queryLabel||'')}</span><span class="pdt">${fD(p.pubDate)}</span></div><div class="ptt">${E(p.titleJa||p.titleEn||'(No title)')}</div><div class="pjn">${E(p.journal||'')}</div><div class="pbt"><div class="sr">${stars}</div><div>${memo}${rdAt}</div></div></div></div>`;
+    a[i+1]=`<div class="cw" data-p="${p.pmid}"><div class="swb ${sc}">${sl}</div><div class="cd${rc}" data-p="${p.pmid}"><div class="ch"><span class="plb">${E(p.queryLabel||'')}${nwBadge}</span><span class="pdt">${fD(p.pubDate)}</span></div><div class="ptt">${E(p.titleJa||p.titleEn||'(No title)')}</div><div class="pjn">${E(p.journal||'')}</div><div class="pbt"><div class="sr">${stars}</div><div>${memo}${rdAt}</div></div></div></div>`;
   }
   c.innerHTML=a.join('');
 }
 
-// Event delegation: list
+// Event: list
 let _sx=0,_sy=0,_dx=0,_dr=null,_lk=false,_sc=null;
 const pl=document.getElementById('pl');
-pl.addEventListener('touchstart',function(e){
-  const w=e.target.closest('.cw');if(!w)return;
-  _sc=w.querySelector('.cd');_sx=e.touches[0].clientX;_sy=e.touches[0].clientY;_dx=0;_dr=null;_lk=false;_sc.style.transition='none';
-},{passive:true});
-pl.addEventListener('touchmove',function(e){
-  if(!_sc||_lk)return;
-  const cx=e.touches[0].clientX-_sx,cy=e.touches[0].clientY-_sy;
-  if(_dr===null&&(Math.abs(cx)>8||Math.abs(cy)>8))_dr=Math.abs(cy)>Math.abs(cx)?'v':'h';
-  if(_dr==='v'){_lk=true;return}
-  if(_dr==='h'){_dx=Math.min(0,Math.max(-100,cx));_sc.style.transform=`translateX(${_dx}px)`}
-},{passive:true});
-pl.addEventListener('touchend',function(){
-  if(!_sc)return;
-  _sc.style.transition='transform .15s ease';
-  if(_dx<-50){_sc.style.transform='translateX(-100px)';const pm=_sc.closest('.cw').dataset.p;requestAnimationFrame(()=>tR(pm))}
-  else if(_dr==='h')_sc.style.transform='translateX(0)';
-  _sc=null;
-},{passive:true});
-
-// ★ tap & card tap (delegation)
-pl.addEventListener('click',function(e){
-  const sb=e.target.closest('.st');
-  if(sb){e.stopPropagation();sR(sb.dataset.p,+sb.dataset.s);return}
-  const cd=e.target.closest('.cd');
-  if(cd&&!e.target.closest('.sr'))openD(cd.dataset.p);
-});
-// Filter delegation
+pl.addEventListener('touchstart',function(e){const w=e.target.closest('.cw');if(!w)return;_sc=w.querySelector('.cd');_sx=e.touches[0].clientX;_sy=e.touches[0].clientY;_dx=0;_dr=null;_lk=false;_sc.style.transition='none'},{passive:true});
+pl.addEventListener('touchmove',function(e){if(!_sc||_lk)return;const cx=e.touches[0].clientX-_sx,cy=e.touches[0].clientY-_sy;if(_dr===null&&(Math.abs(cx)>8||Math.abs(cy)>8))_dr=Math.abs(cy)>Math.abs(cx)?'v':'h';if(_dr==='v'){_lk=true;return}if(_dr==='h'){_dx=Math.min(0,Math.max(-100,cx));_sc.style.transform=`translateX(${_dx}px)`}},{passive:true});
+pl.addEventListener('touchend',function(){if(!_sc)return;_sc.style.transition='transform .15s ease';if(_dx<-50){_sc.style.transform='translateX(-100px)';const pm=_sc.closest('.cw').dataset.p;requestAnimationFrame(()=>tR(pm))}else if(_dr==='h')_sc.style.transform='translateX(0)';_sc=null},{passive:true});
+pl.addEventListener('click',function(e){const sb=e.target.closest('.st');if(sb){e.stopPropagation();sR(sb.dataset.p,+sb.dataset.s);return}const cd=e.target.closest('.cd');if(cd&&!e.target.closest('.sr'))openD(cd.dataset.p)});
 document.getElementById('fl').addEventListener('click',function(e){const c=e.target.closest('.fc');if(c){aF=c.dataset.f;rF();rL()}});
-// Search debounce
-let _st;document.getElementById('si').addEventListener('input',function(){clearTimeout(_st);_st=setTimeout(rL,200)});
+document.getElementById('nban').addEventListener('click',function(){aF='new';rF();rL();this.classList.remove('show')});
+let _srt;document.getElementById('si').addEventListener('input',function(){clearTimeout(_srt);_srt=setTimeout(rL,200)});
 
-// Toggle read
-async function tR(pm){
-  const p=P.find(x=>x.pmid===pm);if(!p)return;
-  p.checked=!p.checked;
-  p.readAt=p.checked?new Date().toISOString():'';
-  await sC(p);sortP();rF();rL();
-  sT(p.checked?'既読にしました':'未読に戻しました');
-}
+// Pull-to-refresh
+(function(){
+  let sy=0,pulling=false,triggered=false;
+  const ma=document.getElementById('ma'),ptr=document.getElementById('ptr');
+  ma.addEventListener('touchstart',function(e){if(window.scrollY<5){sy=e.touches[0].clientY;pulling=true;triggered=false}else pulling=false},{passive:true});
+  ma.addEventListener('touchmove',function(e){if(!pulling)return;const dy=e.touches[0].clientY-sy;if(dy>60&&!triggered){ptr.classList.add('show');ptr.textContent='↑ 離して同期'}else if(dy>10&&!triggered){ptr.classList.add('show');ptr.textContent='↓ 引っ張って同期'}},{passive:true});
+  ma.addEventListener('touchend',function(e){if(!pulling)return;pulling=false;const dy=e.changedTouches[0].clientY-sy;if(dy>60&&!triggered){triggered=true;ptr.textContent='同期中...';ptr.classList.add('loading');syncData().finally(()=>{ptr.classList.remove('show','loading')})}else{ptr.classList.remove('show')}},{passive:true});
+})();
 
-// ★ Rating - 即座にDOMを更新、全体再描画はバッジのみ
-async function sR(pm,v){
-  const p=P.find(x=>x.pmid===pm);if(!p)return;
-  p.rating=p.rating===v?0:v;
-  // ターゲットDOMのみ更新（一覧のスターボタン）
-  const cw=document.querySelector(`.cw[data-p="${pm}"]`);
-  if(cw){
-    const btns=cw.querySelectorAll('.st');
-    btns.forEach((b,i)=>{b.classList.toggle('on',i<p.rating)});
-  }
-  // 詳細画面のスターも更新
-  if(cP===pm){const el=document.getElementById('dss');if(el){const bs=el.querySelectorAll('.dsb');bs.forEach((b,i)=>{b.classList.toggle('on',i<p.rating)})}}
-  // バッジ件数のみ更新
-  rF();
-  // 非同期で保存（UIブロックしない）
-  sC(p);
-}
+async function tR(pm){const p=P.find(x=>x.pmid===pm);if(!p)return;p.checked=!p.checked;p.readAt=p.checked?new Date().toISOString():'';await sC(p);sortP();rF();rL();sT(p.checked?'既読にしました':'未読に戻しました')}
+async function sR(pm,v){const p=P.find(x=>x.pmid===pm);if(!p)return;p.rating=p.rating===v?0:v;const cw=document.querySelector(`.cw[data-p="${pm}"]`);if(cw)cw.querySelectorAll('.st').forEach((b,i)=>b.classList.toggle('on',i<p.rating));if(cP===pm){const el=document.getElementById('dss');if(el)el.querySelectorAll('.dsb').forEach((b,i)=>b.classList.toggle('on',i<p.rating))}rF();sC(p)}
 
 // Detail
 function dSt(pm,r){let h='';for(let i=1;i<=5;i++)h+=`<button class="dsb${i<=r?' on':''}" data-s="${i}">★</button>`;return h}
+function nextPapers(pm){const i=F.findIndex(p=>p.pmid===pm);if(i<0)return[];return F.slice(i+1,i+4)}
 function openD(pm){
   const p=P.find(x=>x.pmid===pm);if(!p)return;cP=pm;
   const ov=document.getElementById('dov'),body=document.getElementById('dbdy');
   document.getElementById('dht').textContent=p.queryLabel||'';
   const pu=`https://pubmed.ncbi.nlm.nih.gov/${p.pmid}/`,doi=p.doi?`https://doi.org/${p.doi}`:'';
+  const nx=nextPapers(pm);
+  let nxHtml='';
+  if(nx.length){
+    nxHtml=`<div class="nxsec"><div class="dl">次の論文</div>`;
+    for(const n of nx)nxHtml+=`<div class="nxcard" data-p="${n.pmid}"><div class="ptt">${E(n.titleJa||n.titleEn||'')}</div><div class="pjn">${E(n.journal||'')} · ${fD(n.pubDate)}</div></div>`;
+    nxHtml+=`</div>`;
+  }
   body.innerHTML=`
 <div class="dti">${E(p.titleJa||p.titleEn||'')}</div>
 <div class="dm"><span class="di">${E(p.journal||'')}</span><span class="di">${fD(p.pubDate)}</span><span class="di">PMID:${p.pmid}</span>${p.readAt?`<span class="di">既読 ${fD(p.readAt)}</span>`:''}</div>
@@ -352,69 +301,49 @@ function openD(pm){
   <div class="dl" style="margin-top:14px">メモ</div>
   <textarea class="mt" id="mt" placeholder="メモを入力...">${E(p.memo||'')}</textarea>
   <div class="mh">フォーカスを外すと自動保存</div>
-</div>`;
-  uN();ov.style.transform='';ov.style.transition='transform .3s ease';ov.classList.add('open');
+</div>
+${nxHtml}`;
+  uN();ov.style.transform='';ov.style.transition='transform .3s ease';ov.classList.add('open');ov.scrollTop=0;
 }
 function clD(){const o=document.getElementById('dov');o.style.transition='transform .3s ease';o.style.transform='translateX(100%)';setTimeout(()=>{o.classList.remove('open');o.style.transform='';o.style.transition=''},350);cP=null}
 function nD(d){if(!cP)return;const i=F.findIndex(p=>p.pmid===cP);const n=i+d;if(n>=0&&n<F.length)openD(F[n].pmid)}
 function uN(){const i=F.findIndex(p=>p.pmid===cP);document.getElementById('np').disabled=i<=0;document.getElementById('nn').disabled=i<0||i>=F.length-1}
 
-// Detail events
 const dov=document.getElementById('dov');
 dov.addEventListener('click',function(e){
   const cp=e.target.closest('[data-c]');if(cp){cp.dataset.c==='a'?cpA():cpP();return}
   if(e.target.closest('#tgl')){tRD();return}
   const sb=e.target.closest('.dsb');if(sb){sR(cP,+sb.dataset.s);return}
+  const nx=e.target.closest('.nxcard');if(nx){openD(nx.dataset.p);return}
 });
 document.getElementById('bk').addEventListener('click',clD);
 document.getElementById('np').addEventListener('click',()=>nD(-1));
 document.getElementById('nn').addEventListener('click',()=>nD(1));
 dov.addEventListener('focusout',function(e){if(e.target.id==='mt')sM()});
 
-async function tRD(){
-  if(!cP)return;const p=P.find(x=>x.pmid===cP);if(!p)return;
-  p.checked=!p.checked;p.readAt=p.checked?new Date().toISOString():'';
-  document.getElementById('tgl').classList.toggle('on',p.checked);
-  await sC(p);sortP();rF();rL();
-}
-async function sM(){
-  if(!cP)return;const p=P.find(x=>x.pmid===cP);if(!p)return;
-  const t=document.getElementById('mt');if(!t||t.value===p.memo)return;
-  p.memo=t.value;await sC(p);rL();sT('メモ保存');
-}
-
-// Copy
+async function tRD(){if(!cP)return;const p=P.find(x=>x.pmid===cP);if(!p)return;p.checked=!p.checked;p.readAt=p.checked?new Date().toISOString():'';document.getElementById('tgl').classList.toggle('on',p.checked);await sC(p);sortP();rF();rL()}
+async function sM(){if(!cP)return;const p=P.find(x=>x.pmid===cP);if(!p)return;const t=document.getElementById('mt');if(!t||t.value===p.memo)return;p.memo=t.value;await sC(p);rL();sT('メモ保存')}
 function cpA(){const p=P.find(x=>x.pmid===cP);if(!p)return;cc([`Title: ${p.titleEn}`,`Journal: ${p.journal}`,`PMID: ${p.pmid}`,p.doi?`DOI: ${p.doi}`:'',`Authors: ${p.authors}`,'','Abstract:',p.abstractEn||''].filter(Boolean).join('\n'));sT('コピーしました')}
 function cpP(){const p=P.find(x=>x.pmid===cP);if(!p)return;cc([AIP,'','---','',`Title: ${p.titleEn}`,`Journal: ${p.journal}`,`PMID: ${p.pmid}`,p.doi?`DOI: ${p.doi}`:'',`Authors: ${p.authors}`,'','Abstract:',p.abstractEn||''].filter(Boolean).join('\n'));sT('AI用コピー完了')}
 function cc(t){if(navigator.clipboard?.writeText)navigator.clipboard.writeText(t).catch(()=>fc2(t));else fc2(t)}
 function fc2(t){const a=document.createElement('textarea');a.value=t;a.style.cssText='position:fixed;left:-9999px';document.body.appendChild(a);a.select();document.execCommand('copy');document.body.removeChild(a)}
 
-// Detail swipe back
+// Swipe back
 (function(){let sx=0,tr=false;
 dov.addEventListener('touchstart',e=>{if(e.touches[0].clientX>30){tr=false;return}sx=e.touches[0].clientX;tr=true;dov.style.transition='none'},{passive:true});
 dov.addEventListener('touchmove',e=>{if(!tr)return;const dx=e.touches[0].clientX-sx;if(dx>0)dov.style.transform=`translateX(${dx}px)`},{passive:true});
 dov.addEventListener('touchend',e=>{if(!tr)return;tr=false;const dx=e.changedTouches[0].clientX-sx;dov.style.transition='transform .3s ease';dx>100?clD():dov.style.transform='translateX(0)'},{passive:true});
 })();
 
-// Save
-async function sC(p){
-  await dP('papers',{...p});
-  const d={pmid:p.pmid,checked:p.checked,memo:p.memo,rating:p.rating};
-  if(ol){try{await jp({action:'update',data:JSON.stringify({action:'update',...d}),key:C.key})}catch(e){await dP('pending',d)}}
-  else await dP('pending',d);
-}
-
-// Online/offline
+async function sC(p){await dP('papers',{...p});const d={pmid:p.pmid,checked:p.checked,memo:p.memo,rating:p.rating};if(ol){try{await jp({action:'update',data:JSON.stringify({action:'update',...d}),key:C.key})}catch(e){await dP('pending',d)}}else await dP('pending',d)}
 function uSD(){const d=document.getElementById('sd');d.className='sd '+(ol?'on':'off')}
 window.addEventListener('online',()=>{ol=true;uSD();sT('オンライン復帰');syncData()});
 window.addEventListener('offline',()=>{ol=false;uSD();sT('オフラインモード')});
 
-// Init
 async function init(){
   if('serviceWorker'in navigator)try{await navigator.serviceWorker.register('./sw.js')}catch(e){}
   if(!await lC()){document.getElementById('su').style.display='';return}
-  document.getElementById('ma').style.display='';
-  uSD(); // ← 初期化時にステータスドット設定
+  document.getElementById('ma').style.display='';uSD();reqNotif();
   await loadL();if(ol)syncData();
 }
 init();
