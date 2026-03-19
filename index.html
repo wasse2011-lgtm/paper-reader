@@ -45,24 +45,53 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 .fc.ap{background:var(--nw);color:#fff;border-color:var(--nw)}
 .fb{display:inline-block;margin-left:4px;padding:0 5px;border-radius:8px;font-size:10px;font-weight:700;background:rgba(255,255,255,.2)}
 
-/* ── Stats Panel ── */
-.spnl{margin:0 16px 10px;background:var(--bgc);border-radius:var(--r);padding:12px 14px;border:1px solid var(--bd)}
-.srow{display:flex;align-items:center;gap:12px;margin-bottom:10px;flex-wrap:wrap}
-.sstreak{font-size:14px;font-weight:700;color:var(--am)}
-.sstreak .fire{font-size:16px}
-.sstat{font-size:11px;color:var(--td)}
-.sstat b{color:var(--tx);font-size:13px;font-weight:700}
-.shm{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;margin-bottom:8px}
-.shm::-webkit-scrollbar{display:none}
-.shmc{display:flex;flex-direction:column;gap:2px}
-.shmd{font-size:8px;color:var(--tf);text-align:center;margin-bottom:2px;min-width:9px}
-.shcell{width:9px;height:9px;border-radius:2px;background:var(--bgi)}
-.shcell.l1{background:#1a4731}.shcell.l2{background:#22763d}.shcell.l3{background:#2ea043}.shcell.l4{background:var(--gr)}
-.swkbar{display:flex;align-items:flex-end;gap:4px;height:36px}
-.swkb{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px}
-.swkbr{width:100%;border-radius:3px 3px 0 0;background:var(--acd);min-height:2px;transition:height .3s}
-.swkbl{font-size:9px;color:var(--tf)}
-.swkbn{font-size:10px;font-weight:700;color:var(--td)}
+/* ── Stats Mini Bar + Modal ── */
+.smini{margin:0 16px 10px;background:var(--bgc);border-radius:var(--r);padding:10px 14px;border:1px solid var(--bd);display:none;cursor:pointer}
+.smini.show{display:flex;align-items:center;justify-content:space-between}
+.smini-left{display:flex;align-items:center;gap:12px}
+.smini .fire{font-size:15px}
+.smini .streak{font-size:14px;font-weight:700;color:var(--am)}
+.smini .mcount{font-size:12px;color:var(--td)}
+.smini .mcount b{color:var(--tx);font-weight:700}
+.smini .chart-btn{font-size:18px;opacity:.6}
+/* Modal */
+.stmod{position:fixed;inset:0;z-index:300;background:var(--bgd);transform:translateY(100%);transition:transform .3s ease;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.stmod.open{transform:translateY(0)}
+.stmod-hd{position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:calc(var(--st)+12px) 16px 12px;background:var(--bgd);border-bottom:1px solid var(--bd)}
+.stmod-title{font-size:17px;font-weight:700}
+.stmod-close{background:none;border:none;color:var(--ac);font-size:15px;cursor:pointer;padding:4px 8px}
+.stmod-body{padding:20px 16px calc(var(--sb)+40px)}
+/* Streak hero */
+.streak-hero{text-align:center;margin-bottom:28px}
+.streak-num{font-size:48px;font-weight:800;color:var(--am);line-height:1}
+.streak-label{font-size:13px;color:var(--td);margin-top:4px}
+/* Stat cards */
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:28px}
+.stat-card{background:var(--bgc);border-radius:10px;padding:12px;text-align:center;border:1px solid var(--bd)}
+.stat-val{font-size:22px;font-weight:800;color:var(--tx)}
+.stat-lbl{font-size:11px;color:var(--tf);margin-top:2px}
+/* Heatmap */
+.hm-sec{margin-bottom:28px}
+.hm-title{font-size:13px;font-weight:700;color:var(--td);margin-bottom:10px}
+.hm-wrap{display:flex;gap:3px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px}
+.hm-wrap::-webkit-scrollbar{display:none}
+.hm-col{display:flex;flex-direction:column;gap:3px}
+.hm-mlbl{font-size:9px;color:var(--tf);text-align:center;margin-bottom:3px;min-width:12px;height:12px}
+.hm-dlbl{font-size:9px;color:var(--tf);text-align:right;min-width:16px;height:12px;line-height:12px;padding-right:4px}
+.hm-cell{width:12px;height:12px;border-radius:3px;background:var(--bgi)}
+.hm-cell.l1,.hm-legend-cell.l1{background:#1a4731}.hm-cell.l2,.hm-legend-cell.l2{background:#22763d}.hm-cell.l3,.hm-legend-cell.l3{background:#2ea043}.hm-cell.l4,.hm-legend-cell.l4{background:var(--gr)}
+.hm-legend{display:flex;align-items:center;gap:6px;margin-top:8px;justify-content:flex-end}
+.hm-legend-lbl{font-size:10px;color:var(--tf)}
+.hm-legend-cell{width:10px;height:10px;border-radius:2px}
+/* Weekly chart */
+.wk-sec{margin-bottom:20px}
+.wk-title{font-size:13px;font-weight:700;color:var(--td);margin-bottom:10px}
+.wk-chart{display:flex;align-items:flex-end;gap:8px;height:100px;padding:0 8px}
+.wk-bar{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.wk-bar-fill{width:100%;border-radius:6px 6px 0 0;min-height:4px;transition:height .3s}
+.wk-bar-fill.cur{background:var(--ac)}.wk-bar-fill.prev{background:var(--acd)}
+.wk-bar-n{font-size:13px;font-weight:700;color:var(--tx)}
+.wk-bar-l{font-size:11px;color:var(--tf)}
 
 .pl{padding:0 16px calc(var(--sb)+20px)}
 .pcnt{font-size:12px;color:var(--tf);margin-bottom:10px;padding-top:12px}
@@ -144,7 +173,10 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
     <div class="sbar"><span class="sico">🔍</span><input class="sinp" id="si" placeholder="タイトル・キーワードで検索"/></div>
     <div class="fl" id="fl"></div>
   </div>
-  <div class="spnl" id="spnl" style="display:none"></div>
+  <div class="smini" id="smini" onclick="openStats()">
+    <div class="smini-left"><span class="fire">🔥</span><span class="streak" id="sms"></span><span class="mcount" id="smm"></span></div>
+    <span class="chart-btn">📊</span>
+  </div>
   <div class="ptr" id="ptr">↓ 引っ張って同期</div>
   <div class="nbanner" id="nban"></div>
   <div class="pl" id="pl"></div>
@@ -152,6 +184,10 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 <div class="dov" id="dov">
   <div class="dh"><button class="bb" id="bk">← 戻る</button><div class="dht" id="dht"></div><div class="dn"><button class="nb" id="np">◀</button><button class="nb" id="nn">▶</button></div></div>
   <div class="dbdy" id="dbdy"></div>
+</div>
+<div class="stmod" id="stmod">
+  <div class="stmod-hd"><span class="stmod-title">📊 読書記録</span><button class="stmod-close" onclick="closeStats()">閉じる</button></div>
+  <div class="stmod-body" id="stmod-body"></div>
 </div>
 <div class="toast" id="toast"></div>
 <script>
@@ -247,91 +283,100 @@ function monthCount(rm,monthOffset){
   return cnt;
 }
 function rSt(){
-  const el=document.getElementById('spnl');
-  const readPapers=P.filter(p=>p.readAt);
-  if(readPapers.length===0){el.style.display='none';return}
-  el.style.display='';
+  const rm=buildReadMap();
+  const streak=calcStreak(rm);
+  const thisM=monthCount(rm,0);
+  const mini=document.getElementById('smini');
+  const hasRead=P.some(p=>p.readAt);
+  if(!hasRead){mini.classList.remove('show');return}
+  mini.classList.add('show');
+  document.getElementById('sms').textContent=streak+'日連続';
+  document.getElementById('smm').innerHTML='今月 <b>'+thisM+'</b>本';
+}
+
+function openStats(){
   const rm=buildReadMap();
   const streak=calcStreak(rm);
   const thisM=monthCount(rm,0);
   const lastM=monthCount(rm,-1);
   const now=new Date();
-  const daysInMonth=now.getDate();
-  const avg=(thisM/daysInMonth).toFixed(1);
+  const avg=(thisM/Math.max(now.getDate(),1)).toFixed(1);
+  const total=P.filter(p=>p.readAt).length;
 
-  // Heatmap: 90 days
-  const days=90;
+  // Heatmap 90 days
   const today=new Date();today.setHours(0,0,0,0);
-  const startDate=new Date(today);startDate.setDate(startDate.getDate()-days+1);
-  // Align to Monday
+  const startDate=new Date(today);startDate.setDate(startDate.getDate()-89);
   while(startDate.getDay()!==1)startDate.setDate(startDate.getDate()-1);
-  const mLbl=['','月','','水','','金',''];
-  let hmHtml='';
-  const d=new Date(startDate);
-  let prevMonth=-1;
-  const cols=[];let col=[];
+  const dayLabels=['月','','水','','金','',''];
+  const mNames=['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+  const d=new Date(startDate);let prevMo=-1;const cols=[];let col=[];
   while(d<=today){
     const dow=d.getDay();
     if(dow===1&&col.length>0){cols.push(col);col=[]}
-    const k=toKey(d);
-    const n=rm.get(k)||0;
+    const k=toKey(d);const n=rm.get(k)||0;
     const lvl=n===0?'':n===1?'l1':n===2?'l2':n<=4?'l3':'l4';
-    const mo=d.getMonth();
-    const showMonth=(dow===0&&mo!==prevMonth);
-    if(showMonth)prevMonth=mo;
-    col.push({lvl,mo,showMonth,dow});
+    const mo=d.getMonth();const showMo=(dow===0&&mo!==prevMo);if(showMo)prevMo=mo;
+    col.push({lvl,mo,showMo,dow});
     d.setDate(d.getDate()+1);
   }
   if(col.length)cols.push(col);
-  
-  const mNames=['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
-  hmHtml='<div class="shm">';
-  // Day labels
-  hmHtml+=`<div class="shmc">${mLbl.map(l=>`<div class="shmd">${l}</div>`).join('')}</div>`;
-  for(const c of cols){
-    const mLabel=c[0]&&c[0].showMonth?mNames[c[0].mo]:'';
-    // Pad column to 7 rows
-    let cells='';
-    const startDow=c[0]?c[0].dow:0;
-    // If column starts mid-week, pad
-    const padded=new Array(7).fill(null);
-    for(const cell of c){padded[cell.dow===0?6:cell.dow-1]=cell}
-    for(let i=0;i<7;i++){
-      const cell=padded[i];
-      cells+=cell?`<div class="shcell ${cell.lvl}"></div>`:`<div class="shcell"></div>`;
-    }
-    hmHtml+=`<div class="shmc">${cells}</div>`;
-  }
-  hmHtml+='</div>';
 
-  // Weekly bars: last 4 weeks
+  let hm='<div class="hm-wrap">';
+  hm+=`<div class="hm-col">${dayLabels.map(l=>`<div class="hm-dlbl">${l}</div>`).join('')}</div>`;
+  for(const c of cols){
+    const padded=new Array(7).fill(null);
+    for(const cell of c)padded[cell.dow===0?6:cell.dow-1]=cell;
+    let cells='';
+    for(let i=0;i<7;i++){const cell=padded[i];cells+=cell?`<div class="hm-cell ${cell.lvl}"></div>`:`<div class="hm-cell"></div>`}
+    hm+=`<div class="hm-col">${cells}</div>`;
+  }
+  hm+='</div>';
+  hm+=`<div class="hm-legend"><span class="hm-legend-lbl">少</span><div class="hm-legend-cell" style="background:var(--bgi)"></div><div class="hm-legend-cell l1"></div><div class="hm-legend-cell l2"></div><div class="hm-legend-cell l3"></div><div class="hm-legend-cell l4"></div><span class="hm-legend-lbl">多</span></div>`;
+
+  // Weekly bars: last 6 weeks
   const weeks=[];
-  for(let w=3;w>=0;w--){
+  for(let w=5;w>=0;w--){
     const ws=new Date(today);ws.setDate(ws.getDate()-ws.getDay()-7*w+1);
     let cnt=0;
     for(let i=0;i<7;i++){const dd=new Date(ws);dd.setDate(dd.getDate()+i);cnt+=(rm.get(toKey(dd))||0)}
-    const label=w===0?'今週':w===1?'先週':`${w+1}週前`;
+    const label=w===0?'今週':w===1?'先週':`${w+1}W前`;
     weeks.push({cnt,label});
   }
   const maxW=Math.max(...weeks.map(w=>w.cnt),1);
-  let wkHtml='<div class="swkbar">';
-  for(const w of weeks){
-    const h=Math.round((w.cnt/maxW)*30);
-    wkHtml+=`<div class="swkb"><div class="swkbn">${w.cnt}</div><div class="swkbr" style="height:${Math.max(h,2)}px"></div><div class="swkbl">${w.label}</div></div>`;
+  let wk='<div class="wk-chart">';
+  for(let i=0;i<weeks.length;i++){
+    const w=weeks[i];const h=Math.round((w.cnt/maxW)*80);
+    const cls=i===weeks.length-1?'cur':'prev';
+    wk+=`<div class="wk-bar"><div class="wk-bar-n">${w.cnt}</div><div class="wk-bar-fill ${cls}" style="height:${Math.max(h,4)}px"></div><div class="wk-bar-l">${w.label}</div></div>`;
   }
-  wkHtml+='</div>';
+  wk+='</div>';
 
-  el.innerHTML=`
-    <div class="srow">
-      <div class="sstreak"><span class="fire">🔥</span> ${streak}日連続</div>
-      <div class="sstat">今月 <b>${thisM}</b>本</div>
-      <div class="sstat">先月 <b>${lastM}</b>本</div>
-      <div class="sstat">日平均 <b>${avg}</b></div>
+  document.getElementById('stmod-body').innerHTML=`
+    <div class="streak-hero">
+      <div class="streak-num">🔥 ${streak}</div>
+      <div class="streak-label">日連続で論文を読んでいます</div>
     </div>
-    ${hmHtml}
-    ${wkHtml}
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-val">${thisM}</div><div class="stat-lbl">今月</div></div>
+      <div class="stat-card"><div class="stat-val">${lastM}</div><div class="stat-lbl">先月</div></div>
+      <div class="stat-card"><div class="stat-val">${avg}</div><div class="stat-lbl">日平均</div></div>
+    </div>
+    <div class="stat-grid" style="grid-template-columns:1fr 1fr;margin-bottom:28px">
+      <div class="stat-card"><div class="stat-val">${total}</div><div class="stat-lbl">累計既読</div></div>
+      <div class="stat-card"><div class="stat-val">${P.length}</div><div class="stat-lbl">総論文数</div></div>
+    </div>
+    <div class="hm-sec">
+      <div class="hm-title">📅 過去90日間のアクティビティ</div>
+      ${hm}
+    </div>
+    <div class="wk-sec">
+      <div class="wk-title">📈 週間ペース（直近6週）</div>
+      ${wk}
+    </div>
   `;
+  document.getElementById('stmod').classList.add('open');
 }
+function closeStats(){document.getElementById('stmod').classList.remove('open')}
 
 function updateBanner(){const nc=P.filter(p=>isNew(p)).length;const ban=document.getElementById('nban');if(nc>0){ban.innerHTML=`🆕 新着 ${nc} 件<span>直近7日間</span>`;ban.classList.add('show')}else ban.classList.remove('show')}
 
