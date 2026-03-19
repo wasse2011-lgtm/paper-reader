@@ -57,9 +57,11 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 /* Modal */
 .stmod{position:fixed;inset:0;z-index:300;background:var(--bgd);transform:translateY(100%);transition:transform .3s ease;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .stmod.open{transform:translateY(0)}
-.stmod-hd{position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:calc(var(--st)+12px) 16px 12px;background:var(--bgd);border-bottom:1px solid var(--bd)}
+.stmod-hd{position:sticky;top:0;z-index:10;background:var(--bgd);border-bottom:1px solid var(--bd);padding:0 16px 12px;padding-top:calc(var(--st) + 4px);text-align:center}
+.stmod-handle{width:36px;height:4px;border-radius:2px;background:var(--tf);margin:10px auto 12px;opacity:.5}
+.stmod-hd-row{display:flex;align-items:center;justify-content:space-between}
 .stmod-title{font-size:17px;font-weight:700}
-.stmod-close{background:none;border:none;color:var(--ac);font-size:15px;cursor:pointer;padding:4px 8px}
+.stmod-close{background:var(--bgi);border:1px solid var(--bd);color:var(--tx);font-size:13px;font-weight:600;cursor:pointer;padding:6px 16px;border-radius:8px}
 .stmod-body{padding:20px 16px calc(var(--sb)+40px)}
 /* Streak hero */
 .streak-hero{text-align:center;margin-bottom:28px}
@@ -186,7 +188,7 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
   <div class="dbdy" id="dbdy"></div>
 </div>
 <div class="stmod" id="stmod">
-  <div class="stmod-hd"><span class="stmod-title">📊 読書記録</span><button class="stmod-close" onclick="closeStats()">閉じる</button></div>
+  <div class="stmod-hd"><div class="stmod-handle"></div><div class="stmod-hd-row"><span class="stmod-title">📊 読書記録</span><button class="stmod-close" onclick="closeStats()">閉じる ✕</button></div></div>
   <div class="stmod-body" id="stmod-body"></div>
 </div>
 <div class="toast" id="toast"></div>
@@ -374,9 +376,17 @@ function openStats(){
       ${wk}
     </div>
   `;
-  document.getElementById('stmod').classList.add('open');
+  const stm=document.getElementById('stmod');stm.style.transform='';stm.style.transition='transform .3s ease';stm.classList.add('open');
 }
-function closeStats(){document.getElementById('stmod').classList.remove('open')}
+function closeStats(){const m=document.getElementById('stmod');m.style.transition='transform .3s ease';m.style.transform='translateY(100%)';setTimeout(()=>{m.classList.remove('open');m.style.transform='';m.style.transition=''},350)}
+
+// Stats modal swipe-down to close
+(function(){let sy=0,tr=false;
+const m=document.getElementById('stmod');
+m.addEventListener('touchstart',e=>{if(m.scrollTop>10){tr=false;return}sy=e.touches[0].clientY;tr=true;m.style.transition='none'},{passive:true});
+m.addEventListener('touchmove',e=>{if(!tr)return;const dy=e.touches[0].clientY-sy;if(dy>0)m.style.transform=`translateY(${dy}px)`;else tr=false},{passive:true});
+m.addEventListener('touchend',e=>{if(!tr)return;tr=false;const dy=e.changedTouches[0].clientY-sy;if(dy>80)closeStats();else{m.style.transition='transform .3s ease';m.style.transform='translateY(0)'}},{passive:true});
+})();
 
 function updateBanner(){const nc=P.filter(p=>isNew(p)).length;const ban=document.getElementById('nban');if(nc>0){ban.innerHTML=`🆕 新着 ${nc} 件<span>直近7日間</span>`;ban.classList.add('show')}else ban.classList.remove('show')}
 
