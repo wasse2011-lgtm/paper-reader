@@ -162,8 +162,10 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 .tts-row{display:flex;align-items:center;gap:10px;margin-top:10px}
 .tts-btn{display:flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid var(--bd);border-radius:10px;background:var(--bgi);color:var(--tx);font-size:13px;font-weight:500;cursor:pointer}
 .tts-btn:active{background:var(--acd)}.tts-btn.playing{background:var(--acd);border-color:var(--ac)}
-.tts-speed{width:80px;accent-color:var(--ac);height:3px}
+.tts-speed{width:60px;accent-color:var(--ac);height:3px}
 .tts-speed-lbl{font-size:11px;color:var(--tf);min-width:32px}
+.tts-voice{background:var(--bgi);border:1px solid var(--bd);border-radius:6px;color:var(--tx);font-size:11px;padding:4px 6px;max-width:120px;outline:none}
+.tts-row{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap}
 
 /* ── Vocab Modal ── */
 .vmod{position:fixed;inset:0;z-index:300;background:var(--bgd);transform:translateY(100%);transition:transform .3s ease;overflow-y:auto;-webkit-overflow-scrolling:touch}
@@ -193,9 +195,15 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 .vcard-savebtn{background:var(--gr);color:#000;border:none;border-radius:6px;padding:6px 10px;font-size:11px;font-weight:600;cursor:pointer}
 .vcard-lookup{font-size:11px;color:var(--ac);cursor:pointer;margin-top:4px;display:inline-block}
 
-/* Floating vocab add button */
-.vfloat{display:none;position:fixed;bottom:calc(var(--sb)+70px);right:16px;z-index:250;background:var(--ac);color:#fff;border:none;border-radius:12px;padding:10px 16px;font-size:13px;font-weight:600;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.4);animation:fi .2s}
-.vfloat.show{display:flex;align-items:center;gap:6px}
+/* Word popover */
+.wpop{display:none;position:absolute;z-index:260;background:var(--bgc);border:1px solid var(--bd);border-radius:10px;padding:6px;box-shadow:0 4px 20px rgba(0,0,0,.5);flex-direction:row;gap:4px}
+.wpop.show{display:flex}
+.wpop::after{content:'';position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);border-left:6px solid transparent;border-right:6px solid transparent;border-top:6px solid var(--bd)}
+.wpop-btn{background:none;border:none;color:var(--tx);font-size:12px;font-weight:600;padding:6px 10px;border-radius:6px;cursor:pointer;white-space:nowrap}
+.wpop-btn:active{background:var(--bgi)}
+/* Tappable abstract words */
+.abs-word{cursor:pointer;border-radius:2px;-webkit-tap-highlight-color:rgba(96,165,250,0.2)}
+.abs-word:active{background:rgba(96,165,250,0.15)}
 
 /* Vocab btn in mini bar */
 .smini-right{display:flex;align-items:center;gap:8px}
@@ -238,7 +246,7 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
     <div id="vlist"></div>
   </div>
 </div>
-<button class="vfloat" id="vfloat" onclick="addSelectedWord()">📖 単語帳に追加</button>
+<div class="wpop" id="wpop"><button class="wpop-btn" onclick="popAddWord()">📖 追加</button><button class="wpop-btn" onclick="popCopyWord()">📋 コピー</button></div>
 <div class="stmod" id="stmod">
   <div class="stmod-hd"><div class="stmod-handle"></div><div class="stmod-hd-row"><span class="stmod-title">📊 読書記録</span><button class="stmod-close" onclick="closeStats()">閉じる ✕</button></div></div>
   <div class="stmod-body" id="stmod-body"></div>
@@ -465,20 +473,21 @@ function rL(){
   const a=new Array(list.length+1);
   a[0]=`<div class="pcnt">${list.length}件</div>`;
   for(let i=0;i<list.length;i++){
-    const p=list[i];const rc=p.checked?' rd':'';const sl=p.checked?'未読':'既読';const sc=p.checked?'tu':'tr';
+    const p=list[i];const rc=p.checked?' rd':'';
+    const swBg=p.checked?'<div class="swb tu">未読に戻す</div>':'';
     const memo=p.memo?'<span class="pm">📝</span>':'';
     const rdAt=p.readAt?`<span class="prd">既読 ${fD(p.readAt)}</span>`:'';
     const nwBadge=isNew(p)?'<span class="nwb">NEW</span>':'';
     let stars='';for(let j=1;j<=5;j++)stars+=`<button class="st${j<=p.rating?' on':''}" data-p="${p.pmid}" data-s="${j}">★</button>`;
-    a[i+1]=`<div class="cw" data-p="${p.pmid}"><div class="swb ${sc}">${sl}</div><div class="cd${rc}" data-p="${p.pmid}"><div class="ch"><span class="plb">${E(p.queryLabel||'')}${nwBadge}</span><span class="pdt">${fD(p.pubDate)}</span></div><div class="ptt">${E(p.titleJa||p.titleEn||'(No title)')}</div><div class="pjn">${E(p.journal||'')}</div><div class="pbt"><div class="sr">${stars}</div><div>${memo}${rdAt}</div></div></div></div>`;
+    a[i+1]=`<div class="cw" data-p="${p.pmid}">${swBg}<div class="cd${rc}" data-p="${p.pmid}"><div class="ch"><span class="plb">${E(p.queryLabel||'')}${nwBadge}</span><span class="pdt">${fD(p.pubDate)}</span></div><div class="ptt">${E(p.titleJa||p.titleEn||'(No title)')}</div><div class="pjn">${E(p.journal||'')}</div><div class="pbt"><div class="sr">${stars}</div><div>${memo}${rdAt}</div></div></div></div>`;
   }
   c.innerHTML=a.join('');
 }
 
-// Events: list
+// Events: list - swipe only on read cards (unread-back only)
 let _sx=0,_sy=0,_dx=0,_dr=null,_lk=false,_sc=null;
 const pl=document.getElementById('pl');
-pl.addEventListener('touchstart',function(e){const w=e.target.closest('.cw');if(!w)return;_sc=w.querySelector('.cd');_sx=e.touches[0].clientX;_sy=e.touches[0].clientY;_dx=0;_dr=null;_lk=false;_sc.style.transition='none'},{passive:true});
+pl.addEventListener('touchstart',function(e){const w=e.target.closest('.cw');if(!w)return;const cd=w.querySelector('.cd');if(!cd.classList.contains('rd')){_sc=null;return}_sc=cd;_sx=e.touches[0].clientX;_sy=e.touches[0].clientY;_dx=0;_dr=null;_lk=false;_sc.style.transition='none'},{passive:true});
 pl.addEventListener('touchmove',function(e){if(!_sc||_lk)return;const cx=e.touches[0].clientX-_sx,cy=e.touches[0].clientY-_sy;if(_dr===null&&(Math.abs(cx)>8||Math.abs(cy)>8))_dr=Math.abs(cy)>Math.abs(cx)?'v':'h';if(_dr==='v'){_lk=true;return}if(_dr==='h'){_dx=Math.min(0,Math.max(-100,cx));_sc.style.transform=`translateX(${_dx}px)`}},{passive:true});
 pl.addEventListener('touchend',function(){if(!_sc)return;_sc.style.transition='transform .15s ease';if(_dx<-50){_sc.style.transform='translateX(-100px)';const pm=_sc.closest('.cw').dataset.p;requestAnimationFrame(()=>tR(pm))}else if(_dr==='h')_sc.style.transform='translateX(0)';_sc=null},{passive:true});
 pl.addEventListener('click',function(e){const sb=e.target.closest('.st');if(sb){e.stopPropagation();sR(sb.dataset.p,+sb.dataset.s);return}const cd=e.target.closest('.cd');if(cd&&!e.target.closest('.sr'))openD(cd.dataset.p)});
@@ -494,7 +503,7 @@ ma.addEventListener('touchmove',function(e){if(!pulling)return;const dy=e.touche
 ma.addEventListener('touchend',function(e){if(!pulling)return;pulling=false;const dy=e.changedTouches[0].clientY-sy;if(dy>60&&!triggered){triggered=true;ptr.textContent='同期中...';ptr.classList.add('loading');syncData().finally(()=>{ptr.classList.remove('show','loading')})}else{ptr.classList.remove('show')}},{passive:true});
 })();
 
-async function tR(pm){const p=P.find(x=>x.pmid===pm);if(!p)return;p.checked=!p.checked;p.readAt=p.checked?new Date().toISOString():'';await sC(p);sortP();rF();rL();rSt();sT(p.checked?'既読にしました':'未読に戻しました')}
+async function tR(pm){const p=P.find(x=>x.pmid===pm);if(!p||!p.checked)return;p.checked=false;p.readAt='';await sC(p);sortP();rF();rL();rSt();sT('未読に戻しました')}
 async function sR(pm,v){const p=P.find(x=>x.pmid===pm);if(!p)return;p.rating=p.rating===v?0:v;const cw=document.querySelector(`.cw[data-p="${pm}"]`);if(cw)cw.querySelectorAll('.st').forEach((b,i)=>b.classList.toggle('on',i<p.rating));if(cP===pm){const el=document.getElementById('dss');if(el)el.querySelectorAll('.dsb').forEach((b,i)=>b.classList.toggle('on',i<p.rating))}rF();sC(p)}
 
 function dSt(pm,r){let h='';for(let i=1;i<=5;i++)h+=`<button class="dsb${i<=r?' on':''}" data-s="${i}">★</button>`;return h}
@@ -510,7 +519,7 @@ function openD(pm){
 <div class="dti">${E(p.titleJa||p.titleEn||'')}</div>
 <div class="dm"><span class="di">${E(p.journal||'')}</span><span class="di">${fD(p.pubDate)}</span><span class="di">PMID:${p.pmid}</span>${p.readAt?`<span class="di">既読 ${fD(p.readAt)}</span>`:''}</div>
 <div class="ds"><div class="dl">アブストラクト（日本語）</div><div class="da">${E(p.abstractJa||'(アブストラクトなし)')}</div></div>
-<div class="co"><button class="ct" onclick="this.classList.toggle('op');this.nextElementSibling.classList.toggle('op')"><span class="ca">▶</span> Abstract（原文）</button><div class="cb"><div class="tts-row"><button class="tts-btn" id="ttsBtn" onclick="toggleTTS()">🔊 読み上げ</button><input type="range" class="tts-speed" id="ttsSpd" min="0.6" max="1.8" step="0.1" value="1.0" onchange="updTTSLbl()"/><span class="tts-speed-lbl" id="ttsSpdL">1.0x</span></div><div class="dae" id="absEn">${E(p.abstractEn||'(No abstract)')}</div></div></div>
+<div class="co"><button class="ct" onclick="this.classList.toggle('op');this.nextElementSibling.classList.toggle('op')"><span class="ca">▶</span> Abstract（原文）</button><div class="cb"><div class="tts-row"><button class="tts-btn" id="ttsBtn" onclick="toggleTTS()">🔊 読み上げ</button><select class="tts-voice" id="ttsVoice"></select><input type="range" class="tts-speed" id="ttsSpd" min="0.6" max="1.8" step="0.1" value="1.0" onchange="updTTSLbl()"/><span class="tts-speed-lbl" id="ttsSpdL">1.0x</span></div><div class="dae" id="absEn">${wrapWords(p.abstractEn||'(No abstract)')}</div></div></div>
 <div class="co"><button class="ct" onclick="this.classList.toggle('op');this.nextElementSibling.classList.toggle('op')"><span class="ca">▶</span> 原文タイトル</button><div class="cb"><div class="dae">${E(p.titleEn||'')}</div></div></div>
 <div class="ds"><div class="dl">著者</div><div class="dau">${E(p.authors||'')}</div></div>
 <div><a class="dlk" href="${pu}" target="_blank">PubMedで開く ↗</a>${doi?`<br><a class="dlk" href="${doi}" target="_blank">DOI: ${E(p.doi)} ↗</a>`:''}</div>
@@ -524,6 +533,7 @@ function openD(pm){
 </div>
 ${nxH}`;
   uN();ov.style.transform='';ov.style.transition='transform .3s ease';ov.classList.add('open');ov.scrollTop=0;
+  setTimeout(populateVoiceSelect,100);
 }
 function clD(){if(window.speechSynthesis?.speaking)window.speechSynthesis.cancel();const o=document.getElementById('dov');o.style.transition='transform .3s ease';o.style.transform='translateX(100%)';setTimeout(()=>{o.classList.remove('open');o.style.transform='';o.style.transition=''},350);cP=null}
 function nD(d){if(!cP)return;const i=F.findIndex(p=>p.pmid===cP);const n=i+d;if(n>=0&&n<F.length)openD(F[n].pmid)}
@@ -556,28 +566,96 @@ dov.addEventListener('touchend',e=>{if(!tr)return;tr=false;const dx=e.changedTou
 
 async function sC(p){await dP('papers',{...p});const d={pmid:p.pmid,checked:p.checked,memo:p.memo,rating:p.rating,readAt:p.readAt||''};if(ol){try{await jp({action:'update',data:JSON.stringify({action:'update',...d}),key:C.key})}catch(e){await dP('pending',d)}}else await dP('pending',d)}
 // ── TTS ──
-let _ttsU=null;
+let _ttsU=null,_ttsVoices=[];
+function populateVoiceSelect(){
+  const sel=document.getElementById('ttsVoice');if(!sel)return;
+  const voices=speechSynthesis.getVoices();
+  _ttsVoices=voices.filter(v=>v.lang.startsWith('en'));
+  if(!_ttsVoices.length)return;
+  // Sort: Premium/Enhanced first, then by name
+  _ttsVoices.sort((a,b)=>{
+    const ap=/premium|enhanced|natural|neural/i.test(a.name)?0:1;
+    const bp=/premium|enhanced|natural|neural/i.test(b.name)?0:1;
+    if(ap!==bp)return ap-bp;
+    return a.name.localeCompare(b.name);
+  });
+  const saved=localStorage.getItem('ttsVoice')||'';
+  sel.innerHTML=_ttsVoices.map((v,i)=>{
+    const label=v.name.replace(/^Microsoft |^Google |^Apple /,'');
+    const sel2=v.name===saved?' selected':'';
+    return`<option value="${i}"${sel2}>${label}</option>`;
+  }).join('');
+  // If no saved match, select first (best quality)
+  if(saved&&!_ttsVoices.find(v=>v.name===saved))sel.selectedIndex=0;
+}
+function getSelectedVoice(){
+  const sel=document.getElementById('ttsVoice');if(!sel)return null;
+  const idx=parseInt(sel.value);
+  const voice=_ttsVoices[idx]||null;
+  if(voice)localStorage.setItem('ttsVoice',voice.name);
+  return voice;
+}
 function toggleTTS(){
   const ss=window.speechSynthesis;if(!ss)return sT('読み上げ非対応');
   if(ss.speaking){ss.cancel();document.getElementById('ttsBtn').classList.remove('playing');return}
   const p=P.find(x=>x.pmid===cP);if(!p||!p.abstractEn)return;
   _ttsU=new SpeechSynthesisUtterance(p.abstractEn);
-  _ttsU.lang='en-US';_ttsU.rate=parseFloat(document.getElementById('ttsSpd').value)||1.0;
-  // iOS requires voice selection
-  const voices=ss.getVoices();
-  const enV=voices.find(v=>v.lang.startsWith('en')&&v.localService);
-  if(enV)_ttsU.voice=enV;
+  _ttsU.lang='en-US';
+  _ttsU.rate=parseFloat(document.getElementById('ttsSpd').value)||1.0;
+  const voice=getSelectedVoice();
+  if(voice)_ttsU.voice=voice;
   _ttsU.onend=()=>{document.getElementById('ttsBtn')?.classList.remove('playing')};
   _ttsU.onerror=()=>{document.getElementById('ttsBtn')?.classList.remove('playing')};
   document.getElementById('ttsBtn').classList.add('playing');
   ss.speak(_ttsU);
 }
-function updTTSLbl(){const v=document.getElementById('ttsSpd').value;document.getElementById('ttsSpdL').textContent=v+'x';if(window.speechSynthesis.speaking&&_ttsU){window.speechSynthesis.cancel()}}
-// Preload voices (iOS needs this)
-if('speechSynthesis'in window){speechSynthesis.getVoices();speechSynthesis.addEventListener('voiceschanged',()=>{})}
+function updTTSLbl(){const v=document.getElementById('ttsSpd').value;document.getElementById('ttsSpdL').textContent=v+'x';if(window.speechSynthesis?.speaking)window.speechSynthesis.cancel()}
+// Voices load async on iOS - populate when ready
+if('speechSynthesis'in window){
+  speechSynthesis.addEventListener('voiceschanged',populateVoiceSelect);
+  setTimeout(populateVoiceSelect,500); // fallback
+}
 // Stop TTS when leaving detail - handled in clD directly
 
-// ── Vocab ──
+// ── Word Popover ──
+function wrapWords(text){
+  return E(text).replace(/(\S+)/g,'<span class="abs-word">$1</span>');
+}
+let _popWord='',_popCtx='';
+document.addEventListener('click',function(e){
+  const wp=e.target.closest('.abs-word');
+  const pop=document.getElementById('wpop');
+  if(wp){
+    // Clean word (remove punctuation)
+    _popWord=wp.textContent.replace(/^[^a-zA-Z0-9]+|[^a-zA-Z0-9]+$/g,'');
+    // Get context: nearby text
+    const parent=wp.closest('.dae');
+    if(parent){const full=parent.textContent;const idx=full.indexOf(_popWord);const s=Math.max(0,idx-40);const en=Math.min(full.length,idx+_popWord.length+40);_popCtx=full.substring(s,en)}
+    // Position popover above the word
+    const rect=wp.getBoundingClientRect();
+    pop.style.left=Math.max(8,Math.min(rect.left+rect.width/2-60,window.innerWidth-128))+'px';
+    pop.style.top=(rect.top-44+window.scrollY)+'px';
+    pop.classList.add('show');
+    e.stopPropagation();
+    return;
+  }
+  // Dismiss popover if clicking elsewhere
+  if(!e.target.closest('.wpop'))pop.classList.remove('show');
+});
+
+async function popAddWord(){
+  if(!_popWord)return;
+  const w={id:'v_'+Date.now(),word:_popWord,meaning:'',context:_popCtx,pmid:cP||'',addedAt:new Date().toISOString()};
+  await saveWord(w);
+  document.getElementById('wpop').classList.remove('show');
+  sT('📖 "'+_popWord+'" を追加しました');
+}
+function popCopyWord(){
+  if(!_popWord)return;
+  cc(_popWord);
+  document.getElementById('wpop').classList.remove('show');
+  sT('コピーしました');
+}
 let vocab=[];
 async function loadVocab(){try{vocab=await dGA('vocab');vocab.sort((a,b)=>(b.addedAt||'').localeCompare(a.addedAt||''))}catch(e){vocab=[]}}
 async function saveWord(w){await dP('vocab',w);await loadVocab()}
@@ -632,40 +710,6 @@ async function addWordManual(){
   if(!word)return;
   const w={id:'v_'+Date.now(),word,meaning:'',context:'',pmid:cP||'',addedAt:new Date().toISOString()};
   await saveWord(w);inp.value='';renderVocab();sT('追加しました');
-}
-
-// Text selection → floating button
-let _selTimer;
-document.addEventListener('selectionchange',function(){
-  clearTimeout(_selTimer);
-  _selTimer=setTimeout(()=>{
-    const sel=window.getSelection();
-    const text=(sel?.toString()||'').trim();
-    const fb=document.getElementById('vfloat');
-    // Only show in detail view when text is selected
-    if(text.length>0&&text.length<100&&document.getElementById('dov').classList.contains('open')){
-      fb.classList.add('show');
-    }else{
-      fb.classList.remove('show');
-    }
-  },300);
-});
-
-async function addSelectedWord(){
-  const sel=window.getSelection();const text=(sel?.toString()||'').trim();
-  if(!text)return;
-  // Get surrounding context
-  let context='';
-  if(sel.anchorNode){
-    const full=sel.anchorNode.textContent||'';
-    const idx=full.indexOf(text);
-    if(idx>=0){const start=Math.max(0,idx-30);const end=Math.min(full.length,idx+text.length+30);context=full.substring(start,end)}
-  }
-  const w={id:'v_'+Date.now(),word:text,meaning:'',context,pmid:cP||'',addedAt:new Date().toISOString()};
-  await saveWord(w);
-  document.getElementById('vfloat').classList.remove('show');
-  sel.removeAllRanges();
-  sT('📖 "'+text+'" を追加しました');
 }
 
 // Vocab modal swipe-down close
