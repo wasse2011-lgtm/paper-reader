@@ -621,7 +621,7 @@ document.addEventListener('click',function(e){
   if(parent){const full=parent.textContent;const idx=full.indexOf(wp.textContent);const s=Math.max(0,idx-40);const en=Math.min(full.length,idx+wp.textContent.length+40);_wdCtx=full.substring(s,en)}
   // Show dialog
   document.getElementById('wd-word').textContent=_wdWord;
-  document.getElementById('wd-status').textContent='辞書を検索中...';
+  document.getElementById('wd-status').textContent='翻訳中...';
   document.getElementById('wd-meaning').style.display='none';
   document.getElementById('wd-edit').value='';
   document.getElementById('wd-ctx').textContent=_wdCtx?`"...${_wdCtx}..."`:'';
@@ -636,29 +636,22 @@ async function lookupWordDialog(word){
   const meaningEl=document.getElementById('wd-meaning');
   const editEl=document.getElementById('wd-edit');
   try{
-    const r=await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word.toLowerCase())}`);
-    if(!r.ok)throw new Error('not found');
+    const r=await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(word)}&langpair=en|ja`);
+    if(!r.ok)throw new Error('API error');
     const data=await r.json();
-    const defs=[];
-    for(const entry of data){
-      for(const m of(entry.meanings||[])){
-        for(const d of(m.definitions||[]).slice(0,2)){
-          defs.push(`[${m.partOfSpeech}] ${d.definition}`);
-        }
-      }
-    }
-    if(defs.length){
-      _wdMeaning=defs.join('\n');
+    const translated=data?.responseData?.translatedText||'';
+    if(translated&&translated.toLowerCase()!==word.toLowerCase()){
+      _wdMeaning=translated;
       statusEl.textContent='';
       meaningEl.textContent=_wdMeaning;
       meaningEl.style.display='block';
       editEl.value=_wdMeaning;
     }else{
-      statusEl.textContent='辞書に見つかりませんでした';
+      statusEl.textContent='翻訳が見つかりませんでした';
       meaningEl.style.display='none';
     }
   }catch(e){
-    statusEl.textContent='辞書に見つかりませんでした';
+    statusEl.textContent='翻訳が見つかりませんでした';
     meaningEl.style.display='none';
   }
 }
@@ -701,7 +694,7 @@ function renderVocab(){
   if(!vocab.length){c.innerHTML='<div class="em"><div class="emi">📖</div><div class="emt">単語がまだ登録されていません。<br>論文のアブストラクトから単語を選択して追加できます。</div></div>';return}
   c.innerHTML=vocab.map(v=>`<div class="vcard" data-vid="${v.id}">
     <div class="vcard-top"><span class="vcard-word">${E(v.word)}</span><button class="vcard-del" data-vid="${v.id}">✕</button></div>
-    ${v.meaning?`<div class="vcard-meaning">${E(v.meaning)}</div>`:'<span class="vcard-lookup" data-vid="${v.id}">🔍 意味を検索</span>'}
+    ${v.meaning?`<div class="vcard-meaning">${E(v.meaning)}</div>`:'<span class="vcard-lookup" data-vid="${v.id}">🔍 日本語に翻訳</span>'}
     <div class="vcard-edit"><input class="vcard-editinp" value="${E(v.meaning||'')}" placeholder="意味を入力・編集" data-vid="${v.id}"/><button class="vcard-savebtn" data-vid="${v.id}">保存</button></div>
     ${v.context?`<div class="vcard-ctx">"...${E(v.context)}..."</div>`:''}
     <div class="vcard-meta">${v.pmid?'PMID:'+v.pmid+' · ':''}${fD(v.addedAt)}</div>
@@ -720,16 +713,15 @@ document.getElementById('vmod').addEventListener('click',function(e){
 
 async function lookupWord(id){
   const w=vocab.find(v=>v.id===id);if(!w)return;
-  sT('検索中...');
+  sT('翻訳中...');
   try{
-    const r=await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(w.word.toLowerCase())}`);
-    if(!r.ok)throw new Error('not found');
+    const r=await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(w.word)}&langpair=en|ja`);
+    if(!r.ok)throw new Error('API error');
     const data=await r.json();
-    const defs=[];
-    for(const entry of data){for(const m of(entry.meanings||[])){for(const d of(m.definitions||[]).slice(0,2)){defs.push(`[${m.partOfSpeech}] ${d.definition}`)}}}
-    if(defs.length){w.meaning=defs.join('\n');await saveWord(w);renderVocab();sT('意味を取得しました')}
-    else sT('意味が見つかりませんでした');
-  }catch(e){sT('辞書に見つかりませんでした（手動入力してください）')}
+    const translated=data?.responseData?.translatedText||'';
+    if(translated&&translated.toLowerCase()!==w.word.toLowerCase()){w.meaning=translated;await saveWord(w);renderVocab();sT('翻訳を取得しました')}
+    else sT('翻訳が見つかりませんでした');
+  }catch(e){sT('翻訳に失敗しました（手動入力してください）')}
 }
 
 async function addWordManual(){
