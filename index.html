@@ -27,7 +27,7 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 .sybtn{display:flex;align-items:center;gap:6px;background:var(--acd);color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:13px;font-weight:600;cursor:pointer}
 .sybtn:active{opacity:.7}.sybtn.sy .si{animation:sp 1s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
-.sd{width:8px;height:8px;border-radius:50%;flex-shrink:0}.sd.on{background:var(--gr)}.sd.off{background:#f87171}
+.sd{width:8px;height:8px;border-radius:50%;flex-shrink:0;display:none}.sd.off{display:block;background:#f87171}
 .ptr{text-align:center;padding:12px;font-size:13px;color:var(--ac);font-weight:600;transition:max-height .3s,opacity .3s;max-height:0;opacity:0;overflow:hidden}
 .ptr.show{max-height:50px;opacity:1}.ptr.loading{color:var(--am)}
 .nbanner{display:none;margin:0 16px 8px;padding:10px 14px;background:linear-gradient(135deg,#831843,#be185d);border-radius:10px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;text-align:center;animation:fi .3s}
@@ -281,7 +281,20 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 <script>
 const EM={'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'};
 function E(s){return s?String(s).replace(/[&<>"']/g,c=>EM[c]):''}
-function fD(s){if(!s)return'';try{const d=new Date(s);return isNaN(d)?s:d.getFullYear()+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0')}catch{return s}}
+function fD(s){
+  if(!s)return'';
+  try{
+    // Handle PubMed formats like "2025-Mar-15", "2025-Mar", ISO strings
+    const ms={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+    const m2=String(s).match(/^(\d{4})-([A-Za-z]{3})(?:-(\d+))?$/);
+    if(m2){const y=+m2[1],m=ms[m2[2]],dy=m2[3]?+m2[3]:0;
+      const mn=['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+      return dy?y+'年'+mn[m]+dy+'日':y+'年'+mn[m]}
+    const d=new Date(s);if(isNaN(d))return s;
+    const mn=['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+    return d.getFullYear()+'年'+mn[d.getMonth()]+d.getDate()+'日';
+  }catch{return s}
+}
 function toKey(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function sL(p){document.getElementById('lb').style.width=p+'%'}
 let _tt;function sT(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),2500)}
@@ -691,7 +704,7 @@ document.getElementById('wd-cancel').addEventListener('click',function(){
 });
 document.getElementById('wd-google').addEventListener('click',function(){
   if(!_wdWord)return;
-  window.open(`https://www.google.com/search?q=${encodeURIComponent(_wdWord+' meaning')}`,`_blank`);
+  window.open(`https://www.google.com/search?q=${encodeURIComponent(_wdWord+' 意味')}`,`_blank`);
 });
 // Close dialog by tapping overlay background
 document.getElementById('wdov').addEventListener('click',function(e){
@@ -760,7 +773,7 @@ m.addEventListener('touchmove',e=>{if(!tr)return;const dy=e.touches[0].clientY-s
 m.addEventListener('touchend',e=>{if(!tr)return;tr=false;const dy=e.changedTouches[0].clientY-sy;if(dy>80)closeVocab();else{m.style.transition='transform .3s ease';m.style.transform='translateY(0)'}},{passive:true});
 })();
 
-function uSD(){document.getElementById('sd').className='sd '+(ol?'on':'off')}
+function uSD(){const d=document.getElementById('sd');d.className=ol?'sd':'sd off'}
 window.addEventListener('online',()=>{ol=true;uSD();sT('オンライン復帰');syncData()});
 window.addEventListener('offline',()=>{ol=false;uSD();sT('オフラインモード')});
 
