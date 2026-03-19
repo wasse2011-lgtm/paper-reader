@@ -28,15 +28,11 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 .sybtn:active{opacity:.7}.sybtn.sy .si{animation:sp 1s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
 .sd{width:8px;height:8px;border-radius:50%;flex-shrink:0}.sd.on{background:var(--gr)}.sd.off{background:#f87171}
-/* pull-to-refresh */
 .ptr{text-align:center;padding:12px;font-size:13px;color:var(--ac);font-weight:600;transition:max-height .3s,opacity .3s;max-height:0;opacity:0;overflow:hidden}
-.ptr.show{max-height:50px;opacity:1}
-.ptr.loading{color:var(--am)}
-/* new banner */
-.nbanner{display:none;margin:0 16px 8px;padding:10px 14px;background:linear-gradient(135deg,#831843,#be185d);border-radius:10px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;text-align:center;animation:fadeIn .3s}
-.nbanner.show{display:block}
-.nbanner span{font-size:11px;font-weight:400;opacity:.8;margin-left:6px}
-@keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.ptr.show{max-height:50px;opacity:1}.ptr.loading{color:var(--am)}
+.nbanner{display:none;margin:0 16px 8px;padding:10px 14px;background:linear-gradient(135deg,#831843,#be185d);border-radius:10px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;text-align:center;animation:fi .3s}
+.nbanner.show{display:block}.nbanner span{font-size:11px;font-weight:400;opacity:.8;margin-left:6px}
+@keyframes fi{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
 .sbar{position:relative;margin-bottom:10px}
 .sinp{width:100%;background:var(--bgi);border:1px solid var(--bd);border-radius:10px;padding:10px 12px 10px 36px;color:var(--tx);font-size:14px;outline:none}
 .sinp:focus{border-color:var(--ac)}.sinp::placeholder{color:var(--tf)}
@@ -48,6 +44,26 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 .fc.aa{background:var(--am);color:#000;border-color:var(--am)}
 .fc.ap{background:var(--nw);color:#fff;border-color:var(--nw)}
 .fb{display:inline-block;margin-left:4px;padding:0 5px;border-radius:8px;font-size:10px;font-weight:700;background:rgba(255,255,255,.2)}
+
+/* ── Stats Panel ── */
+.spnl{margin:0 16px 10px;background:var(--bgc);border-radius:var(--r);padding:12px 14px;border:1px solid var(--bd)}
+.srow{display:flex;align-items:center;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+.sstreak{font-size:14px;font-weight:700;color:var(--am)}
+.sstreak .fire{font-size:16px}
+.sstat{font-size:11px;color:var(--td)}
+.sstat b{color:var(--tx);font-size:13px;font-weight:700}
+.shm{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;margin-bottom:8px}
+.shm::-webkit-scrollbar{display:none}
+.shmc{display:flex;flex-direction:column;gap:2px}
+.shmd{font-size:8px;color:var(--tf);text-align:center;margin-bottom:2px;min-width:9px}
+.shcell{width:9px;height:9px;border-radius:2px;background:var(--bgi)}
+.shcell.l1{background:#1a4731}.shcell.l2{background:#22763d}.shcell.l3{background:#2ea043}.shcell.l4{background:var(--gr)}
+.swkbar{display:flex;align-items:flex-end;gap:4px;height:36px}
+.swkb{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px}
+.swkbr{width:100%;border-radius:3px 3px 0 0;background:var(--acd);min-height:2px;transition:height .3s}
+.swkbl{font-size:9px;color:var(--tf)}
+.swkbn{font-size:10px;font-weight:700;color:var(--td)}
+
 .pl{padding:0 16px calc(var(--sb)+20px)}
 .pcnt{font-size:12px;color:var(--tf);margin-bottom:10px;padding-top:12px}
 .cw{position:relative;overflow:hidden;border-radius:var(--r);margin-bottom:10px}
@@ -57,7 +73,7 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 .cd.rd{border-left:3px solid var(--gr)}.cd.rd .ptt{color:var(--td)}.cd.rd .pjn{color:var(--tf)}.cd.rd .plb{opacity:.5}
 .ch{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:4px}
 .plb{flex-shrink:0;font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;background:var(--acd);color:var(--ac);letter-spacing:.03em}
-.nwb{font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;background:var(--nw);color:#fff;margin-left:4px;letter-spacing:.05em}
+.nwb{font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;background:var(--nw);color:#fff;margin-left:4px}
 .pdt{font-size:11px;color:var(--tf);flex-shrink:0}
 .ptt{font-size:14px;font-weight:600;line-height:1.5;margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;color:var(--tx)}
 .pjn{font-size:12px;color:var(--td)}
@@ -65,7 +81,6 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 .pm{font-size:11px;color:var(--ac)}.prd{font-size:10px;color:var(--tf);margin-left:8px}
 .sr{display:flex;gap:1px}
 .st{background:none;border:none;font-size:16px;padding:0 1px;cursor:pointer;color:var(--tf);line-height:1;-webkit-tap-highlight-color:transparent}.st.on{color:var(--am)}
-/* detail */
 .dov{position:fixed;inset:0;z-index:200;background:var(--bgd);transform:translateX(100%);transition:transform .3s ease;overflow-y:auto;-webkit-overflow-scrolling:touch;will-change:transform}
 .dov.open{transform:translateX(0)}
 .dh{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:8px;padding:calc(var(--st)+10px) 16px 10px;background:var(--bgd);border-bottom:1px solid var(--bd)}
@@ -77,8 +92,7 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 .dbdy{padding:16px 16px calc(var(--sb)+40px)}
 .dm{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
 .di{font-size:12px;color:var(--td);background:var(--bgi);padding:4px 10px;border-radius:6px}
-.ds{margin-bottom:20px}
-.dl{font-size:11px;font-weight:700;color:var(--tf);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.ds{margin-bottom:20px}.dl{font-size:11px;font-weight:700;color:var(--tf);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
 .dti{font-size:17px;font-weight:700;line-height:1.5;margin-bottom:16px}
 .da{font-size:14px;line-height:1.8;white-space:pre-wrap}
 .dae{font-size:13px;line-height:1.7;color:var(--td);white-space:pre-wrap}
@@ -97,16 +111,10 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 .dsr{display:flex;gap:4px}
 .dsb{background:none;border:none;font-size:24px;padding:2px;cursor:pointer;color:var(--tf);-webkit-tap-highlight-color:transparent}.dsb.on{color:var(--am)}
 .mt{width:100%;min-height:100px;background:var(--bgi);border:1px solid var(--bd);border-radius:10px;padding:12px;color:var(--tx);font-size:14px;font-family:inherit;line-height:1.6;resize:vertical;outline:none}
-.mt:focus{border-color:var(--ac)}.mt::placeholder{color:var(--tf)}
-.mh{font-size:11px;color:var(--tf);margin-top:6px}
-/* next papers */
-.nxsec{margin-top:28px;padding-top:20px;border-top:1px solid var(--bd)}
-.nxsec .dl{margin-bottom:10px}
+.mt:focus{border-color:var(--ac)}.mt::placeholder{color:var(--tf)}.mh{font-size:11px;color:var(--tf);margin-top:6px}
+.nxsec{margin-top:28px;padding-top:20px;border-top:1px solid var(--bd)}.nxsec .dl{margin-bottom:10px}
 .nxcard{background:var(--bgc);border-radius:10px;padding:12px 14px;margin-bottom:8px;cursor:pointer;border:1px solid var(--bd)}
-.nxcard:active{background:var(--bgi)}
-.nxcard .ptt{font-size:13px;-webkit-line-clamp:2;margin-bottom:2px}
-.nxcard .pjn{font-size:11px}
-/* setup */
+.nxcard:active{background:var(--bgi)}.nxcard .ptt{font-size:13px;-webkit-line-clamp:2;margin-bottom:2px}.nxcard .pjn{font-size:11px}
 .su{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:32px 24px;text-align:center}
 .sut{font-size:22px;font-weight:700;margin-bottom:8px}
 .sud{font-size:14px;color:var(--td);margin-bottom:24px;line-height:1.6}
@@ -136,6 +144,7 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
     <div class="sbar"><span class="sico">🔍</span><input class="sinp" id="si" placeholder="タイトル・キーワードで検索"/></div>
     <div class="fl" id="fl"></div>
   </div>
+  <div class="spnl" id="spnl" style="display:none"></div>
   <div class="ptr" id="ptr">↓ 引っ張って同期</div>
   <div class="nbanner" id="nban"></div>
   <div class="pl" id="pl"></div>
@@ -149,11 +158,11 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 const EM={'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'};
 function E(s){return s?String(s).replace(/[&<>"']/g,c=>EM[c]):''}
 function fD(s){if(!s)return'';try{const d=new Date(s);return isNaN(d)?s:d.getFullYear()+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0')}catch{return s}}
+function toKey(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function sL(p){document.getElementById('lb').style.width=p+'%'}
 let _tt;function sT(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),2500)}
 function isNew(p){if(!p.fetchedDate)return false;return(Date.now()-new Date(p.fetchedDate).getTime())<7*86400000}
 
-// IDB
 const DBN='PaperReaderDB',DBV=3;
 function oDB(){return new Promise((r,j)=>{const q=indexedDB.open(DBN,DBV);q.onupgradeneeded=e=>{const d=e.target.result;['papers','pending','config'].forEach(n=>{if(!d.objectStoreNames.contains(n))d.createObjectStore(n,{keyPath:n==='config'?'key':'pmid'})})};q.onsuccess=()=>r(q.result);q.onerror=()=>j(q.error)})}
 async function dGA(s){const d=await oDB();return new Promise((r,j)=>{const t=d.transaction(s,'readonly');t.objectStore(s).getAll().onsuccess=e=>r(e.target.result);t.onerror=()=>j(t.error)})}
@@ -170,11 +179,9 @@ async function saveSetup(){const u=document.getElementById('suUrl').value.trim()
 let _jc=0;
 function jp(p){return new Promise((r,j)=>{const cb='_j'+ _jc++;const tm=setTimeout(()=>{cl();j(new Error('Timeout'))},30000);function cl(){clearTimeout(tm);delete window[cb];const e=document.getElementById(cb);if(e)e.remove()}window[cb]=d=>{cl();r(d)};const q=new URLSearchParams({...p,key:C.key,callback:cb});const s=document.createElement('script');s.id=cb;s.src=C.url+'?'+q;s.onerror=()=>{cl();j(new Error('JSONP failed'))};document.head.appendChild(s)})}
 
-// Notification
 function reqNotif(){if('Notification'in window&&Notification.permission==='default')Notification.requestPermission()}
-function sendNotif(n){if('Notification'in window&&Notification.permission==='granted')new Notification('📄 Paper Reader',{body:`新着 ${n} 件の論文が追加されました`,icon:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="%230f1117"/><text x="32" y="46" font-size="40" text-anchor="middle" fill="%2360a5fa">📄</text></svg>'})}
+function sendNotif(n){if('Notification'in window&&Notification.permission==='granted')new Notification('📄 Paper Reader',{body:`新着 ${n} 件の論文が追加されました`})}
 
-// Sync
 async function syncData(){
   if(!ol){sT('オフラインです');return}
   const btn=document.getElementById('sy');btn.classList.add('sy');sL(30);
@@ -199,25 +206,133 @@ async function syncData(){
         return item;
       });
       await dPB('papers',merged);
-      P=merged;sortP();rF();rL();updateBanner();
+      P=merged;sortP();rF();rL();rSt();updateBanner();
       if(newCount>0&&oldPmids.size>0)sendNotif(newCount);
       sT('同期完了: '+P.length+'件'+(newCount?' (新着'+newCount+'件)':''));
     }
   }catch(e){sT('同期エラー: '+e.message)}
   finally{btn.classList.remove('sy');sL(100);setTimeout(()=>sL(0),300)}
 }
-async function loadL(){try{P=(await dGA('papers')).map(p=>({...p,rating:p.rating||0,checked:!!p.checked,readAt:p.readAt||''}));sortP();rF();rL();updateBanner()}catch(e){}}
+async function loadL(){try{P=(await dGA('papers')).map(p=>({...p,rating:p.rating||0,checked:!!p.checked,readAt:p.readAt||''}));sortP();rF();rL();rSt();updateBanner()}catch(e){}}
 function sortP(){P.sort((a,b)=>{if(a.checked!==b.checked)return a.checked?1:-1;const x=a.fetchedDate||a.pubDate||'',y=b.fetchedDate||b.pubDate||'';return x<y?1:x>y?-1:0})}
 
-// Banner
-function updateBanner(){
-  const nc=P.filter(p=>isNew(p)).length;
-  const ban=document.getElementById('nban');
-  if(nc>0){ban.textContent='';ban.innerHTML=`🆕 新着 ${nc} 件<span>直近7日間</span>`;ban.classList.add('show')}
-  else ban.classList.remove('show');
+// ── Stats ──
+function buildReadMap(){
+  const m=new Map();
+  for(const p of P){
+    if(!p.readAt)continue;
+    const k=toKey(new Date(p.readAt));
+    m.set(k,(m.get(k)||0)+1);
+  }
+  return m;
+}
+function calcStreak(rm){
+  let streak=0;
+  const d=new Date();d.setHours(0,0,0,0);
+  // 今日読んでなくても昨日から数える
+  if(!rm.has(toKey(d))){d.setDate(d.getDate()-1)}
+  while(rm.has(toKey(d))){streak++;d.setDate(d.getDate()-1)}
+  return streak;
+}
+function monthCount(rm,monthOffset){
+  const now=new Date();
+  const y=now.getFullYear(),m=now.getMonth()+monthOffset;
+  const start=new Date(y,m,1),end=new Date(y,m+1,0);
+  let cnt=0;
+  for(let d=new Date(start);d<=end;d.setDate(d.getDate()+1)){
+    cnt+=(rm.get(toKey(d))||0);
+  }
+  return cnt;
+}
+function rSt(){
+  const el=document.getElementById('spnl');
+  const readPapers=P.filter(p=>p.readAt);
+  if(readPapers.length===0){el.style.display='none';return}
+  el.style.display='';
+  const rm=buildReadMap();
+  const streak=calcStreak(rm);
+  const thisM=monthCount(rm,0);
+  const lastM=monthCount(rm,-1);
+  const now=new Date();
+  const daysInMonth=now.getDate();
+  const avg=(thisM/daysInMonth).toFixed(1);
+
+  // Heatmap: 90 days
+  const days=90;
+  const today=new Date();today.setHours(0,0,0,0);
+  const startDate=new Date(today);startDate.setDate(startDate.getDate()-days+1);
+  // Align to Monday
+  while(startDate.getDay()!==1)startDate.setDate(startDate.getDate()-1);
+  const mLbl=['','月','','水','','金',''];
+  let hmHtml='';
+  const d=new Date(startDate);
+  let prevMonth=-1;
+  const cols=[];let col=[];
+  while(d<=today){
+    const dow=d.getDay();
+    if(dow===1&&col.length>0){cols.push(col);col=[]}
+    const k=toKey(d);
+    const n=rm.get(k)||0;
+    const lvl=n===0?'':n===1?'l1':n===2?'l2':n<=4?'l3':'l4';
+    const mo=d.getMonth();
+    const showMonth=(dow===0&&mo!==prevMonth);
+    if(showMonth)prevMonth=mo;
+    col.push({lvl,mo,showMonth,dow});
+    d.setDate(d.getDate()+1);
+  }
+  if(col.length)cols.push(col);
+  
+  const mNames=['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+  hmHtml='<div class="shm">';
+  // Day labels
+  hmHtml+=`<div class="shmc">${mLbl.map(l=>`<div class="shmd">${l}</div>`).join('')}</div>`;
+  for(const c of cols){
+    const mLabel=c[0]&&c[0].showMonth?mNames[c[0].mo]:'';
+    // Pad column to 7 rows
+    let cells='';
+    const startDow=c[0]?c[0].dow:0;
+    // If column starts mid-week, pad
+    const padded=new Array(7).fill(null);
+    for(const cell of c){padded[cell.dow===0?6:cell.dow-1]=cell}
+    for(let i=0;i<7;i++){
+      const cell=padded[i];
+      cells+=cell?`<div class="shcell ${cell.lvl}"></div>`:`<div class="shcell"></div>`;
+    }
+    hmHtml+=`<div class="shmc">${cells}</div>`;
+  }
+  hmHtml+='</div>';
+
+  // Weekly bars: last 4 weeks
+  const weeks=[];
+  for(let w=3;w>=0;w--){
+    const ws=new Date(today);ws.setDate(ws.getDate()-ws.getDay()-7*w+1);
+    let cnt=0;
+    for(let i=0;i<7;i++){const dd=new Date(ws);dd.setDate(dd.getDate()+i);cnt+=(rm.get(toKey(dd))||0)}
+    const label=w===0?'今週':w===1?'先週':`${w+1}週前`;
+    weeks.push({cnt,label});
+  }
+  const maxW=Math.max(...weeks.map(w=>w.cnt),1);
+  let wkHtml='<div class="swkbar">';
+  for(const w of weeks){
+    const h=Math.round((w.cnt/maxW)*30);
+    wkHtml+=`<div class="swkb"><div class="swkbn">${w.cnt}</div><div class="swkbr" style="height:${Math.max(h,2)}px"></div><div class="swkbl">${w.label}</div></div>`;
+  }
+  wkHtml+='</div>';
+
+  el.innerHTML=`
+    <div class="srow">
+      <div class="sstreak"><span class="fire">🔥</span> ${streak}日連続</div>
+      <div class="sstat">今月 <b>${thisM}</b>本</div>
+      <div class="sstat">先月 <b>${lastM}</b>本</div>
+      <div class="sstat">日平均 <b>${avg}</b></div>
+    </div>
+    ${hmHtml}
+    ${wkHtml}
+  `;
 }
 
-// Filter
+function updateBanner(){const nc=P.filter(p=>isNew(p)).length;const ban=document.getElementById('nban');if(nc>0){ban.innerHTML=`🆕 新着 ${nc} 件<span>直近7日間</span>`;ban.classList.add('show')}else ban.classList.remove('show')}
+
 function gF(f){switch(f){case'all':return P;case'unread':return P.filter(p=>!p.checked);case'interested':return P.filter(p=>p.rating>=4);case'new':return P.filter(p=>isNew(p));default:return P.filter(p=>p.queryLabel===f)}}
 function rF(){
   const c=document.getElementById('fl');
@@ -228,7 +343,6 @@ function rF(){
 }
 function fc(id,lb,n,ac){return`<button class="fc${aF===id?' '+(ac||'a'):''}" data-f="${id}">${E(lb)}<span class="fb">${n}</span></button>`}
 
-// List
 function rL(){
   const c=document.getElementById('pl'),s=document.getElementById('si').value.trim().toLowerCase();
   let list=gF(aF);
@@ -248,7 +362,7 @@ function rL(){
   c.innerHTML=a.join('');
 }
 
-// Event: list
+// Events: list
 let _sx=0,_sy=0,_dx=0,_dr=null,_lk=false,_sc=null;
 const pl=document.getElementById('pl');
 pl.addEventListener('touchstart',function(e){const w=e.target.closest('.cw');if(!w)return;_sc=w.querySelector('.cd');_sx=e.touches[0].clientX;_sy=e.touches[0].clientY;_dx=0;_dr=null;_lk=false;_sc.style.transition='none'},{passive:true});
@@ -260,32 +374,25 @@ document.getElementById('nban').addEventListener('click',function(){aF='new';rF(
 let _srt;document.getElementById('si').addEventListener('input',function(){clearTimeout(_srt);_srt=setTimeout(rL,200)});
 
 // Pull-to-refresh
-(function(){
-  let sy=0,pulling=false,triggered=false;
-  const ma=document.getElementById('ma'),ptr=document.getElementById('ptr');
-  ma.addEventListener('touchstart',function(e){if(window.scrollY<5){sy=e.touches[0].clientY;pulling=true;triggered=false}else pulling=false},{passive:true});
-  ma.addEventListener('touchmove',function(e){if(!pulling)return;const dy=e.touches[0].clientY-sy;if(dy>60&&!triggered){ptr.classList.add('show');ptr.textContent='↑ 離して同期'}else if(dy>10&&!triggered){ptr.classList.add('show');ptr.textContent='↓ 引っ張って同期'}},{passive:true});
-  ma.addEventListener('touchend',function(e){if(!pulling)return;pulling=false;const dy=e.changedTouches[0].clientY-sy;if(dy>60&&!triggered){triggered=true;ptr.textContent='同期中...';ptr.classList.add('loading');syncData().finally(()=>{ptr.classList.remove('show','loading')})}else{ptr.classList.remove('show')}},{passive:true});
+(function(){let sy=0,pulling=false,triggered=false;
+const ma=document.getElementById('ma'),ptr=document.getElementById('ptr');
+ma.addEventListener('touchstart',function(e){if(window.scrollY<5){sy=e.touches[0].clientY;pulling=true;triggered=false}else pulling=false},{passive:true});
+ma.addEventListener('touchmove',function(e){if(!pulling)return;const dy=e.touches[0].clientY-sy;if(dy>60&&!triggered){ptr.classList.add('show');ptr.textContent='↑ 離して同期'}else if(dy>10&&!triggered){ptr.classList.add('show');ptr.textContent='↓ 引っ張って同期'}},{passive:true});
+ma.addEventListener('touchend',function(e){if(!pulling)return;pulling=false;const dy=e.changedTouches[0].clientY-sy;if(dy>60&&!triggered){triggered=true;ptr.textContent='同期中...';ptr.classList.add('loading');syncData().finally(()=>{ptr.classList.remove('show','loading')})}else{ptr.classList.remove('show')}},{passive:true});
 })();
 
-async function tR(pm){const p=P.find(x=>x.pmid===pm);if(!p)return;p.checked=!p.checked;p.readAt=p.checked?new Date().toISOString():'';await sC(p);sortP();rF();rL();sT(p.checked?'既読にしました':'未読に戻しました')}
+async function tR(pm){const p=P.find(x=>x.pmid===pm);if(!p)return;p.checked=!p.checked;p.readAt=p.checked?new Date().toISOString():'';await sC(p);sortP();rF();rL();rSt();sT(p.checked?'既読にしました':'未読に戻しました')}
 async function sR(pm,v){const p=P.find(x=>x.pmid===pm);if(!p)return;p.rating=p.rating===v?0:v;const cw=document.querySelector(`.cw[data-p="${pm}"]`);if(cw)cw.querySelectorAll('.st').forEach((b,i)=>b.classList.toggle('on',i<p.rating));if(cP===pm){const el=document.getElementById('dss');if(el)el.querySelectorAll('.dsb').forEach((b,i)=>b.classList.toggle('on',i<p.rating))}rF();sC(p)}
 
-// Detail
 function dSt(pm,r){let h='';for(let i=1;i<=5;i++)h+=`<button class="dsb${i<=r?' on':''}" data-s="${i}">★</button>`;return h}
-function nextPapers(pm){const i=F.findIndex(p=>p.pmid===pm);if(i<0)return[];return F.slice(i+1,i+4)}
+function nextPapers(pm){const i=F.findIndex(p=>p.pmid===pm);return i<0?[]:F.slice(i+1,i+4)}
 function openD(pm){
   const p=P.find(x=>x.pmid===pm);if(!p)return;cP=pm;
   const ov=document.getElementById('dov'),body=document.getElementById('dbdy');
   document.getElementById('dht').textContent=p.queryLabel||'';
   const pu=`https://pubmed.ncbi.nlm.nih.gov/${p.pmid}/`,doi=p.doi?`https://doi.org/${p.doi}`:'';
   const nx=nextPapers(pm);
-  let nxHtml='';
-  if(nx.length){
-    nxHtml=`<div class="nxsec"><div class="dl">次の論文</div>`;
-    for(const n of nx)nxHtml+=`<div class="nxcard" data-p="${n.pmid}"><div class="ptt">${E(n.titleJa||n.titleEn||'')}</div><div class="pjn">${E(n.journal||'')} · ${fD(n.pubDate)}</div></div>`;
-    nxHtml+=`</div>`;
-  }
+  let nxH='';if(nx.length){nxH=`<div class="nxsec"><div class="dl">次の論文</div>`;for(const n of nx)nxH+=`<div class="nxcard" data-p="${n.pmid}"><div class="ptt">${E(n.titleJa||n.titleEn||'')}</div><div class="pjn">${E(n.journal||'')} · ${fD(n.pubDate)}</div></div>`;nxH+=`</div>`}
   body.innerHTML=`
 <div class="dti">${E(p.titleJa||p.titleEn||'')}</div>
 <div class="dm"><span class="di">${E(p.journal||'')}</span><span class="di">${fD(p.pubDate)}</span><span class="di">PMID:${p.pmid}</span>${p.readAt?`<span class="di">既読 ${fD(p.readAt)}</span>`:''}</div>
@@ -302,7 +409,7 @@ function openD(pm){
   <textarea class="mt" id="mt" placeholder="メモを入力...">${E(p.memo||'')}</textarea>
   <div class="mh">フォーカスを外すと自動保存</div>
 </div>
-${nxHtml}`;
+${nxH}`;
   uN();ov.style.transform='';ov.style.transition='transform .3s ease';ov.classList.add('open');ov.scrollTop=0;
 }
 function clD(){const o=document.getElementById('dov');o.style.transition='transform .3s ease';o.style.transform='translateX(100%)';setTimeout(()=>{o.classList.remove('open');o.style.transform='';o.style.transition=''},350);cP=null}
@@ -321,14 +428,13 @@ document.getElementById('np').addEventListener('click',()=>nD(-1));
 document.getElementById('nn').addEventListener('click',()=>nD(1));
 dov.addEventListener('focusout',function(e){if(e.target.id==='mt')sM()});
 
-async function tRD(){if(!cP)return;const p=P.find(x=>x.pmid===cP);if(!p)return;p.checked=!p.checked;p.readAt=p.checked?new Date().toISOString():'';document.getElementById('tgl').classList.toggle('on',p.checked);await sC(p);sortP();rF();rL()}
+async function tRD(){if(!cP)return;const p=P.find(x=>x.pmid===cP);if(!p)return;p.checked=!p.checked;p.readAt=p.checked?new Date().toISOString():'';document.getElementById('tgl').classList.toggle('on',p.checked);await sC(p);sortP();rF();rL();rSt()}
 async function sM(){if(!cP)return;const p=P.find(x=>x.pmid===cP);if(!p)return;const t=document.getElementById('mt');if(!t||t.value===p.memo)return;p.memo=t.value;await sC(p);rL();sT('メモ保存')}
 function cpA(){const p=P.find(x=>x.pmid===cP);if(!p)return;cc([`Title: ${p.titleEn}`,`Journal: ${p.journal}`,`PMID: ${p.pmid}`,p.doi?`DOI: ${p.doi}`:'',`Authors: ${p.authors}`,'','Abstract:',p.abstractEn||''].filter(Boolean).join('\n'));sT('コピーしました')}
 function cpP(){const p=P.find(x=>x.pmid===cP);if(!p)return;cc([AIP,'','---','',`Title: ${p.titleEn}`,`Journal: ${p.journal}`,`PMID: ${p.pmid}`,p.doi?`DOI: ${p.doi}`:'',`Authors: ${p.authors}`,'','Abstract:',p.abstractEn||''].filter(Boolean).join('\n'));sT('AI用コピー完了')}
 function cc(t){if(navigator.clipboard?.writeText)navigator.clipboard.writeText(t).catch(()=>fc2(t));else fc2(t)}
 function fc2(t){const a=document.createElement('textarea');a.value=t;a.style.cssText='position:fixed;left:-9999px';document.body.appendChild(a);a.select();document.execCommand('copy');document.body.removeChild(a)}
 
-// Swipe back
 (function(){let sx=0,tr=false;
 dov.addEventListener('touchstart',e=>{if(e.touches[0].clientX>30){tr=false;return}sx=e.touches[0].clientX;tr=true;dov.style.transition='none'},{passive:true});
 dov.addEventListener('touchmove',e=>{if(!tr)return;const dx=e.touches[0].clientX-sx;if(dx>0)dov.style.transform=`translateX(${dx}px)`},{passive:true});
@@ -336,7 +442,7 @@ dov.addEventListener('touchend',e=>{if(!tr)return;tr=false;const dx=e.changedTou
 })();
 
 async function sC(p){await dP('papers',{...p});const d={pmid:p.pmid,checked:p.checked,memo:p.memo,rating:p.rating};if(ol){try{await jp({action:'update',data:JSON.stringify({action:'update',...d}),key:C.key})}catch(e){await dP('pending',d)}}else await dP('pending',d)}
-function uSD(){const d=document.getElementById('sd');d.className='sd '+(ol?'on':'off')}
+function uSD(){document.getElementById('sd').className='sd '+(ol?'on':'off')}
 window.addEventListener('online',()=>{ol=true;uSD();sT('オンライン復帰');syncData()});
 window.addEventListener('offline',()=>{ol=false;uSD();sT('オフラインモード')});
 
