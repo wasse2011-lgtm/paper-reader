@@ -197,11 +197,13 @@ async function syncData(){
       let newCount=0;
       const merged=data.papers.map(sp=>{
         const lp=localMap.get(sp.pmid);
-        const item={...sp,rating:Number(sp.rating)||0,checked:!!sp.checked,readAt:(lp&&lp.readAt)||''};
-        if(lp&&pendSet.has(sp.pmid)){item.checked=lp.checked;item.memo=lp.memo||sp.memo||'';item.rating=lp.rating;item.readAt=lp.readAt||''}
-        if(lp&&item.rating===0&&lp.rating>0)item.rating=lp.rating;
+        const item={...sp,rating:Number(sp.rating)||0,checked:!!sp.checked,readAt:sp.readAt||''};
+        // ローカルにreadAtがあってサーバーに無い場合はローカルを保持
         if(lp&&!item.readAt&&lp.readAt)item.readAt=lp.readAt;
-        if(lp&&!item.checked&&lp.checked){item.checked=true;item.readAt=lp.readAt||''}
+        // pending中のデータはローカル優先
+        if(lp&&pendSet.has(sp.pmid)){item.checked=lp.checked;item.memo=lp.memo||sp.memo||'';item.rating=lp.rating;item.readAt=lp.readAt||item.readAt}
+        if(lp&&item.rating===0&&lp.rating>0)item.rating=lp.rating;
+        if(lp&&!item.checked&&lp.checked){item.checked=true;item.readAt=lp.readAt||item.readAt}
         if(!oldPmids.has(sp.pmid))newCount++;
         return item;
       });
@@ -441,7 +443,7 @@ dov.addEventListener('touchmove',e=>{if(!tr)return;const dx=e.touches[0].clientX
 dov.addEventListener('touchend',e=>{if(!tr)return;tr=false;const dx=e.changedTouches[0].clientX-sx;dov.style.transition='transform .3s ease';dx>100?clD():dov.style.transform='translateX(0)'},{passive:true});
 })();
 
-async function sC(p){await dP('papers',{...p});const d={pmid:p.pmid,checked:p.checked,memo:p.memo,rating:p.rating};if(ol){try{await jp({action:'update',data:JSON.stringify({action:'update',...d}),key:C.key})}catch(e){await dP('pending',d)}}else await dP('pending',d)}
+async function sC(p){await dP('papers',{...p});const d={pmid:p.pmid,checked:p.checked,memo:p.memo,rating:p.rating,readAt:p.readAt||''};if(ol){try{await jp({action:'update',data:JSON.stringify({action:'update',...d}),key:C.key})}catch(e){await dP('pending',d)}}else await dP('pending',d)}
 function uSD(){document.getElementById('sd').className='sd '+(ol?'on':'off')}
 window.addEventListener('online',()=>{ol=true;uSD();sT('オンライン復帰');syncData()});
 window.addEventListener('offline',()=>{ol=false;uSD();sT('オフラインモード')});
