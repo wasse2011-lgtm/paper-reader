@@ -371,22 +371,27 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
       <button class="cfg-addq" onclick="cfgAddPrompt()">＋ プリセットを追加</button>
     </div>
     <div class="cfg-sec">
-      <div class="cfg-sec-title">PubMed検索設定 <span class="cfg-remote-tag">サーバー同期</span></div>
-      <label class="cfg-lbl">検索対象日数 (DAYS_BACK)</label>
-      <input class="cfg-inp cfg-num" id="cfg-daysback" type="number" min="1" max="3650" value="7"/>
-      <label class="cfg-lbl">最大取得件数/クエリ</label>
-      <input class="cfg-inp cfg-num" id="cfg-maxresults" type="number" min="1" max="10000" value="10"/>
-      <div class="cfg-lbl" style="margin-top:12px;margin-bottom:4px">検索クエリ</div>
-      <div id="cfg-queries"></div>
-      <button class="cfg-addq" onclick="cfgAddQuery()">＋ クエリを追加</button>
+      <div class="cfg-sec-title" id="cfg-remote-title" onclick="toggleRemoteCfg(this)" style="cursor:pointer; padding:4px 0;">▶ PubMed検索設定 <span class="cfg-remote-tag">タップで読込</span></div>
+      <div id="cfg-remote-wrap" style="display:none; margin-top:8px;">
+        <label class="cfg-lbl">検索対象日数 (DAYS_BACK)</label>
+        <input class="cfg-inp cfg-num" id="cfg-daysback" type="number" min="1" max="3650" value="7"/>
+        <label class="cfg-lbl">最大取得件数/クエリ</label>
+        <input class="cfg-inp cfg-num" id="cfg-maxresults" type="number" min="1" max="10000" value="10"/>
+        <div class="cfg-lbl" style="margin-top:12px;margin-bottom:4px">検索クエリ</div>
+        <div id="cfg-queries"></div>
+        <button class="cfg-addq" onclick="cfgAddQuery()">＋ クエリを追加</button>
+      </div>
     </div>
     <div class="cfg-sec">
-      <div class="cfg-sec-title">GAS実行ログ</div>
-      <div id="cfg-logs"><div style="color:var(--tf);font-size:12px">読み込み中...</div></div>
+      <div class="cfg-sec-title" id="cfg-logs-title" onclick="toggleLogsCfg(this)" style="cursor:pointer; padding:4px 0;">▶ GAS実行ログ <span class="cfg-remote-tag">タップで読込</span></div>
+      <div id="cfg-logs-wrap" style="display:none; margin-top:8px;">
+        <div id="cfg-logs"><div style="color:var(--tf);font-size:12px">読み込み中...</div></div>
+      </div>
     </div>
     <div class="cfg-btns">
       <button class="cfg-savebtn" onclick="saveCfgAll()">💾 設定を保存</button>
     </div>
+  </div>
 </div>
 <div class="toast" id="toast"></div>
 <script>
@@ -419,16 +424,17 @@ async function dC(s){const d=await oDB();return new Promise((r,j)=>{const t=d.tr
 async function dPB(s,items){if(!items.length)return;const d=await oDB();return new Promise((r,j)=>{const t=d.transaction(s,'readwrite');const st=t.objectStore(s);for(const i of items)st.put(i);t.oncomplete=()=>r();t.onerror=()=>j(t.error)})}
 
 let C={url:'',key:''},P=[],F=[],aF='all',cP=null,ol=navigator.onLine;
-// Settings (loaded from IndexedDB, defaults here)
 let S={newDays:7,minStar:4,defFilter:'all',sortOrder:'default',aiDest:'copy',vocabEnabled:true,
   aiPrompts:[{name:'翻訳＋臨床応用',prompt:'論文検索してヒットした論文をお渡しします。そのアブストラクトの翻訳、具体的な臨床への役立つ情報を抽出をして教えてください。さらに、関連する背景知識も検索し、簡潔に教えてください。さらに疑問となりそうな事について深掘りを提案してください。'}]
 };
+let _remoteLoaded = false;
+let _logsLoaded = false;
 
 async function lC(){try{const c=await dGA('config');const o=c.find(x=>x.key==='ac');if(o&&o.u&&o.k){C.url=o.u;C.key=o.k;return true}}catch(e){}return false}
 async function saveSetup(){const u=document.getElementById('suUrl').value.trim(),k=document.getElementById('suKey').value.trim();if(!u||!k){sT('URLとAPIキーを入力');return}C.url=u;C.key=k;await dP('config',{key:'ac',u,k});document.getElementById('su').style.display='none';document.getElementById('ma').style.display='';syncData()}
 
 let _jc=0;
-function jp(p){return new Promise((r,j)=>{const cb='_j'+ _jc++;const tm=setTimeout(()=>{cl();j(new Error('Timeout'))},15000);function cl(){clearTimeout(tm);delete window[cb];const e=document.getElementById(cb);if(e)e.remove()}window[cb]=d=>{cl();r(d)};const q=new URLSearchParams({...p,key:C.key,callback:cb});const s=document.createElement('script');s.id=cb;s.src=C.url+'?'+q;s.onerror=()=>{cl();j(new Error('JSONP failed'))};document.head.appendChild(s)})}
+function jp(p){return new Promise((r,j)=>{const cb='_j'+ _jc++;const tm=setTimeout(()=>{cl();j(new Error('Timeout'))},30000);function cl(){clearTimeout(tm);delete window[cb];const e=document.getElementById(cb);if(e)e.remove()}window[cb]=d=>{cl();r(d)};const q=new URLSearchParams({...p,key:C.key,callback:cb});const s=document.createElement('script');s.id=cb;s.src=C.url+'?'+q;s.onerror=()=>{cl();j(new Error('JSONP failed'))};document.head.appendChild(s)})}
 
 function reqNotif(){if('Notification'in window&&Notification.permission==='default')Notification.requestPermission()}
 function sendNotif(n){if('Notification'in window&&Notification.permission==='granted')new Notification('📄 Paper Reader',{body:`新着 ${n} 件の論文が追加されました`})}
@@ -437,7 +443,6 @@ async function syncData(){
   if(!ol){sT('オフラインです');return}
   const btn=document.getElementById('sy');btn.classList.add('sy');sL(20);
   try{
-    // 1. Pending upload + list fetch in parallel
     const pend=await dGA('pending');
     const pendP=pend.length?jp({action:'bulkUpdate',data:JSON.stringify({action:'bulkUpdate',updates:pend}),key:C.key}).then(()=>dC('pending')).catch(()=>{}):Promise.resolve();
     const listP=jp({action:'list',key:C.key});
@@ -458,12 +463,11 @@ async function syncData(){
         if(!oldPmids.has(sp.pmid))newCount++;
         return item;
       });
-      dPB('papers',merged);// fire-and-forget IDB write
+      dPB('papers',merged);
       P=merged;sortP();rF();rL();rSt();updateBanner();
       if(newCount>0&&oldPmids.size>0)sendNotif(newCount);
       sT('同期完了: '+P.length+'件'+(newCount?' (新着'+newCount+'件)':''));
     }
-    // 2. Vocab sync in background (non-blocking)
     vocabSyncBg();
   }catch(e){sT('同期エラー: '+e.message)}
   finally{btn.classList.remove('sy');sL(100);setTimeout(()=>sL(0),200)}
@@ -504,7 +508,6 @@ function cycleSort(){
 }
 function updSortLabel(){document.getElementById('sortBtn').textContent='↕ '+SORT_LABELS[S.sortOrder]}
 
-// ── Stats ──
 function buildReadMap(){
   const m=new Map();
   for(const p of P){
@@ -517,7 +520,6 @@ function buildReadMap(){
 function calcStreak(rm){
   let streak=0;
   const d=new Date();d.setHours(0,0,0,0);
-  // 今日読んでなくても昨日から数える
   if(!rm.has(toKey(d))){d.setDate(d.getDate()-1)}
   while(rm.has(toKey(d))){streak++;d.setDate(d.getDate()-1)}
   return streak;
@@ -556,7 +558,6 @@ function openStats(){
   const now=new Date();
   const total=P.filter(p=>p.readAt).length;
 
-  // Heatmap 90 days
   const today=new Date();today.setHours(0,0,0,0);
   const startDate=new Date(today);startDate.setDate(startDate.getDate()-89);
   while(startDate.getDay()!==1)startDate.setDate(startDate.getDate()-1);
@@ -586,7 +587,6 @@ function openStats(){
   hm+='</div>';
   hm+=`<div class="hm-legend"><span class="hm-legend-lbl">少</span><div class="hm-legend-cell" style="background:var(--bgi)"></div><div class="hm-legend-cell l1"></div><div class="hm-legend-cell l2"></div><div class="hm-legend-cell l3"></div><div class="hm-legend-cell l4"></div><span class="hm-legend-lbl">多</span></div>`;
 
-  // Weekly bars: last 6 weeks
   const weeks=[];
   for(let w=5;w>=0;w--){
     const ws=new Date(today);ws.setDate(ws.getDate()-ws.getDay()-7*w+1);
@@ -630,7 +630,6 @@ function openStats(){
 }
 function closeStats(){const m=document.getElementById('stmod');m.style.transition='transform .3s ease';m.style.transform='translateY(100%)';setTimeout(()=>{m.classList.remove('open');m.style.transform='';m.style.transition=''},350)}
 
-// Generic modal swipe (down + right to close)
 function addModalSwipe(elId,closeFn){
   let sx=0,sy=0,dir=null;const m=document.getElementById(elId);
   m.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;dir=null;m.style.transition='none'},{passive:true});
@@ -681,7 +680,6 @@ function rL(){
   c.innerHTML=a.join('');
 }
 
-// Events: list - swipe only on read cards (unread-back only)
 let _sx=0,_sy=0,_dx=0,_dr=null,_lk=false,_sc=null;
 const pl=document.getElementById('pl');
 pl.addEventListener('touchstart',function(e){const w=e.target.closest('.cw');if(!w)return;const cd=w.querySelector('.cd');if(!cd.classList.contains('rd')){_sc=null;return}_sc=cd;_sx=e.touches[0].clientX;_sy=e.touches[0].clientY;_dx=0;_dr=null;_lk=false;_sc.style.transition='none'},{passive:true});
@@ -692,7 +690,6 @@ document.getElementById('fl').addEventListener('click',function(e){const c=e.tar
 document.getElementById('nban').addEventListener('click',function(){aF='new';rF();rL();this.classList.remove('show')});
 let _srt;document.getElementById('si').addEventListener('input',function(){clearTimeout(_srt);_srt=setTimeout(rL,200)});
 
-// Pull-to-refresh
 (function(){let sy=0,pulling=false,triggered=false;
 const ma=document.getElementById('ma'),ptr=document.getElementById('ptr');
 ma.addEventListener('touchstart',function(e){if(window.scrollY===0){sy=e.touches[0].clientY;pulling=true;triggered=false}else pulling=false},{passive:true});
@@ -731,7 +728,6 @@ ${S.aiPrompts.length>1?`<div style="margin-top:6px"><select class="cfg-sel" id="
 </div>
 ${nxH}`;
   uN();ov.style.transform='';ov.style.transition='transform .3s ease';ov.classList.add('open');ov.scrollTop=0;
-  // Unpaywall PDF lookup
   if(p.doi){fetchPdfLink(p.doi)}
 }
 function clD(){closeMemoFs();const o=document.getElementById('dov');o.style.transition='transform .3s ease';o.style.transform='translateX(100%)';setTimeout(()=>{o.classList.remove('open');o.style.transform='';o.style.transition=''},350);cP=null}
@@ -749,7 +745,6 @@ document.getElementById('bk').addEventListener('click',clD);
 document.getElementById('np').addEventListener('click',()=>nD(-1));
 document.getElementById('nn').addEventListener('click',()=>nD(1));
 
-// Fullscreen memo
 function openMemoFs(){
   if(!cP)return;
   const p=P.find(x=>x.pmid===cP);if(!p)return;
@@ -784,14 +779,12 @@ async function sM(){if(!cP)return;const p=P.find(x=>x.pmid===cP);if(!p)return;co
 function cpA(){const p=P.find(x=>x.pmid===cP);if(!p)return;cc([`Title: ${p.titleEn}`,`Journal: ${p.journal}`,`PMID: ${p.pmid}`,p.doi?`DOI: ${p.doi}`:'',`Authors: ${p.authors}`,'','Abstract:',p.abstractEn||''].filter(Boolean).join('\n'));sT('コピーしました')}
 function cpP(){
   const p=P.find(x=>x.pmid===cP);if(!p)return;
-  // Get selected preset
   const sel=document.getElementById('aiPresetSel');
   const idx=sel?+sel.value:0;
   const preset=S.aiPrompts[idx]||S.aiPrompts[0];
   if(!preset){sT('AIプロンプトが設定されていません');return}
   const text=[preset.prompt,'','---','',`Title: ${p.titleEn}`,`Journal: ${p.journal}`,`PMID: ${p.pmid}`,p.doi?`DOI: ${p.doi}`:'',`Authors: ${p.authors}`,'','Abstract:',p.abstractEn||''].filter(Boolean).join('\n');
   cc(text);
-  // Open AI app
   const urls={claude:'https://claude.ai/new',chatgpt:'https://chatgpt.com/',gemini:'https://gemini.google.com/app'};
   if(S.aiDest!=='copy'&&urls[S.aiDest]){
     sT('コピー完了 → アプリを開きます');
@@ -817,7 +810,6 @@ dov.addEventListener('touchend',e=>{if(!tr)return;tr=false;const dx=e.changedTou
 })();
 
 function sC(p){dP('papers',{...p});const d={pmid:p.pmid,checked:p.checked,memo:p.memo,rating:p.rating,readAt:p.readAt||''};if(ol){jp({action:'update',data:JSON.stringify({action:'update',...d}),key:C.key}).catch(()=>dP('pending',d))}else dP('pending',d)}
-// ── Select Abstract Text ──
 function selectAbsText(){
   const el=document.getElementById('absEn');if(!el)return;
   const range=document.createRange();
@@ -825,32 +817,25 @@ function selectAbsText(){
   const sel=window.getSelection();
   sel.removeAllRanges();
   sel.addRange(range);
-  // iOS shows native menu (Speak, Copy, etc.) on selection
 }
 
-// ── Word Lookup Dialog ──
 function wrapWords(text){
   if(!S.vocabEnabled)return E(text);
   return E(text).replace(/(\S+)/g,'<span class="abs-word">$1</span>');
 }
 let _wdWord='',_wdCtx='',_wdMeaning='';
 
-// Tap a word → open dialog + auto lookup
 document.addEventListener('click',function(e){
   const wp=e.target.closest('.abs-word');
   if(!wp)return;
-  // Don't trigger during text selection
   const sel=window.getSelection();
   if(sel&&sel.toString().length>1)return;
   e.stopPropagation();
-  // Clean word
   _wdWord=wp.textContent.replace(/^[^a-zA-Z0-9-]+|[^a-zA-Z0-9-]+$/g,'');
   if(!_wdWord)return;
-  // Context
   _wdCtx='';
   const parent=wp.closest('.dae');
   if(parent){const full=parent.textContent;const idx=full.indexOf(wp.textContent);const s=Math.max(0,idx-40);const en=Math.min(full.length,idx+wp.textContent.length+40);_wdCtx=full.substring(s,en)}
-  // Show dialog
   document.getElementById('wd-word').textContent=_wdWord;
   document.getElementById('wd-status').textContent='翻訳中...';
   document.getElementById('wd-meaning').style.display='none';
@@ -858,7 +843,6 @@ document.addEventListener('click',function(e){
   document.getElementById('wd-ctx').textContent=_wdCtx?`"...${_wdCtx}..."`:'';
   document.getElementById('wdov').classList.add('show');
   _wdMeaning='';
-  // Auto lookup
   lookupWordDialog(_wdWord);
 });
 
@@ -887,7 +871,6 @@ async function lookupWordDialog(word){
   }
 }
 
-// Dialog button events
 document.getElementById('wd-reg').addEventListener('click',async function(){
   if(!_wdWord)return;
   const meaning=document.getElementById('wd-edit').value.trim();
@@ -903,7 +886,6 @@ document.getElementById('wd-google').addEventListener('click',function(){
   if(!_wdWord)return;
   window.open(`https://www.google.com/search?q=${encodeURIComponent(_wdWord+' 意味')}`,`_blank`);
 });
-// Close dialog by tapping overlay background
 document.getElementById('wdov').addEventListener('click',function(e){
   if(e.target===this)this.classList.remove('show');
 });
@@ -933,7 +915,6 @@ function renderVocab(){
   </div>`).join('');
 }
 
-// Vocab event delegation
 document.getElementById('vmod').addEventListener('click',function(e){
   const del=e.target.closest('.vcard-del');
   if(del){const id=del.dataset.vid;delWord(id).then(()=>{loadVocab().then(renderVocab)});return}
@@ -969,7 +950,6 @@ function uSD(){const d=document.getElementById('sd');d.className=ol?'sd':'sd off
 window.addEventListener('online',()=>{ol=true;uSD();sT('オンライン復帰');syncData()});
 window.addEventListener('offline',()=>{ol=false;uSD();sT('オフラインモード')});
 
-// ── Settings ──
 async function loadSettings(){
   try{
     const configs=await dGA('config');
@@ -979,6 +959,30 @@ async function loadSettings(){
 }
 async function saveSettings(){
   await dP('config',{key:'settings',data:{...S}});
+}
+
+function toggleRemoteCfg(el){
+  const w = document.getElementById('cfg-remote-wrap');
+  if(w.style.display === 'none'){
+    w.style.display = 'block';
+    el.innerHTML = '▼ PubMed検索設定 <span class="cfg-remote-tag">サーバー同期</span>';
+    if(!_remoteLoaded && ol) loadRemoteConfig();
+  } else {
+    w.style.display = 'none';
+    el.innerHTML = '▶ PubMed検索設定 <span class="cfg-remote-tag">サーバー同期</span>';
+  }
+}
+
+function toggleLogsCfg(el){
+  const w = document.getElementById('cfg-logs-wrap');
+  if(w.style.display === 'none'){
+    w.style.display = 'block';
+    el.innerHTML = '▼ GAS実行ログ';
+    if(!_logsLoaded && ol) loadLogs();
+  } else {
+    w.style.display = 'none';
+    el.innerHTML = '▶ GAS実行ログ <span class="cfg-remote-tag">タップで読込</span>';
+  }
 }
 
 function openCfg(){
@@ -992,26 +996,39 @@ function openCfg(){
   document.getElementById('cfg-vocab').value=S.vocabEnabled?'on':'off';
   document.getElementById('cfg-aidest').value=S.aiDest;
   renderCfgPrompts(S.aiPrompts||[]);
+  
+  _remoteLoaded = false;
+  _logsLoaded = false;
+  document.getElementById('cfg-remote-wrap').style.display = 'none';
+  document.getElementById('cfg-logs-wrap').style.display = 'none';
+  document.getElementById('cfg-remote-title').innerHTML = '▶ PubMed検索設定 <span class="cfg-remote-tag">タップで読込</span>';
+  document.getElementById('cfg-logs-title').innerHTML = '▶ GAS実行ログ <span class="cfg-remote-tag">タップで読込</span>';
+
   document.getElementById('cfg-daysback').value='';
   document.getElementById('cfg-maxresults').value='';
-  document.getElementById('cfg-queries').innerHTML='<div style="color:var(--tf);font-size:12px">読み込み中...</div>';
-  document.getElementById('cfg-logs').innerHTML='<div style="color:var(--tf);font-size:12px">読み込み中...</div>';
+  document.getElementById('cfg-queries').innerHTML='<div style="color:var(--tf);font-size:12px">待機中...</div>';
+  document.getElementById('cfg-logs').innerHTML='<div style="color:var(--tf);font-size:12px">待機中...</div>';
+  
   m.style.transform='';m.style.transition='transform .3s ease';m.classList.add('open');
-  if(ol){loadRemoteConfig();loadLogs()}
 }
+
 function closeCfg(){saveCfgAll()}
 function closeCfgAnim(){const m=document.getElementById('cfgmod');m.style.transition='transform .3s ease';m.style.transform='translateY(100%)';setTimeout(()=>{m.classList.remove('open');m.style.transform='';m.style.transition=''},350)}
 
 async function loadRemoteConfig(){
+  const qContainer = document.getElementById('cfg-queries');
+  qContainer.innerHTML='<div style="color:var(--tf);font-size:12px">読み込み中...</div>';
   try{
     const data=await jp({action:'getConfig',key:C.key});
     if(data.config){
       document.getElementById('cfg-daysback').value=data.config.daysBack||7;
       document.getElementById('cfg-maxresults').value=data.config.maxResults||10;
       renderCfgQueries(data.config.queries||[]);
+      _remoteLoaded = true;
     }
   }catch(e){
-    document.getElementById('cfg-queries').innerHTML='<div style="color:#f87171;font-size:12px">サーバー設定の読み込みに失敗しました</div>';
+    sT('サーバー設定の読み込みに失敗しました');
+    if(qContainer.innerHTML.includes('読み込み中')) qContainer.innerHTML='';
   }
 }
 
@@ -1050,7 +1067,6 @@ function getCfgQueries(){
   return queries;
 }
 
-// Prompt presets
 function renderCfgPrompts(prompts){
   const c=document.getElementById('cfg-prompts');
   c.innerHTML=prompts.map((p,i)=>`<div class="cfg-qcard" data-pi="${i}">
@@ -1078,11 +1094,11 @@ function getCfgPrompts(){
   return prompts;
 }
 
-// GAS execution logs
 async function loadLogs(){
+  const c=document.getElementById('cfg-logs');
+  c.innerHTML='<div style="color:var(--tf);font-size:12px">読み込み中...</div>';
   try{
     const data=await jp({action:'getLog',key:C.key});
-    const c=document.getElementById('cfg-logs');
     if(!data.logs||!data.logs.length){c.innerHTML='<div style="color:var(--tf);font-size:12px">実行ログがありません</div>';return}
     c.innerHTML=data.logs.map(log=>{
       const d=new Date(log.timestamp);
@@ -1093,7 +1109,10 @@ async function loadLogs(){
         <div style="color:var(--td);line-height:1.6">${entries}</div>
       </div>`;
     }).join('');
-  }catch(e){document.getElementById('cfg-logs').innerHTML='<div style="color:#f87171;font-size:12px">ログの取得に失敗しました</div>'}
+    _logsLoaded = true;
+  }catch(e){
+    c.innerHTML='<div style="color:#f87171;font-size:12px">ログの取得に失敗しました</div>';
+  }
 }
 
 async function saveCfgAll(){
@@ -1107,10 +1126,9 @@ async function saveCfgAll(){
   S.vocabEnabled=document.getElementById('cfg-vocab').value==='on';
   S.aiDest=document.getElementById('cfg-aidest').value||'copy';
   S.aiPrompts=getCfgPrompts();
-  dP('config',{key:'settings',data:{...S}});// fire-and-forget
+  dP('config',{key:'settings',data:{...S}});
   aF=S.defFilter;sortP();rF();rL();updSortLabel();updVmini();
   closeCfgAnim();
-  // Remote save in background (non-blocking)
   if(ol){
     const daysBack=+document.getElementById('cfg-daysback').value||7;
     const maxResults=+document.getElementById('cfg-maxresults').value||10;
