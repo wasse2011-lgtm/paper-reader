@@ -157,6 +157,34 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 .lb{position:fixed;top:0;left:0;height:3px;background:var(--ac);z-index:999;transition:width .3s}
 .toast{position:fixed;bottom:calc(var(--sb)+24px);left:50%;transform:translateX(-50%) translateY(100px);background:var(--bgc);color:var(--tx);padding:10px 20px;border-radius:10px;font-size:13px;font-weight:500;z-index:999;transition:transform .3s ease;box-shadow:0 4px 20px rgba(0,0,0,.4);white-space:nowrap}
 .toast.show{transform:translateX(-50%) translateY(0)}
+/* ── Settings ── */
+.cfgbtn{background:none;border:none;font-size:20px;cursor:pointer;padding:4px;-webkit-tap-highlight-color:transparent;opacity:.7}
+.cfgmod{position:fixed;inset:0;z-index:300;background:var(--bgd);transform:translateY(100%);transition:transform .3s ease;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.cfgmod.open{transform:translateY(0)}
+.cfgmod-hd{position:sticky;top:0;z-index:10;background:var(--bgd);border-bottom:1px solid var(--bd);padding:0 16px 12px;padding-top:calc(var(--st) + 4px);text-align:center}
+.cfgmod-body{padding:16px 16px calc(var(--sb)+40px)}
+.cfg-sec{margin-bottom:20px}
+.cfg-sec-title{font-size:14px;font-weight:700;color:var(--tx);margin-bottom:10px}
+.cfg-remote-tag{font-size:10px;color:var(--ac);background:var(--bgi);padding:2px 6px;border-radius:4px;margin-left:6px;font-weight:500}
+.cfg-lbl{display:block;font-size:12px;color:var(--td);margin-bottom:4px;margin-top:10px}
+.cfg-inp{width:100%;background:var(--bgi);border:1px solid var(--bd);border-radius:8px;padding:10px 12px;color:var(--tx);font-size:16px;outline:none;font-family:inherit}
+.cfg-inp:focus{border-color:var(--ac)}
+.cfg-inp::placeholder{color:var(--tf)}
+.cfg-num{width:120px}
+.cfg-sel{width:100%;background:var(--bgi);border:1px solid var(--bd);border-radius:8px;padding:10px 12px;color:var(--tx);font-size:14px;outline:none}
+.cfg-ta{width:100%;background:var(--bgi);border:1px solid var(--bd);border-radius:8px;padding:10px 12px;color:var(--tx);font-size:14px;font-family:inherit;line-height:1.5;resize:vertical;outline:none}
+.cfg-ta:focus{border-color:var(--ac)}
+.cfg-qcard{background:var(--bgc);border:1px solid var(--bd);border-radius:8px;padding:10px;margin-bottom:8px}
+.cfg-qcard-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.cfg-qcard-del{background:none;border:none;color:#f87171;font-size:14px;cursor:pointer;padding:2px 6px}
+.cfg-qinp{width:100%;background:var(--bgi);border:1px solid var(--bd);border-radius:6px;padding:8px 10px;color:var(--tx);font-size:13px;outline:none;margin-top:4px;font-family:inherit;resize:vertical}
+.cfg-qinp:focus{border-color:var(--ac)}
+.cfg-addq{background:none;border:1px dashed var(--bd);border-radius:8px;padding:10px;width:100%;color:var(--ac);font-size:13px;font-weight:600;cursor:pointer;margin-top:4px}
+.cfg-btns{margin-top:16px}
+.cfg-savebtn{width:100%;background:var(--ac);color:#fff;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:700;cursor:pointer}
+.cfg-savebtn:active{opacity:.8}
+.cfg-danger{width:100%;background:none;border:1px solid #f87171;border-radius:10px;padding:12px;color:#f87171;font-size:13px;font-weight:600;cursor:pointer;margin-top:8px}
+.cfg-danger:active{background:rgba(248,113,113,.1)}
 
 /* ── Select All ── */
 .sel-row{display:flex;align-items:center;gap:8px;margin-top:10px;margin-bottom:8px}
@@ -230,7 +258,7 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 <div id="ma" style="display:none">
   <div class="lb" id="lb" style="width:0"></div>
   <div class="hd">
-    <div class="ht"><div class="htl">📄 Paper Reader</div><div class="ha"><div class="sd" id="sd"></div><button class="sybtn" id="sy" onclick="syncData()"><span class="si">↻</span> 同期</button></div></div>
+    <div class="ht"><div class="htl">📄 Paper Reader</div><div class="ha"><div class="sd" id="sd"></div><button class="sybtn" id="sy" onclick="syncData()"><span class="si">↻</span> 同期</button><button class="cfgbtn" onclick="openCfg()">⚙️</button></div></div>
     <div class="sbar"><span class="sico">🔍</span><input class="sinp" id="si" placeholder="タイトル・キーワードで検索"/></div>
     <div class="fl" id="fl"></div>
   </div>
@@ -277,6 +305,53 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
   <div class="stmod-hd"><div class="stmod-handle"></div><div class="stmod-hd-row"><span class="stmod-title">📊 読書記録</span><button class="stmod-close" onclick="closeStats()">閉じる ✕</button></div></div>
   <div class="stmod-body" id="stmod-body"></div>
 </div>
+<div class="cfgmod" id="cfgmod">
+  <div class="cfgmod-hd"><div class="vmod-handle"></div><div class="vmod-hd-row"><span class="vmod-title">⚙️ 設定</span><button class="vmod-close" onclick="closeCfg()">閉じる ✕</button></div></div>
+  <div class="cfgmod-body" id="cfgmod-body">
+    <div class="cfg-sec">
+      <div class="cfg-sec-title">接続設定</div>
+      <label class="cfg-lbl">GAS Web App URL</label>
+      <input class="cfg-inp" id="cfg-url" placeholder="https://script.google.com/.../exec"/>
+      <label class="cfg-lbl">API Secret Key</label>
+      <input class="cfg-inp" id="cfg-key" type="password" placeholder="APIキー"/>
+    </div>
+    <div class="cfg-sec">
+      <div class="cfg-sec-title">表示設定</div>
+      <label class="cfg-lbl">「新着」判定日数</label>
+      <input class="cfg-inp cfg-num" id="cfg-newdays" type="number" min="1" max="90" value="7"/>
+      <label class="cfg-lbl">「興味あり」最低★数</label>
+      <input class="cfg-inp cfg-num" id="cfg-minstar" type="number" min="1" max="5" value="4"/>
+      <label class="cfg-lbl">デフォルトフィルタ</label>
+      <select class="cfg-sel" id="cfg-deffilter">
+        <option value="all">すべて</option>
+        <option value="unread">未読</option>
+        <option value="new">新着</option>
+        <option value="interested">興味あり</option>
+      </select>
+    </div>
+    <div class="cfg-sec">
+      <div class="cfg-sec-title">AI用プロンプト</div>
+      <textarea class="cfg-ta" id="cfg-prompt" rows="5" placeholder="AI用コピー時のプロンプト文"></textarea>
+    </div>
+    <div class="cfg-sec">
+      <div class="cfg-sec-title">PubMed検索設定 <span class="cfg-remote-tag">サーバー同期</span></div>
+      <label class="cfg-lbl">検索対象日数 (DAYS_BACK)</label>
+      <input class="cfg-inp cfg-num" id="cfg-daysback" type="number" min="1" max="3650" value="7"/>
+      <label class="cfg-lbl">最大取得件数/クエリ</label>
+      <input class="cfg-inp cfg-num" id="cfg-maxresults" type="number" min="1" max="10000" value="10"/>
+      <div class="cfg-lbl" style="margin-top:12px;margin-bottom:4px">検索クエリ</div>
+      <div id="cfg-queries"></div>
+      <button class="cfg-addq" onclick="cfgAddQuery()">＋ クエリを追加</button>
+    </div>
+    <div class="cfg-btns">
+      <button class="cfg-savebtn" onclick="saveCfgAll()">💾 設定を保存</button>
+    </div>
+    <div class="cfg-sec" style="margin-top:20px;border-top:1px solid var(--bd);padding-top:16px">
+      <div class="cfg-sec-title" style="color:#f87171">データ管理</div>
+      <button class="cfg-danger" onclick="resetAllData()">🗑 ローカルデータを全削除（リセット）</button>
+    </div>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 <script>
 const EM={'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'};
@@ -298,7 +373,7 @@ function fD(s){
 function toKey(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function sL(p){document.getElementById('lb').style.width=p+'%'}
 let _tt;function sT(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),2500)}
-function isNew(p){if(!p.fetchedDate)return false;return(Date.now()-new Date(p.fetchedDate).getTime())<7*86400000}
+function isNew(p){if(!p.fetchedDate)return false;return(Date.now()-new Date(p.fetchedDate).getTime())<S.newDays*86400000}
 
 const DBN='PaperReaderDB',DBV=4;
 function oDB(){return new Promise((r,j)=>{const q=indexedDB.open(DBN,DBV);q.onupgradeneeded=e=>{const d=e.target.result;['papers','pending','config'].forEach(n=>{if(!d.objectStoreNames.contains(n))d.createObjectStore(n,{keyPath:n==='config'?'key':'pmid'})});if(!d.objectStoreNames.contains('vocab'))d.createObjectStore('vocab',{keyPath:'id'})};q.onsuccess=()=>r(q.result);q.onerror=()=>j(q.error)})}
@@ -308,7 +383,8 @@ async function dC(s){const d=await oDB();return new Promise((r,j)=>{const t=d.tr
 async function dPB(s,items){if(!items.length)return;const d=await oDB();return new Promise((r,j)=>{const t=d.transaction(s,'readwrite');const st=t.objectStore(s);for(const i of items)st.put(i);t.oncomplete=()=>r();t.onerror=()=>j(t.error)})}
 
 let C={url:'',key:''},P=[],F=[],aF='all',cP=null,ol=navigator.onLine;
-const AIP=`論文検索してヒットした論文をお渡しします。そのアブストラクトの翻訳、具体的な臨床への役立つ情報を抽出をして教えてください。さらに、関連する背景知識も検索し、簡潔に教えてください。さらに疑問となりそうな事について深掘りを提案してください。`;
+// Settings (loaded from IndexedDB, defaults here)
+let S={newDays:7,minStar:4,defFilter:'all',prompt:`論文検索してヒットした論文をお渡しします。そのアブストラクトの翻訳、具体的な臨床への役立つ情報を抽出をして教えてください。さらに、関連する背景知識も検索し、簡潔に教えてください。さらに疑問となりそうな事について深掘りを提案してください。`};
 
 async function lC(){try{const c=await dGA('config');const o=c.find(x=>x.key==='ac');if(o&&o.u&&o.k){C.url=o.u;C.key=o.k;return true}}catch(e){}return false}
 async function saveSetup(){const u=document.getElementById('suUrl').value.trim(),k=document.getElementById('suKey').value.trim();if(!u||!k){sT('URLとAPIキーを入力');return}C.url=u;C.key=k;await dP('config',{key:'ac',u,k});document.getElementById('su').style.display='none';document.getElementById('ma').style.display='';syncData()}
@@ -511,11 +587,11 @@ m.addEventListener('touchend',e=>{if(!tr)return;tr=false;const dy=e.changedTouch
 
 function updateBanner(){const nc=P.filter(p=>isNew(p)).length;const ban=document.getElementById('nban');if(nc>0){ban.innerHTML=`🆕 新着 ${nc} 件<span>直近7日間</span>`;ban.classList.add('show')}else ban.classList.remove('show')}
 
-function gF(f){switch(f){case'all':return P;case'unread':return P.filter(p=>!p.checked);case'interested':return P.filter(p=>p.rating>=4);case'new':return P.filter(p=>isNew(p));default:return P.filter(p=>p.queryLabel===f)}}
+function gF(f){switch(f){case'all':return P;case'unread':return P.filter(p=>!p.checked);case'interested':return P.filter(p=>p.rating>=S.minStar);case'new':return P.filter(p=>isNew(p));default:return P.filter(p=>p.queryLabel===f)}}
 function rF(){
   const c=document.getElementById('fl');
   const ls=[...new Set(P.map(p=>p.queryLabel).filter(Boolean))];
-  let h=fc('all','すべて',P.length,'')+fc('unread','未読',P.filter(p=>!p.checked).length,'aa')+fc('new','新着',P.filter(p=>isNew(p)).length,'ap')+fc('interested','興味あり',P.filter(p=>p.rating>=4).length,'ag');
+  let h=fc('all','すべて',P.length,'')+fc('unread','未読',P.filter(p=>!p.checked).length,'aa')+fc('new','新着',P.filter(p=>isNew(p)).length,'ap')+fc('interested','興味あり',P.filter(p=>p.rating>=S.minStar).length,'ag');
   for(const l of ls)h+=fc(l,l,gF(l).length,'');
   c.innerHTML=h;
 }
@@ -534,7 +610,7 @@ function rL(){
     const swBg=p.checked?'<div class="swb tu">未読に戻す</div>':'';
     const memo=p.memo?'<span class="pm">📝</span>':'';
     const rdAt=p.readAt?`<span class="prd">既読 ${fD(p.readAt)}</span>`:'';
-    const nwBadge=isNew(p)?'<span class="nwb">NEW</span>':'';
+    const nwBadge=isNew(p)?`<span class="nwb">NEW ${fD(p.fetchedDate)}</span>`:'';
     let stars='';for(let j=1;j<=5;j++)stars+=`<button class="st${j<=p.rating?' on':''}" data-p="${p.pmid}" data-s="${j}">★</button>`;
     a[i+1]=`<div class="cw" data-p="${p.pmid}">${swBg}<div class="cd${rc}" data-p="${p.pmid}"><div class="ch"><span class="plb">${E(p.queryLabel||'')}${nwBadge}</span><span class="pdt">${fD(p.pubDate)}</span></div><div class="ptt">${E(p.titleJa||p.titleEn||'(No title)')}</div><div class="pjn">${E(p.journal||'')}</div><div class="pbt"><div class="sr">${stars}</div><div>${memo}${rdAt}</div></div></div></div>`;
   }
@@ -610,7 +686,7 @@ dov.addEventListener('focusout',function(e){if(e.target.id==='mt')sM()});
 async function tRD(){if(!cP)return;const p=P.find(x=>x.pmid===cP);if(!p)return;p.checked=!p.checked;p.readAt=p.checked?new Date().toISOString():'';document.getElementById('tgl').classList.toggle('on',p.checked);await sC(p);sortP();rF();rL();rSt()}
 async function sM(){if(!cP)return;const p=P.find(x=>x.pmid===cP);if(!p)return;const t=document.getElementById('mt');if(!t||t.value===p.memo)return;p.memo=t.value;await sC(p);rL();sT('メモ保存')}
 function cpA(){const p=P.find(x=>x.pmid===cP);if(!p)return;cc([`Title: ${p.titleEn}`,`Journal: ${p.journal}`,`PMID: ${p.pmid}`,p.doi?`DOI: ${p.doi}`:'',`Authors: ${p.authors}`,'','Abstract:',p.abstractEn||''].filter(Boolean).join('\n'));sT('コピーしました')}
-function cpP(){const p=P.find(x=>x.pmid===cP);if(!p)return;cc([AIP,'','---','',`Title: ${p.titleEn}`,`Journal: ${p.journal}`,`PMID: ${p.pmid}`,p.doi?`DOI: ${p.doi}`:'',`Authors: ${p.authors}`,'','Abstract:',p.abstractEn||''].filter(Boolean).join('\n'));sT('AI用コピー完了')}
+function cpP(){const p=P.find(x=>x.pmid===cP);if(!p)return;cc([S.prompt,'','---','',`Title: ${p.titleEn}`,`Journal: ${p.journal}`,`PMID: ${p.pmid}`,p.doi?`DOI: ${p.doi}`:'',`Authors: ${p.authors}`,'','Abstract:',p.abstractEn||''].filter(Boolean).join('\n'));sT('AI用コピー完了')}
 function cc(t){if(navigator.clipboard?.writeText)navigator.clipboard.writeText(t).catch(()=>fc2(t));else fc2(t)}
 function fc2(t){const a=document.createElement('textarea');a.value=t;a.style.cssText='position:fixed;left:-9999px';document.body.appendChild(a);a.select();document.execCommand('copy');document.body.removeChild(a)}
 
@@ -777,10 +853,140 @@ function uSD(){const d=document.getElementById('sd');d.className=ol?'sd':'sd off
 window.addEventListener('online',()=>{ol=true;uSD();sT('オンライン復帰');syncData()});
 window.addEventListener('offline',()=>{ol=false;uSD();sT('オフラインモード')});
 
+// ── Settings ──
+async function loadSettings(){
+  try{
+    const configs=await dGA('config');
+    const s=configs.find(x=>x.key==='settings');
+    if(s&&s.data){Object.assign(S,s.data)}
+  }catch(e){}
+}
+async function saveSettings(){
+  await dP('config',{key:'settings',data:{...S}});
+}
+
+function openCfg(){
+  const m=document.getElementById('cfgmod');
+  // Fill local settings
+  document.getElementById('cfg-url').value=C.url||'';
+  document.getElementById('cfg-key').value=C.key||'';
+  document.getElementById('cfg-newdays').value=S.newDays;
+  document.getElementById('cfg-minstar').value=S.minStar;
+  document.getElementById('cfg-deffilter').value=S.defFilter;
+  document.getElementById('cfg-prompt').value=S.prompt;
+  // Load PubMed config from server
+  document.getElementById('cfg-daysback').value='';
+  document.getElementById('cfg-maxresults').value='';
+  document.getElementById('cfg-queries').innerHTML='<div style="color:var(--tf);font-size:12px">読み込み中...</div>';
+  m.style.transform='';m.style.transition='transform .3s ease';m.classList.add('open');
+  if(ol)loadRemoteConfig();
+}
+function closeCfg(){const m=document.getElementById('cfgmod');m.style.transition='transform .3s ease';m.style.transform='translateY(100%)';setTimeout(()=>{m.classList.remove('open');m.style.transform='';m.style.transition=''},350)}
+
+async function loadRemoteConfig(){
+  try{
+    const data=await jp({action:'getConfig',key:C.key});
+    if(data.config){
+      document.getElementById('cfg-daysback').value=data.config.daysBack||7;
+      document.getElementById('cfg-maxresults').value=data.config.maxResults||10;
+      renderCfgQueries(data.config.queries||[]);
+    }
+  }catch(e){
+    document.getElementById('cfg-queries').innerHTML='<div style="color:#f87171;font-size:12px">サーバー設定の読み込みに失敗しました</div>';
+  }
+}
+
+function renderCfgQueries(queries){
+  const c=document.getElementById('cfg-queries');
+  c.innerHTML=queries.map((q,i)=>`<div class="cfg-qcard" data-qi="${i}">
+    <div class="cfg-qcard-hd"><span style="font-size:12px;font-weight:600;color:var(--td)">クエリ ${i+1}</span><button class="cfg-qcard-del" onclick="cfgDelQuery(${i})">✕ 削除</button></div>
+    <input class="cfg-qinp" data-field="label" value="${E(q.label||'')}" placeholder="ラベル（例: SBMA）"/>
+    <textarea class="cfg-qinp" data-field="query" rows="2" placeholder="PubMed検索式">${E(q.query||'')}</textarea>
+  </div>`).join('');
+}
+
+function cfgAddQuery(){
+  const c=document.getElementById('cfg-queries');
+  const i=c.querySelectorAll('.cfg-qcard').length;
+  c.insertAdjacentHTML('beforeend',`<div class="cfg-qcard" data-qi="${i}">
+    <div class="cfg-qcard-hd"><span style="font-size:12px;font-weight:600;color:var(--td)">クエリ ${i+1}</span><button class="cfg-qcard-del" onclick="this.closest('.cfg-qcard').remove()">✕ 削除</button></div>
+    <input class="cfg-qinp" data-field="label" value="" placeholder="ラベル（例: SBMA）"/>
+    <textarea class="cfg-qinp" data-field="query" rows="2" placeholder="PubMed検索式"></textarea>
+  </div>`);
+}
+
+function cfgDelQuery(i){
+  const cards=document.querySelectorAll('#cfg-queries .cfg-qcard');
+  if(cards[i])cards[i].remove();
+}
+
+function getCfgQueries(){
+  const cards=document.querySelectorAll('#cfg-queries .cfg-qcard');
+  const queries=[];
+  cards.forEach(card=>{
+    const label=(card.querySelector('[data-field="label"]')?.value||'').trim();
+    const query=(card.querySelector('[data-field="query"]')?.value||'').trim();
+    if(label&&query)queries.push({label,query});
+  });
+  return queries;
+}
+
+async function saveCfgAll(){
+  // 1. Connection settings
+  const newUrl=document.getElementById('cfg-url').value.trim();
+  const newKey=document.getElementById('cfg-key').value.trim();
+  if(newUrl&&newKey){
+    C.url=newUrl;C.key=newKey;
+    await dP('config',{key:'ac',u:newUrl,k:newKey});
+  }
+  // 2. Local settings
+  S.newDays=Math.max(1,Math.min(90,+document.getElementById('cfg-newdays').value||7));
+  S.minStar=Math.max(1,Math.min(5,+document.getElementById('cfg-minstar').value||4));
+  S.defFilter=document.getElementById('cfg-deffilter').value||'all';
+  S.prompt=document.getElementById('cfg-prompt').value||S.prompt;
+  await saveSettings();
+  aF=S.defFilter;
+  // 3. Remote PubMed config
+  if(ol){
+    const daysBack=+document.getElementById('cfg-daysback').value||7;
+    const maxResults=+document.getElementById('cfg-maxresults').value||10;
+    const queries=getCfgQueries();
+    try{
+      await jp({action:'saveConfig',data:JSON.stringify({action:'saveConfig',config:{daysBack,maxResults,queries}}),key:C.key});
+      sT('設定を保存しました（PubMed設定含む）');
+    }catch(e){
+      sT('ローカル設定は保存。PubMed設定の保存に失敗: '+e.message);
+    }
+  }else{
+    sT('ローカル設定を保存しました（PubMed設定はオンライン時に）');
+  }
+  rF();rL();
+  closeCfg();
+}
+
+async function resetAllData(){
+  if(!confirm('全てのローカルデータ（論文、単語帳、設定）を削除します。\nサーバー側のデータは残ります。\n\n本当に実行しますか？'))return;
+  try{
+    await dC('papers');await dC('pending');await dC('vocab');await dC('config');
+    P=[];vocab=[];
+    sT('ローカルデータを削除しました。リロードします...');
+    setTimeout(()=>location.reload(),1500);
+  }catch(e){sT('削除エラー: '+e.message)}
+}
+
+// Settings modal swipe-down
+(function(){let sy=0,tr=false;const m=document.getElementById('cfgmod');
+m.addEventListener('touchstart',e=>{if(m.scrollTop>10){tr=false;return}sy=e.touches[0].clientY;tr=true;m.style.transition='none'},{passive:true});
+m.addEventListener('touchmove',e=>{if(!tr)return;const dy=e.touches[0].clientY-sy;if(dy>0)m.style.transform=`translateY(${dy}px)`;else tr=false},{passive:true});
+m.addEventListener('touchend',e=>{if(!tr)return;tr=false;const dy=e.changedTouches[0].clientY-sy;if(dy>80)closeCfg();else{m.style.transition='transform .3s ease';m.style.transform='translateY(0)'}},{passive:true});
+})();
+
 async function init(){
   if('serviceWorker'in navigator)try{await navigator.serviceWorker.register('./sw.js')}catch(e){}
   if(!await lC()){document.getElementById('su').style.display='';return}
   document.getElementById('ma').style.display='';uSD();reqNotif();
+  await loadSettings();
+  aF=S.defFilter;
   await loadL();await loadVocab();if(ol)syncData();
 }
 init();
