@@ -16,12 +16,11 @@
   --ac:#60a5fa;--acd:#2563eb;--gr:#4ade80;--am:#f59e0b;--nw:#f472b6;
   --bd:#2a2d3a;--r:12px;
   --st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px);
-  --ht:max(var(--st), 28px);/* iPhone status bar minimum */
 }
 html,body{height:100%;background:var(--bg);color:var(--tx);
   font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP',sans-serif;
   font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;overscroll-behavior-y:contain}
-.hd{position:sticky;top:0;z-index:100;padding:calc(var(--ht)+20px) 16px 8px;background:var(--bg);border-bottom:1px solid var(--bd)}
+.hd{position:sticky;top:0;z-index:100;padding:calc(var(--st)+36px) 16px 8px;background:var(--bg);border-bottom:1px solid var(--bd)}
 .ht{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .htl{font-size:18px;font-weight:700}
 .ha{display:flex;gap:8px;align-items:center}
@@ -38,9 +37,7 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 .sinp{width:100%;background:var(--bgi);border:1px solid var(--bd);border-radius:10px;padding:10px 130px 10px 36px;color:var(--tx);font-size:16px;outline:none}
 .sinp:focus{border-color:var(--ac)}.sinp::placeholder{color:var(--tf)}
 .sico{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--tf);font-size:14px}
-/* Sort button */
 .sortbtn{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:var(--bgi);border:1px solid var(--bd);border-radius:8px;font-size:11px;color:var(--td);cursor:pointer;padding:4px 8px;white-space:nowrap}
-/* Splash */
 .splash{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .5s}
 .splash.hide{opacity:0;pointer-events:none}
 .splash-icon{font-size:64px;margin-bottom:12px}
@@ -53,8 +50,6 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 .fc.aa{background:var(--am);color:#000;border-color:var(--am)}
 .fc.ap{background:var(--nw);color:#fff;border-color:var(--nw)}
 .fb{display:inline-block;margin-left:4px;padding:0 5px;border-radius:8px;font-size:10px;font-weight:700;background:rgba(255,255,255,.2)}
-
-/* ── Stats Mini Bar + Modal ── */
 .smini{margin:0 16px 10px;background:var(--bgc);border-radius:var(--r);padding:10px 14px;border:1px solid var(--bd);display:none;cursor:pointer}
 .smini.show{display:flex;align-items:center;justify-content:space-between}
 .smini-left{display:flex;align-items:center;gap:12px}
@@ -63,25 +58,21 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 .smini .mcount{font-size:12px;color:var(--td)}
 .smini .mcount b{color:var(--tx);font-weight:700}
 .smini .chart-btn{font-size:18px;opacity:.6}
-/* Modal */
 .stmod{position:fixed;inset:0;z-index:300;background:var(--bgd);transform:translateY(100%);transition:transform .3s ease;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .stmod.open{transform:translateY(0)}
-.stmod-hd{position:sticky;top:0;z-index:10;background:var(--bgd);border-bottom:1px solid var(--bd);padding:0 16px 12px;padding-top:calc(var(--ht)+20px);text-align:center}
+.stmod-hd{position:sticky;top:0;z-index:10;background:var(--bgd);border-bottom:1px solid var(--bd);padding:0 16px 12px;padding-top:calc(var(--st) + 36px);text-align:center}
 .stmod-handle{width:36px;height:4px;border-radius:2px;background:var(--tf);margin:10px auto 12px;opacity:.5}
 .stmod-hd-row{display:flex;align-items:center;justify-content:space-between}
 .stmod-title{font-size:17px;font-weight:700}
 .stmod-close{background:var(--bgi);border:1px solid var(--bd);color:var(--tx);font-size:13px;font-weight:600;cursor:pointer;padding:6px 16px;border-radius:8px}
 .stmod-body{padding:20px 16px calc(var(--sb)+40px)}
-/* Streak hero */
 .streak-hero{text-align:center;margin-bottom:28px}
 .streak-num{font-size:48px;font-weight:800;color:var(--am);line-height:1}
 .streak-label{font-size:13px;color:var(--td);margin-top:4px}
-/* Stat cards */
 .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:28px}
 .stat-card{background:var(--bgc);border-radius:10px;padding:12px;text-align:center;border:1px solid var(--bd)}
 .stat-val{font-size:22px;font-weight:800;color:var(--tx)}
 .stat-lbl{font-size:11px;color:var(--tf);margin-top:2px}
-/* Heatmap */
 .hm-sec{margin-bottom:28px}
 .hm-title{font-size:13px;font-weight:700;color:var(--td);margin-bottom:10px}
 .hm-wrap{display:flex;gap:3px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px}
@@ -94,7 +85,6 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 .hm-legend{display:flex;align-items:center;gap:6px;margin-top:8px;justify-content:flex-end}
 .hm-legend-lbl{font-size:10px;color:var(--tf)}
 .hm-legend-cell{width:10px;height:10px;border-radius:2px}
-/* Weekly chart */
 .wk-sec{margin-bottom:20px}
 .wk-title{font-size:13px;font-weight:700;color:var(--td);margin-bottom:10px}
 .wk-chart{display:flex;align-items:flex-end;gap:8px;height:100px;padding:0 8px}
@@ -103,7 +93,6 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 .wk-bar-fill.cur{background:var(--ac)}.wk-bar-fill.prev{background:var(--acd)}
 .wk-bar-n{font-size:13px;font-weight:700;color:var(--tx)}
 .wk-bar-l{font-size:11px;color:var(--tf)}
-
 .pl{padding:0 16px calc(var(--sb)+20px)}
 .pcnt{font-size:12px;color:var(--tf);margin-bottom:10px;padding-top:12px}
 .cw{position:relative;overflow:hidden;border-radius:var(--r);margin-bottom:10px}
@@ -123,7 +112,7 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 .st{background:none;border:none;font-size:16px;padding:0 1px;cursor:pointer;color:var(--tf);line-height:1;-webkit-tap-highlight-color:transparent}.st.on{color:var(--am)}
 .dov{position:fixed;inset:0;z-index:200;background:var(--bgd);transform:translateX(100%);transition:transform .3s ease;overflow-y:auto;-webkit-overflow-scrolling:touch;will-change:transform}
 .dov.open{transform:translateX(0)}
-.dh{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:8px;padding:calc(var(--ht)+20px) 16px 10px;background:var(--bgd);border-bottom:1px solid var(--bd)}
+.dh{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:8px;padding:calc(var(--st)+36px) 16px 10px;background:var(--bgd);border-bottom:1px solid var(--bd)}
 .bb{background:none;border:none;color:var(--ac);font-size:16px;cursor:pointer;padding:4px;display:flex;align-items:center}
 .dht{font-size:14px;font-weight:600;color:var(--td);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;flex:1}
 .dn{display:flex;gap:4px}
@@ -152,10 +141,9 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 .dsb{background:none;border:none;font-size:24px;padding:2px;cursor:pointer;color:var(--tf);-webkit-tap-highlight-color:transparent}.dsb.on{color:var(--am)}
 .mt{width:100%;min-height:100px;background:var(--bgi);border:1px solid var(--bd);border-radius:10px;padding:12px;color:var(--tx);font-size:14px;font-family:inherit;line-height:1.6;resize:vertical;outline:none}
 .mt:focus{border-color:var(--ac)}.mt::placeholder{color:var(--tf)}.mh{font-size:11px;color:var(--tf);margin-top:6px}
-/* Fullscreen memo */
 .memo-fs{display:none;position:fixed;inset:0;z-index:280;background:var(--bgd);flex-direction:column}
 .memo-fs.open{display:flex}
-.memo-fs-hd{display:flex;align-items:center;justify-content:space-between;padding:calc(var(--ht)+20px) 16px 10px;border-bottom:1px solid var(--bd);flex-shrink:0}
+.memo-fs-hd{display:flex;align-items:center;justify-content:space-between;padding:calc(var(--st)+36px) 16px 10px;border-bottom:1px solid var(--bd);flex-shrink:0}
 .memo-fs-title{font-size:15px;font-weight:700}
 .memo-fs-close{background:var(--bgi);border:1px solid var(--bd);color:var(--tx);font-size:13px;font-weight:600;cursor:pointer;padding:6px 16px;border-radius:8px}
 .memo-fs-ta{flex:1;width:100%;background:var(--bgd);border:none;padding:16px 20px;color:var(--tx);font-size:15px;font-family:inherit;line-height:1.8;resize:none;outline:none}
@@ -174,11 +162,10 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 .lb{position:fixed;top:0;left:0;height:3px;background:var(--ac);z-index:999;transition:width .3s}
 .toast{position:fixed;bottom:calc(var(--sb)+24px);left:50%;transform:translateX(-50%) translateY(100px);background:var(--bgc);color:var(--tx);padding:10px 20px;border-radius:10px;font-size:13px;font-weight:500;z-index:999;transition:transform .3s ease;box-shadow:0 4px 20px rgba(0,0,0,.4);white-space:nowrap}
 .toast.show{transform:translateX(-50%) translateY(0)}
-/* ── Settings ── */
 .cfgbtn{background:none;border:none;font-size:20px;cursor:pointer;padding:4px;-webkit-tap-highlight-color:transparent;opacity:.7}
 .cfgmod{position:fixed;inset:0;z-index:300;background:var(--bgd);transform:translateY(100%);transition:transform .3s ease;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .cfgmod.open{transform:translateY(0)}
-.cfgmod-hd{position:sticky;top:0;z-index:10;background:var(--bgd);border-bottom:1px solid var(--bd);padding:0 16px 12px;padding-top:calc(var(--ht)+20px);text-align:center}
+.cfgmod-hd{position:sticky;top:0;z-index:10;background:var(--bgd);border-bottom:1px solid var(--bd);padding:0 16px 12px;padding-top:calc(var(--st) + 36px);text-align:center}
 .cfgmod-body{padding:16px 16px calc(var(--sb)+40px)}
 .cfg-sec{margin-bottom:20px}
 .cfg-sec-title{font-size:14px;font-weight:700;color:var(--tx);margin-bottom:10px}
@@ -200,17 +187,12 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 .cfg-btns{margin-top:16px}
 .cfg-savebtn{width:100%;background:var(--ac);color:#fff;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:700;cursor:pointer}
 .cfg-savebtn:active{opacity:.8}
-
-
-/* ── Select All ── */
 .sel-row{display:flex;align-items:center;gap:8px;margin-top:10px;margin-bottom:8px}
 .sel-btn{display:flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid var(--bd);border-radius:10px;background:var(--bgi);color:var(--tx);font-size:13px;font-weight:500;cursor:pointer}
 .sel-btn:active{background:var(--acd);border-color:var(--ac)}
-
-/* ── Vocab Modal ── */
 .vmod{position:fixed;inset:0;z-index:300;background:var(--bgd);transform:translateY(100%);transition:transform .3s ease;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .vmod.open{transform:translateY(0)}
-.vmod-hd{position:sticky;top:0;z-index:10;background:var(--bgd);border-bottom:1px solid var(--bd);padding:0 16px 12px;padding-top:calc(var(--ht)+20px);text-align:center}
+.vmod-hd{position:sticky;top:0;z-index:10;background:var(--bgd);border-bottom:1px solid var(--bd);padding:0 16px 12px;padding-top:calc(var(--st) + 36px);text-align:center}
 .vmod-handle{width:36px;height:4px;border-radius:2px;background:var(--tf);margin:10px auto 12px;opacity:.5}
 .vmod-hd-row{display:flex;align-items:center;justify-content:space-between}
 .vmod-title{font-size:17px;font-weight:700}
@@ -234,8 +216,6 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 .vcard-editinp:focus{border-color:var(--ac)}
 .vcard-savebtn{background:var(--gr);color:#000;border:none;border-radius:6px;padding:6px 10px;font-size:11px;font-weight:600;cursor:pointer}
 .vcard-lookup{font-size:11px;color:var(--ac);cursor:pointer;margin-top:4px;display:inline-block}
-
-/* Word lookup dialog */
 .wdlg-ov{display:none;position:fixed;inset:0;z-index:270;background:rgba(0,0,0,.5)}
 .wdlg-ov.show{display:flex;align-items:flex-end;justify-content:center}
 .wdlg{width:100%;max-width:400px;background:var(--bgd);border-radius:16px 16px 0 0;padding:20px 16px calc(var(--sb) + 16px);animation:wdIn .2s ease}
@@ -253,11 +233,8 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 .wdlg-btn.sec{background:var(--bgi);color:var(--tx);border:1px solid var(--bd)}
 .wdlg-row2{display:flex;gap:8px;margin-top:8px}
 .wdlg-btn.ggl{flex:1;padding:10px;border:1px solid var(--bd);border-radius:10px;background:var(--bgi);color:var(--td);font-size:12px;font-weight:500;cursor:pointer;text-align:center}
-/* Tappable abstract words */
 .abs-word{cursor:pointer;border-radius:2px;-webkit-tap-highlight-color:rgba(96,165,250,0.2)}
 .abs-word:active{background:rgba(96,165,250,0.15)}
-
-/* Vocab mini bar */
 .vmini{margin:0 16px 10px;background:var(--bgc);border-radius:var(--r);padding:10px 14px;border:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-size:14px;font-weight:600}
 .vmini-cnt{font-size:12px;color:var(--td);font-weight:400;margin-left:8px;flex:1}
 </style>
@@ -370,6 +347,7 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
       <div id="cfg-prompts"></div>
       <button class="cfg-addq" onclick="cfgAddPrompt()">＋ プリセットを追加</button>
     </div>
+    
     <div class="cfg-sec">
       <div class="cfg-sec-title" id="cfg-remote-title" onclick="toggleRemoteCfg(this)" style="cursor:pointer; padding:4px 0;">▶ PubMed検索設定 <span class="cfg-remote-tag">タップで読込</span></div>
       <div id="cfg-remote-wrap" style="display:none; margin-top:8px;">
@@ -400,7 +378,6 @@ function E(s){return s?String(s).replace(/[&<>"']/g,c=>EM[c]):''}
 function fD(s){
   if(!s)return'';
   try{
-    // Handle PubMed formats like "2025-Mar-15", "2025-Mar", ISO strings
     const ms={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
     const m2=String(s).match(/^(\d{4})-([A-Za-z]{3})(?:-(\d+))?$/);
     if(m2){const y=+m2[1],m=ms[m2[2]],dy=m2[3]?+m2[3]:0;
@@ -427,6 +404,7 @@ let C={url:'',key:''},P=[],F=[],aF='all',cP=null,ol=navigator.onLine;
 let S={newDays:7,minStar:4,defFilter:'all',sortOrder:'default',aiDest:'copy',vocabEnabled:true,
   aiPrompts:[{name:'翻訳＋臨床応用',prompt:'論文検索してヒットした論文をお渡しします。そのアブストラクトの翻訳、具体的な臨床への役立つ情報を抽出をして教えてください。さらに、関連する背景知識も検索し、簡潔に教えてください。さらに疑問となりそうな事について深掘りを提案してください。'}]
 };
+// 変更箇所：遅延ロード用フラグ
 let _remoteLoaded = false;
 let _logsLoaded = false;
 
@@ -441,13 +419,12 @@ function sendNotif(n){if('Notification'in window&&Notification.permission==='gra
 
 async function syncData(){
   if(!ol){sT('オフラインです');return}
-  const btn=document.getElementById('sy');btn.classList.add('sy');sL(20);
+  const btn=document.getElementById('sy');btn.classList.add('sy');sL(30);
   try{
     const pend=await dGA('pending');
-    const pendP=pend.length?jp({action:'bulkUpdate',data:JSON.stringify({action:'bulkUpdate',updates:pend}),key:C.key}).then(()=>dC('pending')).catch(()=>{}):Promise.resolve();
-    const listP=jp({action:'list',key:C.key});
-    const [,data]=await Promise.all([pendP,listP]);
-    sL(70);
+    if(pend.length)try{await jp({action:'bulkUpdate',data:JSON.stringify({action:'bulkUpdate',updates:pend}),key:C.key});await dC('pending')}catch(e){}
+    sL(50);
+    const data=await jp({action:'list',key:C.key});sL(80);
     if(data.papers){
       const localMap=new Map();for(const lp of P)localMap.set(lp.pmid,lp);
       const pendSet=new Set(pend.map(x=>x.pmid));
@@ -463,28 +440,28 @@ async function syncData(){
         if(!oldPmids.has(sp.pmid))newCount++;
         return item;
       });
-      dPB('papers',merged);
+      await dPB('papers',merged);
       P=merged;sortP();rF();rL();rSt();updateBanner();
       if(newCount>0&&oldPmids.size>0)sendNotif(newCount);
       sT('同期完了: '+P.length+'件'+(newCount?' (新着'+newCount+'件)':''));
     }
-    vocabSyncBg();
+    sL(90);
+    try{
+      const vData=await jp({action:'vocabList',key:C.key});
+      if(vData.vocab){
+        const serverMap=new Map(vData.vocab.map(v=>[v.id,v]));
+        const localVocab=await dGA('vocab');
+        const localMap=new Map(localVocab.map(v=>[v.id,v]));
+        for(const sv of vData.vocab){if(!localMap.has(sv.id))localMap.set(sv.id,sv)}
+        const mergedVocab=[...localMap.values()];
+        await dPB('vocab',mergedVocab);
+        vocab=mergedVocab;vocab.sort((a,b)=>(b.addedAt||'').localeCompare(a.addedAt||''));
+        updVmini();
+        await jp({action:'vocabSync',data:JSON.stringify({action:'vocabSync',vocab:mergedVocab}),key:C.key});
+      }
+    }catch(e){console.warn('Vocab sync:',e)}
   }catch(e){sT('同期エラー: '+e.message)}
-  finally{btn.classList.remove('sy');sL(100);setTimeout(()=>sL(0),200)}
-}
-async function vocabSyncBg(){
-  try{
-    const vData=await jp({action:'vocabList',key:C.key});
-    if(!vData.vocab)return;
-    const localVocab=await dGA('vocab');
-    const localMap=new Map(localVocab.map(v=>[v.id,v]));
-    for(const sv of vData.vocab){if(!localMap.has(sv.id))localMap.set(sv.id,sv)}
-    const merged=[...localMap.values()];
-    dPB('vocab',merged);
-    vocab=merged;vocab.sort((a,b)=>(b.addedAt||'').localeCompare(a.addedAt||''));
-    updVmini();
-    jp({action:'vocabSync',data:JSON.stringify({action:'vocabSync',vocab:merged}),key:C.key}).catch(()=>{});
-  }catch(e){}
+  finally{btn.classList.remove('sy');sL(100);setTimeout(()=>sL(0),300)}
 }
 async function loadL(){try{P=(await dGA('papers')).map(p=>({...p,rating:p.rating||0,checked:!!p.checked,readAt:p.readAt||''}));sortP();rF();rL();rSt();updateBanner()}catch(e){}}
 const SORT_MODES=['default','pubDate','rating','readAt'];
@@ -692,9 +669,9 @@ let _srt;document.getElementById('si').addEventListener('input',function(){clear
 
 (function(){let sy=0,pulling=false,triggered=false;
 const ma=document.getElementById('ma'),ptr=document.getElementById('ptr');
-ma.addEventListener('touchstart',function(e){if(window.scrollY===0){sy=e.touches[0].clientY;pulling=true;triggered=false}else pulling=false},{passive:true});
-ma.addEventListener('touchmove',function(e){if(!pulling)return;const dy=e.touches[0].clientY-sy;if(dy>150&&!triggered){ptr.classList.add('show');ptr.textContent='↑ 離して同期'}else if(dy>80&&!triggered){ptr.classList.add('show');ptr.textContent='↓ もっと引っ張って同期'}else if(dy<30){ptr.classList.remove('show')}},{passive:true});
-ma.addEventListener('touchend',function(e){if(!pulling)return;pulling=false;const dy=e.changedTouches[0].clientY-sy;if(dy>150&&!triggered){triggered=true;ptr.textContent='同期中...';ptr.classList.add('loading');syncData().finally(()=>{ptr.classList.remove('show','loading')})}else{ptr.classList.remove('show')}},{passive:true});
+ma.addEventListener('touchstart',function(e){if(window.scrollY<5){sy=e.touches[0].clientY;pulling=true;triggered=false}else pulling=false},{passive:true});
+ma.addEventListener('touchmove',function(e){if(!pulling)return;const dy=e.touches[0].clientY-sy;if(dy>60&&!triggered){ptr.classList.add('show');ptr.textContent='↑ 離して同期'}else if(dy>10&&!triggered){ptr.classList.add('show');ptr.textContent='↓ 引っ張って同期'}},{passive:true});
+ma.addEventListener('touchend',function(e){if(!pulling)return;pulling=false;const dy=e.changedTouches[0].clientY-sy;if(dy>60&&!triggered){triggered=true;ptr.textContent='同期中...';ptr.classList.add('loading');syncData().finally(()=>{ptr.classList.remove('show','loading')})}else{ptr.classList.remove('show')}},{passive:true});
 })();
 
 async function tR(pm){const p=P.find(x=>x.pmid===pm);if(!p||!p.checked)return;p.checked=false;p.readAt='';await sC(p);sortP();rF();rL();rSt();sT('未読に戻しました')}
@@ -809,7 +786,7 @@ dov.addEventListener('touchmove',e=>{if(!tr)return;const dx=e.touches[0].clientX
 dov.addEventListener('touchend',e=>{if(!tr)return;tr=false;const dx=e.changedTouches[0].clientX-sx;dov.style.transition='transform .3s ease';dx>100?clD():dov.style.transform='translateX(0)'},{passive:true});
 })();
 
-function sC(p){dP('papers',{...p});const d={pmid:p.pmid,checked:p.checked,memo:p.memo,rating:p.rating,readAt:p.readAt||''};if(ol){jp({action:'update',data:JSON.stringify({action:'update',...d}),key:C.key}).catch(()=>dP('pending',d))}else dP('pending',d)}
+async function sC(p){await dP('papers',{...p});const d={pmid:p.pmid,checked:p.checked,memo:p.memo,rating:p.rating,readAt:p.readAt||''};if(ol){try{await jp({action:'update',data:JSON.stringify({action:'update',...d}),key:C.key})}catch(e){await dP('pending',d)}}else await dP('pending',d)}
 function selectAbsText(){
   const el=document.getElementById('absEn');if(!el)return;
   const range=document.createRange();
@@ -961,6 +938,7 @@ async function saveSettings(){
   await dP('config',{key:'settings',data:{...S}});
 }
 
+// 変更箇所：遅延ロード用トグル関数
 function toggleRemoteCfg(el){
   const w = document.getElementById('cfg-remote-wrap');
   if(w.style.display === 'none'){
@@ -969,7 +947,7 @@ function toggleRemoteCfg(el){
     if(!_remoteLoaded && ol) loadRemoteConfig();
   } else {
     w.style.display = 'none';
-    el.innerHTML = '▶ PubMed検索設定 <span class="cfg-remote-tag">サーバー同期</span>';
+    el.innerHTML = '▶ PubMed検索設定 <span class="cfg-remote-tag">タップで読込</span>';
   }
 }
 
@@ -997,6 +975,7 @@ function openCfg(){
   document.getElementById('cfg-aidest').value=S.aiDest;
   renderCfgPrompts(S.aiPrompts||[]);
   
+  // 初期化：折りたたみ状態とフラグをリセット
   _remoteLoaded = false;
   _logsLoaded = false;
   document.getElementById('cfg-remote-wrap').style.display = 'none';
@@ -1008,7 +987,7 @@ function openCfg(){
   document.getElementById('cfg-maxresults').value='';
   document.getElementById('cfg-queries').innerHTML='<div style="color:var(--tf);font-size:12px">待機中...</div>';
   document.getElementById('cfg-logs').innerHTML='<div style="color:var(--tf);font-size:12px">待機中...</div>';
-  
+
   m.style.transform='';m.style.transition='transform .3s ease';m.classList.add('open');
 }
 
@@ -1118,7 +1097,8 @@ async function loadLogs(){
 async function saveCfgAll(){
   const newUrl=document.getElementById('cfg-url').value.trim();
   const newKey=document.getElementById('cfg-key').value.trim();
-  if(newUrl&&newKey){C.url=newUrl;C.key=newKey;dP('config',{key:'ac',u:newUrl,k:newKey})}
+  if(newUrl&&newKey){C.url=newUrl;C.key=newKey;await dP('config',{key:'ac',u:newUrl,k:newKey})}
+  // Local settings
   S.newDays=Math.max(1,Math.min(90,+document.getElementById('cfg-newdays').value||7));
   S.minStar=Math.max(1,Math.min(5,+document.getElementById('cfg-minstar').value||4));
   S.defFilter=document.getElementById('cfg-deffilter').value||'all';
@@ -1126,22 +1106,31 @@ async function saveCfgAll(){
   S.vocabEnabled=document.getElementById('cfg-vocab').value==='on';
   S.aiDest=document.getElementById('cfg-aidest').value||'copy';
   S.aiPrompts=getCfgPrompts();
-  dP('config',{key:'settings',data:{...S}});
-  aF=S.defFilter;sortP();rF();rL();updSortLabel();updVmini();
-  closeCfgAnim();
+  await saveSettings();
+  aF=S.defFilter;sortP();updVmini();
+  
+  // 変更箇所：サーバー設定保存のガード処理
   if(ol){
-    const daysBack=+document.getElementById('cfg-daysback').value||7;
-    const maxResults=+document.getElementById('cfg-maxresults').value||10;
-    const queries=getCfgQueries();
-    jp({action:'saveConfig',data:JSON.stringify({action:'saveConfig',config:{daysBack,maxResults,queries}}),key:C.key}).then(()=>sT('設定保存完了')).catch(()=>sT('PubMed設定の保存に失敗'));
-  }
+    if(_remoteLoaded){
+      const daysBack=+document.getElementById('cfg-daysback').value||7;
+      const maxResults=+document.getElementById('cfg-maxresults').value||10;
+      const queries=getCfgQueries();
+      try{
+        await jp({action:'saveConfig',data:JSON.stringify({action:'saveConfig',config:{daysBack,maxResults,queries}}),key:C.key});
+        sT('設定を保存しました（PubMed設定含む）');
+      }catch(e){sT('ローカル設定は保存。PubMed設定の保存に失敗')}
+    } else {
+      sT('ローカル設定を保存しました');
+    }
+  }else{sT('ローカル設定を保存しました')}
+  rF();rL();updSortLabel();updVmini();closeCfgAnim();
 }
 
 addModalSwipe('cfgmod',closeCfg);
 
 async function init(){
   if('serviceWorker'in navigator)try{await navigator.serviceWorker.register('./sw.js')}catch(e){}
-  const hideSplash=()=>{const sp=document.getElementById('splash');sp.classList.add('hide');setTimeout(()=>sp.remove(),500)};
+  const hideSplash=()=>setTimeout(()=>{const sp=document.getElementById('splash');sp.classList.add('hide');setTimeout(()=>sp.remove(),600)},800);
   if(!await lC()){document.getElementById('su').style.display='';hideSplash();return}
   document.getElementById('ma').style.display='';uSD();reqNotif();
   await loadSettings();
