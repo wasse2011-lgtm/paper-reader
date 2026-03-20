@@ -37,6 +37,14 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 .sinp{width:100%;background:var(--bgi);border:1px solid var(--bd);border-radius:10px;padding:10px 12px 10px 36px;color:var(--tx);font-size:16px;outline:none}
 .sinp:focus{border-color:var(--ac)}.sinp::placeholder{color:var(--tf)}
 .sico{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--tf);font-size:14px}
+/* Sort button */
+.sortbtn{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:16px;color:var(--td);cursor:pointer;padding:4px}
+/* Splash */
+.splash{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .5s}
+.splash.hide{opacity:0;pointer-events:none}
+.splash-icon{font-size:64px;margin-bottom:12px}
+.splash-title{font-size:22px;font-weight:800;color:var(--tx)}
+.splash-sub{font-size:13px;color:var(--tf);margin-top:4px}
 .fl{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px}.fl::-webkit-scrollbar{display:none}
 .fc{flex-shrink:0;padding:5px 12px;border-radius:20px;border:1px solid var(--bd);background:transparent;color:var(--td);font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap}
 .fc.a{background:var(--ac);color:#fff;border-color:var(--ac)}
@@ -143,6 +151,14 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 .dsb{background:none;border:none;font-size:24px;padding:2px;cursor:pointer;color:var(--tf);-webkit-tap-highlight-color:transparent}.dsb.on{color:var(--am)}
 .mt{width:100%;min-height:100px;background:var(--bgi);border:1px solid var(--bd);border-radius:10px;padding:12px;color:var(--tx);font-size:14px;font-family:inherit;line-height:1.6;resize:vertical;outline:none}
 .mt:focus{border-color:var(--ac)}.mt::placeholder{color:var(--tf)}.mh{font-size:11px;color:var(--tf);margin-top:6px}
+/* Fullscreen memo */
+.memo-fs{display:none;position:fixed;inset:0;z-index:280;background:var(--bgd);flex-direction:column}
+.memo-fs.open{display:flex}
+.memo-fs-hd{display:flex;align-items:center;justify-content:space-between;padding:calc(var(--st)+16px) 16px 10px;border-bottom:1px solid var(--bd);flex-shrink:0}
+.memo-fs-title{font-size:15px;font-weight:700}
+.memo-fs-close{background:var(--bgi);border:1px solid var(--bd);color:var(--tx);font-size:13px;font-weight:600;cursor:pointer;padding:6px 16px;border-radius:8px}
+.memo-fs-ta{flex:1;width:100%;background:var(--bgd);border:none;padding:16px 20px;color:var(--tx);font-size:15px;font-family:inherit;line-height:1.8;resize:none;outline:none}
+.memo-fs-ta::placeholder{color:var(--tf)}
 .nxsec{margin-top:28px;padding-top:20px;border-top:1px solid var(--bd)}.nxsec .dl{margin-bottom:10px}
 .nxcard{background:var(--bgc);border-radius:10px;padding:12px 14px;margin-bottom:8px;cursor:pointer;border:1px solid var(--bd)}
 .nxcard:active{background:var(--bgi)}.nxcard .ptt{font-size:13px;-webkit-line-clamp:2;margin-bottom:2px}.nxcard .pjn{font-size:11px}
@@ -247,6 +263,7 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 </style>
 </head>
 <body>
+<div class="splash" id="splash"><div class="splash-icon">📄</div><div class="splash-title">Paper Reader</div><div class="splash-sub">PubMed論文リーダー</div></div>
 <div id="su" class="su" style="display:none">
   <div class="sut">PubMed Paper Reader</div>
   <div class="sud">GAS Web AppのURLとAPIキーを設定してください。</div>
@@ -259,14 +276,14 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
   <div class="lb" id="lb" style="width:0"></div>
   <div class="hd">
     <div class="ht"><div class="htl">📄 Paper Reader</div><div class="ha"><div class="sd" id="sd"></div><button class="sybtn" id="sy" onclick="syncData()"><span class="si">↻</span> 同期</button><button class="cfgbtn" onclick="openCfg()">⚙️</button></div></div>
-    <div class="sbar"><span class="sico">🔍</span><input class="sinp" id="si" placeholder="タイトル・キーワードで検索"/></div>
+    <div class="sbar"><span class="sico">🔍</span><input class="sinp" id="si" placeholder="タイトル・キーワードで検索"/><button class="sortbtn" id="sortBtn" onclick="cycleSort()">↕</button></div>
     <div class="fl" id="fl"></div>
   </div>
   <div class="smini" id="smini" onclick="openStats()">
     <div class="smini-left"><span class="fire">🔥</span><span class="streak" id="sms"></span><span class="mcount" id="smm"></span></div>
     <span class="chart-btn">📊</span>
   </div>
-  <div class="vmini" onclick="openVocab()">
+  <div class="vmini" id="vminiBar" onclick="openVocab()">
     <span>📖 単語帳</span><span class="vmini-cnt" id="vmcnt"></span><span class="chart-btn">▶</span>
   </div>
   <div class="ptr" id="ptr">↓ 引っ張って同期</div>
@@ -276,6 +293,10 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 <div class="dov" id="dov">
   <div class="dh"><button class="bb" id="bk">← 戻る</button><div class="dht" id="dht"></div><div class="dn"><button class="nb" id="np">◀</button><button class="nb" id="nn">▶</button></div></div>
   <div class="dbdy" id="dbdy"></div>
+</div>
+<div class="memo-fs" id="memoFs">
+  <div class="memo-fs-hd"><span class="memo-fs-title">📝 メモ</span><button class="memo-fs-close" id="memoFsClose">完了</button></div>
+  <textarea class="memo-fs-ta" id="memoFsTa" placeholder="メモを入力..."></textarea>
 </div>
 <div class="vmod" id="vmod">
   <div class="vmod-hd"><div class="vmod-handle"></div><div class="vmod-hd-row"><span class="vmod-title">📖 単語帳</span><button class="vmod-close" onclick="closeVocab()">閉じる ✕</button></div></div>
@@ -323,15 +344,31 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
       <input class="cfg-inp cfg-num" id="cfg-minstar" type="number" min="1" max="5" value="4"/>
       <label class="cfg-lbl">デフォルトフィルタ</label>
       <select class="cfg-sel" id="cfg-deffilter">
-        <option value="all">すべて</option>
-        <option value="unread">未読</option>
-        <option value="new">新着</option>
-        <option value="interested">興味あり</option>
+        <option value="all">すべて</option><option value="unread">未読</option>
+        <option value="new">新着</option><option value="interested">興味あり</option>
+      </select>
+      <label class="cfg-lbl">デフォルトソート</label>
+      <select class="cfg-sel" id="cfg-sort">
+        <option value="default">標準（未読優先）</option><option value="pubDate">出版日順</option>
+        <option value="rating">★順</option><option value="readAt">既読日順</option>
+      </select>
+      <label class="cfg-lbl">単語帳機能</label>
+      <select class="cfg-sel" id="cfg-vocab">
+        <option value="on">ON</option><option value="off">OFF</option>
       </select>
     </div>
     <div class="cfg-sec">
-      <div class="cfg-sec-title">AI用プロンプト</div>
-      <textarea class="cfg-ta" id="cfg-prompt" rows="5" placeholder="AI用コピー時のプロンプト文"></textarea>
+      <div class="cfg-sec-title">AI連携</div>
+      <label class="cfg-lbl">AI送信先（コピー後に自動で開く）</label>
+      <select class="cfg-sel" id="cfg-aidest">
+        <option value="copy">コピーのみ（アプリを開かない）</option>
+        <option value="claude">Claude (claude.ai)</option>
+        <option value="chatgpt">ChatGPT (chatgpt.com)</option>
+        <option value="gemini">Gemini (gemini.google.com)</option>
+      </select>
+      <div class="cfg-lbl" style="margin-top:12px;margin-bottom:4px">AIプロンプト プリセット</div>
+      <div id="cfg-prompts"></div>
+      <button class="cfg-addq" onclick="cfgAddPrompt()">＋ プリセットを追加</button>
     </div>
     <div class="cfg-sec">
       <div class="cfg-sec-title">PubMed検索設定 <span class="cfg-remote-tag">サーバー同期</span></div>
@@ -342,6 +379,10 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
       <div class="cfg-lbl" style="margin-top:12px;margin-bottom:4px">検索クエリ</div>
       <div id="cfg-queries"></div>
       <button class="cfg-addq" onclick="cfgAddQuery()">＋ クエリを追加</button>
+    </div>
+    <div class="cfg-sec">
+      <div class="cfg-sec-title">GAS実行ログ</div>
+      <div id="cfg-logs"><div style="color:var(--tf);font-size:12px">読み込み中...</div></div>
     </div>
     <div class="cfg-btns">
       <button class="cfg-savebtn" onclick="saveCfgAll()">💾 設定を保存</button>
@@ -384,7 +425,9 @@ async function dPB(s,items){if(!items.length)return;const d=await oDB();return n
 
 let C={url:'',key:''},P=[],F=[],aF='all',cP=null,ol=navigator.onLine;
 // Settings (loaded from IndexedDB, defaults here)
-let S={newDays:7,minStar:4,defFilter:'all',prompt:`論文検索してヒットした論文をお渡しします。そのアブストラクトの翻訳、具体的な臨床への役立つ情報を抽出をして教えてください。さらに、関連する背景知識も検索し、簡潔に教えてください。さらに疑問となりそうな事について深掘りを提案してください。`};
+let S={newDays:7,minStar:4,defFilter:'all',sortOrder:'default',aiDest:'copy',vocabEnabled:true,
+  aiPrompts:[{name:'翻訳＋臨床応用',prompt:'論文検索してヒットした論文をお渡しします。そのアブストラクトの翻訳、具体的な臨床への役立つ情報を抽出をして教えてください。さらに、関連する背景知識も検索し、簡潔に教えてください。さらに疑問となりそうな事について深掘りを提案してください。'}]
+};
 
 async function lC(){try{const c=await dGA('config');const o=c.find(x=>x.key==='ac');if(o&&o.u&&o.k){C.url=o.u;C.key=o.k;return true}}catch(e){}return false}
 async function saveSetup(){const u=document.getElementById('suUrl').value.trim(),k=document.getElementById('suKey').value.trim();if(!u||!k){sT('URLとAPIキーを入力');return}C.url=u;C.key=k;await dP('config',{key:'ac',u,k});document.getElementById('su').style.display='none';document.getElementById('ma').style.display='';syncData()}
@@ -447,7 +490,26 @@ async function syncData(){
   finally{btn.classList.remove('sy');sL(100);setTimeout(()=>sL(0),300)}
 }
 async function loadL(){try{P=(await dGA('papers')).map(p=>({...p,rating:p.rating||0,checked:!!p.checked,readAt:p.readAt||''}));sortP();rF();rL();rSt();updateBanner()}catch(e){}}
-function sortP(){P.sort((a,b)=>{if(a.checked!==b.checked)return a.checked?1:-1;const x=a.fetchedDate||a.pubDate||'',y=b.fetchedDate||b.pubDate||'';return x<y?1:x>y?-1:0})}
+const SORT_MODES=['default','pubDate','rating','readAt'];
+const SORT_LABELS={default:'標準(未読優先)',pubDate:'出版日順',rating:'★順',readAt:'既読日順'};
+function sortP(){
+  P.sort((a,b)=>{
+    switch(S.sortOrder){
+      case'pubDate':{const x=a.pubDate||'',y=b.pubDate||'';return x<y?1:x>y?-1:0}
+      case'rating':return(b.rating||0)-(a.rating||0)||(b.fetchedDate||'').localeCompare(a.fetchedDate||'');
+      case'readAt':{const x=a.readAt||'',y=b.readAt||'';return(y||'0').localeCompare(x||'0')}
+      default:{if(a.checked!==b.checked)return a.checked?1:-1;const x=a.fetchedDate||a.pubDate||'',y=b.fetchedDate||b.pubDate||'';return x<y?1:x>y?-1:0}
+    }
+  });
+}
+function cycleSort(){
+  const i=SORT_MODES.indexOf(S.sortOrder);
+  S.sortOrder=SORT_MODES[(i+1)%SORT_MODES.length];
+  sortP();rL();
+  document.getElementById('sortBtn').title=SORT_LABELS[S.sortOrder];
+  sT('ソート: '+SORT_LABELS[S.sortOrder]);
+  saveSettings();
+}
 
 // ── Stats ──
 function buildReadMap(){
@@ -655,19 +717,22 @@ function openD(pm){
 <div class="co"><button class="ct" onclick="this.classList.toggle('op');this.nextElementSibling.classList.toggle('op')"><span class="ca">▶</span> Abstract（原文）</button><div class="cb"><div class="sel-row"><button class="sel-btn" onclick="selectAbsText()">📋 全文を選択</button></div><div class="dae" id="absEn">${wrapWords(p.abstractEn||'(No abstract)')}</div></div></div>
 <div class="co"><button class="ct" onclick="this.classList.toggle('op');this.nextElementSibling.classList.toggle('op')"><span class="ca">▶</span> 原文タイトル</button><div class="cb"><div class="dae">${E(p.titleEn||'')}</div></div></div>
 <div class="ds"><div class="dl">著者</div><div class="dau">${E(p.authors||'')}</div></div>
-<div><a class="dlk" href="${pu}" target="_blank">PubMedで開く ↗</a>${doi?`<br><a class="dlk" href="${doi}" target="_blank">DOI: ${E(p.doi)} ↗</a>`:''}</div>
-<div class="cpg"><button class="cp" data-c="a">📋 コピー</button><button class="cp" data-c="p">🤖 AI用コピー</button></div>
+<div><a class="dlk" href="${pu}" target="_blank">PubMedで開く ↗</a>${doi?`<br><a class="dlk" href="${doi}" target="_blank">DOI: ${E(p.doi)} ↗</a>`:''}${doi?`<br><a class="dlk" id="pdfLink" style="display:none" target="_blank">📄 PDF (Open Access) ↗</a>`:''}</div>
+<div class="cpg"><button class="cp" data-c="a">📋 コピー</button>${S.aiPrompts.length?`<button class="cp" data-c="p">🤖 AI送信</button>`:''}</div>
+${S.aiPrompts.length>1?`<div style="margin-top:6px"><select class="cfg-sel" id="aiPresetSel" style="font-size:12px;padding:6px 8px">${S.aiPrompts.map((pr,i)=>`<option value="${i}">${E(pr.name)}</option>`).join('')}</select></div>`:''}
 <div class="dact">
   <div class="ar"><button class="tgl${p.checked?' on':''}" id="tgl"></button><span class="al">既読</span></div>
   <div class="ar"><span class="al" style="margin-right:4px">興味度</span><div class="dsr" id="dss">${dSt(pm,p.rating)}</div></div>
   <div class="dl" style="margin-top:14px">メモ</div>
-  <textarea class="mt" id="mt" placeholder="メモを入力...">${E(p.memo||'')}</textarea>
-  <div class="mh">フォーカスを外すと自動保存</div>
+  <textarea class="mt" id="mt" placeholder="メモを入力..." readonly onclick="openMemoFs()">${E(p.memo||'')}</textarea>
+  <div class="mh">タップで全画面編集</div>
 </div>
 ${nxH}`;
   uN();ov.style.transform='';ov.style.transition='transform .3s ease';ov.classList.add('open');ov.scrollTop=0;
+  // Unpaywall PDF lookup
+  if(p.doi){fetchPdfLink(p.doi)}
 }
-function clD(){const o=document.getElementById('dov');o.style.transition='transform .3s ease';o.style.transform='translateX(100%)';setTimeout(()=>{o.classList.remove('open');o.style.transform='';o.style.transition=''},350);cP=null}
+function clD(){closeMemoFs();const o=document.getElementById('dov');o.style.transition='transform .3s ease';o.style.transform='translateX(100%)';setTimeout(()=>{o.classList.remove('open');o.style.transform='';o.style.transition=''},350);cP=null}
 function nD(d){if(!cP)return;const i=F.findIndex(p=>p.pmid===cP);const n=i+d;if(n>=0&&n<F.length)openD(F[n].pmid)}
 function uN(){const i=F.findIndex(p=>p.pmid===cP);document.getElementById('np').disabled=i<=0;document.getElementById('nn').disabled=i<0||i>=F.length-1}
 
@@ -681,12 +746,63 @@ dov.addEventListener('click',function(e){
 document.getElementById('bk').addEventListener('click',clD);
 document.getElementById('np').addEventListener('click',()=>nD(-1));
 document.getElementById('nn').addEventListener('click',()=>nD(1));
-dov.addEventListener('focusout',function(e){if(e.target.id==='mt')sM()});
+
+// Fullscreen memo
+function openMemoFs(){
+  if(!cP)return;
+  const p=P.find(x=>x.pmid===cP);if(!p)return;
+  const fs=document.getElementById('memoFs');
+  const ta=document.getElementById('memoFsTa');
+  ta.value=p.memo||'';
+  fs.classList.add('open');
+  setTimeout(()=>ta.focus(),100);
+}
+function closeMemoFs(){
+  const fs=document.getElementById('memoFs');
+  // Save
+  if(cP){
+    const p=P.find(x=>x.pmid===cP);
+    const ta=document.getElementById('memoFsTa');
+    if(p&&ta&&ta.value!==p.memo){
+      p.memo=ta.value;
+      sC(p);rL();
+      // Update small textarea
+      const mt=document.getElementById('mt');if(mt)mt.value=p.memo;
+      sT('メモ保存');
+    }
+  }
+  fs.classList.remove('open');
+}
+document.getElementById('memoFsClose').addEventListener('click',closeMemoFs);
 
 async function tRD(){if(!cP)return;const p=P.find(x=>x.pmid===cP);if(!p)return;p.checked=!p.checked;p.readAt=p.checked?new Date().toISOString():'';document.getElementById('tgl').classList.toggle('on',p.checked);await sC(p);sortP();rF();rL();rSt()}
 async function sM(){if(!cP)return;const p=P.find(x=>x.pmid===cP);if(!p)return;const t=document.getElementById('mt');if(!t||t.value===p.memo)return;p.memo=t.value;await sC(p);rL();sT('メモ保存')}
 function cpA(){const p=P.find(x=>x.pmid===cP);if(!p)return;cc([`Title: ${p.titleEn}`,`Journal: ${p.journal}`,`PMID: ${p.pmid}`,p.doi?`DOI: ${p.doi}`:'',`Authors: ${p.authors}`,'','Abstract:',p.abstractEn||''].filter(Boolean).join('\n'));sT('コピーしました')}
-function cpP(){const p=P.find(x=>x.pmid===cP);if(!p)return;cc([S.prompt,'','---','',`Title: ${p.titleEn}`,`Journal: ${p.journal}`,`PMID: ${p.pmid}`,p.doi?`DOI: ${p.doi}`:'',`Authors: ${p.authors}`,'','Abstract:',p.abstractEn||''].filter(Boolean).join('\n'));sT('AI用コピー完了')}
+function cpP(){
+  const p=P.find(x=>x.pmid===cP);if(!p)return;
+  // Get selected preset
+  const sel=document.getElementById('aiPresetSel');
+  const idx=sel?+sel.value:0;
+  const preset=S.aiPrompts[idx]||S.aiPrompts[0];
+  if(!preset){sT('AIプロンプトが設定されていません');return}
+  const text=[preset.prompt,'','---','',`Title: ${p.titleEn}`,`Journal: ${p.journal}`,`PMID: ${p.pmid}`,p.doi?`DOI: ${p.doi}`:'',`Authors: ${p.authors}`,'','Abstract:',p.abstractEn||''].filter(Boolean).join('\n');
+  cc(text);
+  // Open AI app
+  const urls={claude:'https://claude.ai/new',chatgpt:'https://chatgpt.com/',gemini:'https://gemini.google.com/app'};
+  if(S.aiDest!=='copy'&&urls[S.aiDest]){
+    sT('コピー完了 → アプリを開きます');
+    setTimeout(()=>window.open(urls[S.aiDest],'_blank'),500);
+  }else{sT('AI用コピー完了')}
+}
+async function fetchPdfLink(doi){
+  try{
+    const r=await fetch(`https://api.unpaywall.org/v2/${encodeURIComponent(doi)}?email=paper-reader@example.com`);
+    if(!r.ok)return;
+    const d=await r.json();
+    const url=d.best_oa_location?.url_for_pdf||d.best_oa_location?.url;
+    if(url){const el=document.getElementById('pdfLink');if(el){el.href=url;el.style.display='inline-block'}}
+  }catch(e){}
+}
 function cc(t){if(navigator.clipboard?.writeText)navigator.clipboard.writeText(t).catch(()=>fc2(t));else fc2(t)}
 function fc2(t){const a=document.createElement('textarea');a.value=t;a.style.cssText='position:fixed;left:-9999px';document.body.appendChild(a);a.select();document.execCommand('copy');document.body.removeChild(a)}
 
@@ -710,6 +826,7 @@ function selectAbsText(){
 
 // ── Word Lookup Dialog ──
 function wrapWords(text){
+  if(!S.vocabEnabled)return E(text);
   return E(text).replace(/(\S+)/g,'<span class="abs-word">$1</span>');
 }
 let _wdWord='',_wdCtx='',_wdMeaning='';
@@ -789,7 +906,7 @@ document.getElementById('wdov').addEventListener('click',function(e){
 let vocab=[];
 async function loadVocab(){try{vocab=await dGA('vocab');vocab.sort((a,b)=>(b.addedAt||'').localeCompare(a.addedAt||''))}catch(e){vocab=[]}updVmini()}
 async function saveWord(w){await dP('vocab',w);await loadVocab()}
-function updVmini(){const el=document.getElementById('vmcnt');if(el)el.textContent=vocab.length?vocab.length+'語':''}
+function updVmini(){const el=document.getElementById('vmcnt');if(el)el.textContent=vocab.length?vocab.length+'語':'';const bar=document.getElementById('vminiBar');if(bar)bar.style.display=S.vocabEnabled?'flex':'none'}
 async function delWord(id){const db=await oDB();return new Promise((r,j)=>{const t=db.transaction('vocab','readwrite');t.objectStore('vocab').delete(id);t.oncomplete=()=>r();t.onerror=()=>j(t.error)})}
 
 function openVocab(){
@@ -867,19 +984,21 @@ async function saveSettings(){
 
 function openCfg(){
   const m=document.getElementById('cfgmod');
-  // Fill local settings
   document.getElementById('cfg-url').value=C.url||'';
   document.getElementById('cfg-key').value=C.key||'';
   document.getElementById('cfg-newdays').value=S.newDays;
   document.getElementById('cfg-minstar').value=S.minStar;
   document.getElementById('cfg-deffilter').value=S.defFilter;
-  document.getElementById('cfg-prompt').value=S.prompt;
-  // Load PubMed config from server
+  document.getElementById('cfg-sort').value=S.sortOrder;
+  document.getElementById('cfg-vocab').value=S.vocabEnabled?'on':'off';
+  document.getElementById('cfg-aidest').value=S.aiDest;
+  renderCfgPrompts(S.aiPrompts||[]);
   document.getElementById('cfg-daysback').value='';
   document.getElementById('cfg-maxresults').value='';
   document.getElementById('cfg-queries').innerHTML='<div style="color:var(--tf);font-size:12px">読み込み中...</div>';
+  document.getElementById('cfg-logs').innerHTML='<div style="color:var(--tf);font-size:12px">読み込み中...</div>';
   m.style.transform='';m.style.transition='transform .3s ease';m.classList.add('open');
-  if(ol)loadRemoteConfig();
+  if(ol){loadRemoteConfig();loadLogs()}
 }
 function closeCfg(){const m=document.getElementById('cfgmod');m.style.transition='transform .3s ease';m.style.transform='translateY(100%)';setTimeout(()=>{m.classList.remove('open');m.style.transform='';m.style.transition=''},350)}
 
@@ -931,22 +1050,67 @@ function getCfgQueries(){
   return queries;
 }
 
+// Prompt presets
+function renderCfgPrompts(prompts){
+  const c=document.getElementById('cfg-prompts');
+  c.innerHTML=prompts.map((p,i)=>`<div class="cfg-qcard" data-pi="${i}">
+    <div class="cfg-qcard-hd"><span style="font-size:12px;font-weight:600;color:var(--td)">プリセット ${i+1}</span><button class="cfg-qcard-del" onclick="this.closest('.cfg-qcard').remove()">✕ 削除</button></div>
+    <input class="cfg-qinp" data-field="pname" value="${E(p.name||'')}" placeholder="名前（例: 翻訳＋臨床応用）"/>
+    <textarea class="cfg-qinp" data-field="pprompt" rows="3" placeholder="プロンプト文">${E(p.prompt||'')}</textarea>
+  </div>`).join('');
+}
+function cfgAddPrompt(){
+  const c=document.getElementById('cfg-prompts');
+  c.insertAdjacentHTML('beforeend',`<div class="cfg-qcard">
+    <div class="cfg-qcard-hd"><span style="font-size:12px;font-weight:600;color:var(--td)">新規プリセット</span><button class="cfg-qcard-del" onclick="this.closest('.cfg-qcard').remove()">✕ 削除</button></div>
+    <input class="cfg-qinp" data-field="pname" value="" placeholder="名前"/>
+    <textarea class="cfg-qinp" data-field="pprompt" rows="3" placeholder="プロンプト文"></textarea>
+  </div>`);
+}
+function getCfgPrompts(){
+  const cards=document.querySelectorAll('#cfg-prompts .cfg-qcard');
+  const prompts=[];
+  cards.forEach(card=>{
+    const name=(card.querySelector('[data-field="pname"]')?.value||'').trim();
+    const prompt=(card.querySelector('[data-field="pprompt"]')?.value||'').trim();
+    if(name&&prompt)prompts.push({name,prompt});
+  });
+  return prompts;
+}
+
+// GAS execution logs
+async function loadLogs(){
+  try{
+    const data=await jp({action:'getLog',key:C.key});
+    const c=document.getElementById('cfg-logs');
+    if(!data.logs||!data.logs.length){c.innerHTML='<div style="color:var(--tf);font-size:12px">実行ログがありません</div>';return}
+    c.innerHTML=data.logs.map(log=>{
+      const d=new Date(log.timestamp);
+      const dt=fD(log.timestamp)+' '+d.getHours()+':'+String(d.getMinutes()).padStart(2,'0');
+      const entries=log.entries.map(e=>`<span style="color:${e.error?'#f87171':'var(--gr)'}">  ${E(e.label)}: ${e.added}件追加${e.error?' ⚠'+E(e.error):''}</span>`).join('<br>');
+      return`<div style="background:var(--bgc);border:1px solid var(--bd);border-radius:8px;padding:10px;margin-bottom:6px;font-size:12px">
+        <div style="color:var(--tx);font-weight:600;margin-bottom:4px">${dt} (${log.duration}秒) — 合計 ${log.totalNew}件</div>
+        <div style="color:var(--td);line-height:1.6">${entries}</div>
+      </div>`;
+    }).join('');
+  }catch(e){document.getElementById('cfg-logs').innerHTML='<div style="color:#f87171;font-size:12px">ログの取得に失敗しました</div>'}
+}
+
 async function saveCfgAll(){
-  // 1. Connection settings
   const newUrl=document.getElementById('cfg-url').value.trim();
   const newKey=document.getElementById('cfg-key').value.trim();
-  if(newUrl&&newKey){
-    C.url=newUrl;C.key=newKey;
-    await dP('config',{key:'ac',u:newUrl,k:newKey});
-  }
-  // 2. Local settings
+  if(newUrl&&newKey){C.url=newUrl;C.key=newKey;await dP('config',{key:'ac',u:newUrl,k:newKey})}
+  // Local settings
   S.newDays=Math.max(1,Math.min(90,+document.getElementById('cfg-newdays').value||7));
   S.minStar=Math.max(1,Math.min(5,+document.getElementById('cfg-minstar').value||4));
   S.defFilter=document.getElementById('cfg-deffilter').value||'all';
-  S.prompt=document.getElementById('cfg-prompt').value||S.prompt;
+  S.sortOrder=document.getElementById('cfg-sort').value||'default';
+  S.vocabEnabled=document.getElementById('cfg-vocab').value==='on';
+  S.aiDest=document.getElementById('cfg-aidest').value||'copy';
+  S.aiPrompts=getCfgPrompts();
   await saveSettings();
-  aF=S.defFilter;
-  // 3. Remote PubMed config
+  aF=S.defFilter;sortP();updVmini();
+  // Remote PubMed config
   if(ol){
     const daysBack=+document.getElementById('cfg-daysback').value||7;
     const maxResults=+document.getElementById('cfg-maxresults').value||10;
@@ -954,14 +1118,9 @@ async function saveCfgAll(){
     try{
       await jp({action:'saveConfig',data:JSON.stringify({action:'saveConfig',config:{daysBack,maxResults,queries}}),key:C.key});
       sT('設定を保存しました（PubMed設定含む）');
-    }catch(e){
-      sT('ローカル設定は保存。PubMed設定の保存に失敗: '+e.message);
-    }
-  }else{
-    sT('ローカル設定を保存しました（PubMed設定はオンライン時に）');
-  }
-  rF();rL();
-  closeCfg();
+    }catch(e){sT('ローカル設定は保存。PubMed設定の保存に失敗')}
+  }else{sT('ローカル設定を保存しました')}
+  rF();rL();closeCfg();
 }
 
 async function resetAllData(){
@@ -983,11 +1142,14 @@ m.addEventListener('touchend',e=>{if(!tr)return;tr=false;const dy=e.changedTouch
 
 async function init(){
   if('serviceWorker'in navigator)try{await navigator.serviceWorker.register('./sw.js')}catch(e){}
-  if(!await lC()){document.getElementById('su').style.display='';return}
+  const hideSplash=()=>setTimeout(()=>{const sp=document.getElementById('splash');sp.classList.add('hide');setTimeout(()=>sp.remove(),600)},800);
+  if(!await lC()){document.getElementById('su').style.display='';hideSplash();return}
   document.getElementById('ma').style.display='';uSD();reqNotif();
   await loadSettings();
   aF=S.defFilter;
-  await loadL();await loadVocab();if(ol)syncData();
+  await loadL();await loadVocab();
+  hideSplash();
+  if(ol)syncData();
 }
 init();
 </script>
