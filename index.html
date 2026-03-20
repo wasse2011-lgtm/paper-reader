@@ -22,7 +22,7 @@
 html,body{height:100%;background:var(--bg);color:var(--tx);
   font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP',sans-serif;
   font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;overscroll-behavior-y:contain}
-.hd{position:sticky;top:0;z-index:100;padding:calc(var(--ht) + 8px) 16px 8px;background:var(--bg);border-bottom:1px solid var(--bd)}
+.hd{position:sticky;top:0;z-index:100;padding:var(--ht) 16px 8px;background:var(--bg);border-bottom:1px solid var(--bd)}
 .ht{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .htl{font-size:18px;font-weight:700}
 .ha{display:flex;gap:8px;align-items:center}
@@ -67,7 +67,7 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 /* Modal */
 .stmod{position:fixed;inset:0;z-index:300;background:var(--bgd);transform:translateY(100%);transition:transform .3s ease;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .stmod.open{transform:translateY(0)}
-.stmod-hd{position:sticky;top:0;z-index:10;background:var(--bgd);border-bottom:1px solid var(--bd);padding:0 16px 12px;padding-top:calc(var(--ht) + 8px);text-align:center}
+.stmod-hd{position:sticky;top:0;z-index:10;background:var(--bgd);border-bottom:1px solid var(--bd);padding:0 16px 12px;padding-top:var(--ht);text-align:center}
 .stmod-handle{width:36px;height:4px;border-radius:2px;background:var(--tf);margin:10px auto 12px;opacity:.5}
 .stmod-hd-row{display:flex;align-items:center;justify-content:space-between}
 .stmod-title{font-size:17px;font-weight:700}
@@ -124,7 +124,7 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 .st{background:none;border:none;font-size:16px;padding:0 1px;cursor:pointer;color:var(--tf);line-height:1;-webkit-tap-highlight-color:transparent}.st.on{color:var(--am)}
 .dov{position:fixed;inset:0;z-index:200;background:var(--bgd);transform:translateX(100%);transition:transform .3s ease;overflow-y:auto;-webkit-overflow-scrolling:touch;will-change:transform}
 .dov.open{transform:translateX(0)}
-.dh{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:8px;padding:calc(var(--ht) + 8px) 16px 10px;background:var(--bgd);border-bottom:1px solid var(--bd)}
+.dh{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:8px;padding:var(--ht) 16px 10px;background:var(--bgd);border-bottom:1px solid var(--bd)}
 .bb{background:none;border:none;color:var(--ac);font-size:16px;cursor:pointer;padding:4px;display:flex;align-items:center}
 .dht{font-size:14px;font-weight:600;color:var(--td);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;flex:1}
 .dn{display:flex;gap:4px}
@@ -156,7 +156,7 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 /* Fullscreen memo */
 .memo-fs{display:none;position:fixed;inset:0;z-index:280;background:var(--bgd);flex-direction:column}
 .memo-fs.open{display:flex}
-.memo-fs-hd{display:flex;align-items:center;justify-content:space-between;padding:calc(var(--ht) + 8px) 16px 10px;border-bottom:1px solid var(--bd);flex-shrink:0}
+.memo-fs-hd{display:flex;align-items:center;justify-content:space-between;padding:var(--ht) 16px 10px;border-bottom:1px solid var(--bd);flex-shrink:0}
 .memo-fs-title{font-size:15px;font-weight:700}
 .memo-fs-close{background:var(--bgi);border:1px solid var(--bd);color:var(--tx);font-size:13px;font-weight:600;cursor:pointer;padding:6px 16px;border-radius:8px}
 .memo-fs-ta{flex:1;width:100%;background:var(--bgd);border:none;padding:16px 20px;color:var(--tx);font-size:15px;font-family:inherit;line-height:1.8;resize:none;outline:none}
@@ -179,7 +179,7 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 .cfgbtn{background:none;border:none;font-size:20px;cursor:pointer;padding:4px;-webkit-tap-highlight-color:transparent;opacity:.7}
 .cfgmod{position:fixed;inset:0;z-index:300;background:var(--bgd);transform:translateY(100%);transition:transform .3s ease;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .cfgmod.open{transform:translateY(0)}
-.cfgmod-hd{position:sticky;top:0;z-index:10;background:var(--bgd);border-bottom:1px solid var(--bd);padding:0 16px 12px;padding-top:calc(var(--ht) + 8px);text-align:center}
+.cfgmod-hd{position:sticky;top:0;z-index:10;background:var(--bgd);border-bottom:1px solid var(--bd);padding:0 16px 12px;padding-top:var(--ht);text-align:center}
 .cfgmod-body{padding:16px 16px calc(var(--sb)+40px)}
 .cfg-sec{margin-bottom:20px}
 .cfg-sec-title{font-size:14px;font-weight:700;color:var(--tx);margin-bottom:10px}
@@ -211,7 +211,7 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 /* ── Vocab Modal ── */
 .vmod{position:fixed;inset:0;z-index:300;background:var(--bgd);transform:translateY(100%);transition:transform .3s ease;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .vmod.open{transform:translateY(0)}
-.vmod-hd{position:sticky;top:0;z-index:10;background:var(--bgd);border-bottom:1px solid var(--bd);padding:0 16px 12px;padding-top:calc(var(--ht) + 8px);text-align:center}
+.vmod-hd{position:sticky;top:0;z-index:10;background:var(--bgd);border-bottom:1px solid var(--bd);padding:0 16px 12px;padding-top:var(--ht);text-align:center}
 .vmod-handle{width:36px;height:4px;border-radius:2px;background:var(--tf);margin:10px auto 12px;opacity:.5}
 .vmod-hd-row{display:flex;align-items:center;justify-content:space-between}
 .vmod-title{font-size:17px;font-weight:700}
