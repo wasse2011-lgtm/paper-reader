@@ -4,7 +4,7 @@
  * 論文データ自体はIndexedDB（アプリ側）で管理する。
  */
 
-const CACHE_NAME = 'paper-reader-v18';
+const CACHE_NAME = 'paper-reader-v20';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
