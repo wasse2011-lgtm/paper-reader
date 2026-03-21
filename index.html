@@ -158,8 +158,8 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 .memo-phrases::-webkit-scrollbar{display:none}
 .memo-phrase{flex-shrink:0;padding:5px 10px;border-radius:16px;border:1px solid var(--bd);background:var(--bgi);color:var(--td);font-size:11px;font-weight:500;cursor:pointer;white-space:nowrap}
 .memo-phrase:active{background:var(--acd);color:var(--ac);border-color:var(--ac)}
-.memo-expand-btn{flex-shrink:0;background:none;border:1px solid var(--bd);border-radius:8px;color:var(--td);font-size:12px;padding:5px 10px;cursor:pointer;white-space:nowrap}
-.memo-expand-btn:active{background:var(--bgi)}
+.memo-expand-btn,.memo-paste-btn{flex-shrink:0;background:none;border:1px solid var(--bd);border-radius:8px;color:var(--td);font-size:12px;padding:5px 10px;cursor:pointer;white-space:nowrap}
+.memo-expand-btn:active,.memo-paste-btn:active{background:var(--bgi)}
 .memo-ta-inline{width:100%;background:var(--bgi);border:1px solid var(--bd);border-radius:10px;padding:12px 16px;color:var(--tx);font-size:16px;font-family:inherit;line-height:1.8;resize:none;outline:none;overflow-y:auto;min-height:80px;max-height:55vh}
 .memo-ta-inline:focus{border-color:var(--ac)}
 .memo-ta-inline::placeholder{color:var(--tf)}
@@ -417,6 +417,7 @@ function endMemoEdit(save){
 }
 function autoResizeMemoTa(){const ta=document.getElementById('mt');if(!ta)return;ta.style.height='auto';ta.style.height=Math.min(ta.scrollHeight,window.innerHeight*0.55)+'px'}
 function insertPhrase(phrase){const ta=document.getElementById('mt');if(!ta)return;const tag='['+phrase+']';const pos=ta.selectionStart||ta.value.length;const before=ta.value.substring(0,pos),after=ta.value.substring(pos);const nl=before.length>0&&!before.endsWith('\n');ta.value=before+(nl?'\n':'')+tag+after;ta.focus();const np=pos+(nl?1:0)+tag.length;ta.setSelectionRange(np,np);autoResizeMemoTa()}
+async function pasteToMemo(){const ta=document.getElementById('mt');if(!ta)return;try{const clip=await navigator.clipboard.readText();if(!clip){sT('クリップボードが空です');return}const cur=ta.value;const nl=cur.length>0&&!cur.endsWith('\n');ta.value=cur+(nl?'\n':'')+clip;ta.focus();ta.setSelectionRange(ta.value.length,ta.value.length);autoResizeMemoTa();sT('貼り付けました')}catch(e){sT('貼り付けに失敗しました（許可が必要）')}}
 
 // Detail overlay event delegation
 const dov=document.getElementById('dov');
@@ -451,7 +452,7 @@ ${S.aiPrompts.length>1?`<div style="margin-top:6px"><select class="cfg-sel" id="
   <div class="dl" style="margin-top:14px">📝 メモ</div>
   <div class="memo-display${p.memo?'':' empty'}" id="memoDisp" onclick="startMemoEdit()">${p.memo?renderMemo(p.memo):'タップしてメモを追加'}</div>
   <div class="memo-inline" id="memoInline" style="display:none">
-    <div class="memo-toolbar"><div class="memo-phrases" id="memoPhrases"></div><button class="memo-expand-btn" onclick="openMemoFs()">↗ 全画面</button></div>
+    <div class="memo-toolbar"><div class="memo-phrases" id="memoPhrases"></div><button class="memo-paste-btn" onclick="pasteToMemo()">📋 貼付</button><button class="memo-expand-btn" onclick="openMemoFs()">↗ 全画面</button></div>
     <textarea class="memo-ta-inline" id="mt" placeholder="メモを入力..." oninput="autoResizeMemoTa()"></textarea>
     <div class="memo-save-row"><button class="memo-done-btn">✓ 完了</button></div>
   </div>
