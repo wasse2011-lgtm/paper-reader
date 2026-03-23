@@ -159,8 +159,9 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 .memo-fs-hd{display:flex;align-items:center;justify-content:space-between;padding:var(--ht) 16px 10px;border-bottom:1px solid var(--bd);flex-shrink:0;gap:8px}
 .memo-fs-title{font-size:15px;font-weight:700}
 .memo-fs-close{background:var(--bgi);border:1px solid var(--bd);color:var(--tx);font-size:13px;font-weight:600;cursor:pointer;padding:6px 16px;border-radius:8px}
-.memo-fs-paste{background:var(--acd);border:none;color:#fff;font-size:12px;font-weight:600;cursor:pointer;padding:6px 12px;border-radius:8px}
-.memo-fs-paste:active{opacity:.7}
+.memo-fs-toolbar{display:flex;gap:4px;padding:8px 16px;border-bottom:1px solid var(--bd);flex-shrink:0;flex-wrap:wrap}
+.memo-fs-tbtn{background:var(--bgi);border:1px solid var(--bd);color:var(--tx);font-size:13px;font-weight:600;cursor:pointer;padding:6px 10px;border-radius:6px;min-width:36px;text-align:center}
+.memo-fs-tbtn:active{background:var(--acd);border-color:var(--ac)}
 .memo-fs-ta{flex:1;width:100%;background:var(--bgd);border:none;padding:16px 20px;color:var(--tx);font-size:15px;font-family:inherit;line-height:1.8;resize:none;outline:none}
 .memo-fs-ta::placeholder{color:var(--tf)}
 /* Memo markdown preview */
@@ -222,9 +223,6 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 .sel-row{display:flex;align-items:center;gap:8px;margin-top:10px;margin-bottom:8px;flex-wrap:wrap}
 .sel-btn{display:flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid var(--bd);border-radius:10px;background:var(--bgi);color:var(--tx);font-size:13px;font-weight:500;cursor:pointer}
 .sel-btn:active{background:var(--acd);border-color:var(--ac)}
-.sel-btn.playing{background:var(--acd);border-color:var(--ac)}
-.tts-speed{width:70px;accent-color:var(--ac);height:3px}
-.tts-lbl{font-size:11px;color:var(--tf);min-width:28px}
 
 /* ── Vocab Modal ── */
 .vmod{position:fixed;inset:0;z-index:300;background:var(--bgd);transform:translateY(100%);transition:transform .3s ease;overflow-y:auto;-webkit-overflow-scrolling:touch}
@@ -314,8 +312,17 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
   <div class="dbdy" id="dbdy"></div>
 </div>
 <div class="memo-fs" id="memoFs">
-  <div class="memo-fs-hd"><span class="memo-fs-title">📝 メモ</span><button class="memo-fs-paste" id="memoPaste">📋 貼り付け</button><button class="memo-fs-close" id="memoFsClose">完了</button></div>
-  <textarea class="memo-fs-ta" id="memoFsTa" placeholder="メモを入力...&#10;&#10;書式: **太字** __下線__ # 見出し - リスト"></textarea>
+  <div class="memo-fs-hd"><span class="memo-fs-title">📝 メモ</span><button class="memo-fs-close" id="memoFsClose">完了</button></div>
+  <div class="memo-fs-toolbar">
+    <button class="memo-fs-tbtn" onclick="memoInsert('**','**')"><b>B</b></button>
+    <button class="memo-fs-tbtn" onclick="memoInsert('__','__')"><u>U</u></button>
+    <button class="memo-fs-tbtn" onclick="memoInsertLine('# ')">H1</button>
+    <button class="memo-fs-tbtn" onclick="memoInsertLine('## ')">H2</button>
+    <button class="memo-fs-tbtn" onclick="memoInsertLine('- ')">•</button>
+    <button class="memo-fs-tbtn" onclick="memoInsertLine('---')">―</button>
+    <button class="memo-fs-tbtn" onclick="memoInsert('`','`')">&lt;/&gt;</button>
+  </div>
+  <textarea class="memo-fs-ta" id="memoFsTa" placeholder="メモを入力..."></textarea>
 </div>
 <div class="vmod" id="vmod">
   <div class="vmod-hd"><div class="vmod-handle"></div><div class="vmod-hd-row"><span class="vmod-title">📖 単語帳</span><button class="vmod-close" onclick="closeVocab()">閉じる ✕</button></div></div>
@@ -750,7 +757,7 @@ function openD(pm){
 <div class="dti">${E(p.titleJa||p.titleEn||'')}</div>
 <div class="dm"><span class="di">${E(p.journal||'')}</span><span class="di">${fD(p.pubDate)}</span><span class="di">PMID:${p.pmid}</span>${p.readAt?`<span class="di">既読 ${fD(p.readAt)}</span>`:''}</div>
 <div class="ds"><div class="dl">アブストラクト（日本語）</div><div class="da">${E(p.abstractJa||'(アブストラクトなし)')}</div></div>
-<div class="co"><button class="ct" onclick="this.classList.toggle('op');this.nextElementSibling.classList.toggle('op')"><span class="ca">▶</span> Abstract（原文）</button><div class="cb"><div class="sel-row"><button class="sel-btn" onclick="selectAbsText()">📋 全文選択</button><button class="sel-btn" id="ttsBtn" onclick="toggleTTS()">🔊 読み上げ</button><button class="sel-btn" onclick="stopTTS()">⏹</button><input type="range" class="tts-speed" id="ttsSpd" min="0.5" max="2.0" step="0.1" value="1.0" oninput="updTTSRate()"/><span class="tts-lbl" id="ttsLbl">1.0x</span></div><div class="dae" id="absEn">${wrapWords(p.abstractEn||'(No abstract)')}</div></div></div>
+<div class="co"><button class="ct" onclick="this.classList.toggle('op');this.nextElementSibling.classList.toggle('op')"><span class="ca">▶</span> Abstract（原文）</button><div class="cb"><div class="sel-row"><button class="sel-btn" onclick="selectAbsText()">📋 全文選択</button><span style="font-size:11px;color:var(--tf)">→ 選択後「読み上げ」で再生。上部バーで⏸停止・速度変更</span></div><div class="dae" id="absEn">${wrapWords(p.abstractEn||'(No abstract)')}</div></div></div>
 <div class="co"><button class="ct" onclick="this.classList.toggle('op');this.nextElementSibling.classList.toggle('op')"><span class="ca">▶</span> 原文タイトル</button><div class="cb"><div class="dae">${E(p.titleEn||'')}</div></div></div>
 <div class="ds"><div class="dl">著者</div><div class="dau">${E(p.authors||'')}</div></div>
 <div><a class="dlk" href="${pu}" target="_blank">PubMedで開く ↗</a>${doi?`<br><a class="dlk" href="${doi}" target="_blank">DOI: ${E(p.doi)} ↗</a>`:''}${doi?`<br><a class="dlk" id="pdfLink" style="display:none" target="_blank">📄 PDF (Open Access) ↗</a>`:''}</div>
@@ -761,14 +768,14 @@ ${S.aiPrompts.length>1?`<div style="margin-top:6px"><select class="cfg-sel" id="
   <div class="ar"><span class="al" style="margin-right:4px">興味度</span><div class="dsr" id="dss">${dSt(pm,p.rating)}</div></div>
   <div class="dl" style="margin-top:14px">メモ</div>
   <div class="mt-view" id="mt" onclick="openMemoFs()">${renderMd(p.memo||'')}</div>
-  <div class="mh">タップで編集 / **太字** __下線__ # 見出し</div>
+  <div class="mh">タップで編集（ツールバーで書式設定）</div>
 </div>
 ${nxH}`;
   uN();ov.style.transform='';ov.style.transition='transform .3s ease';ov.classList.add('open');ov.scrollTop=0;
   // Unpaywall PDF lookup
   if(p.doi){fetchPdfLink(p.doi)}
 }
-function clD(){closeMemoFs();stopTTS();const o=document.getElementById('dov');o.style.transition='transform .3s ease';o.style.transform='translateX(100%)';setTimeout(()=>{o.classList.remove('open');o.style.transform='';o.style.transition=''},350);cP=null}
+function clD(){closeMemoFs();const o=document.getElementById('dov');o.style.transition='transform .3s ease';o.style.transform='translateX(100%)';setTimeout(()=>{o.classList.remove('open');o.style.transform='';o.style.transition=''},350);cP=null}
 function nD(d){if(!cP)return;const i=F.findIndex(p=>p.pmid===cP);const n=i+d;if(n>=0&&n<F.length)openD(F[n].pmid)}
 function uN(){const i=F.findIndex(p=>p.pmid===cP);document.getElementById('np').disabled=i<=0;document.getElementById('nn').disabled=i<0||i>=F.length-1}
 
@@ -861,26 +868,25 @@ function selectAbsText(){
   sel.addRange(range);
 }
 
-// ── TTS ──
-let _ttsU=null;
-function toggleTTS(){
-  const ss=window.speechSynthesis;if(!ss)return sT('読み上げ非対応');
-  if(ss.speaking&&!ss.paused){ss.pause();document.getElementById('ttsBtn').textContent='▶ 再開';return}
-  if(ss.paused){ss.resume();document.getElementById('ttsBtn').textContent='⏸ 一時停止';return}
-  const p=P.find(x=>x.pmid===cP);if(!p||!p.abstractEn)return;
-  _ttsU=new SpeechSynthesisUtterance(p.abstractEn);
-  _ttsU.lang='en-US';
-  _ttsU.rate=parseFloat(document.getElementById('ttsSpd')?.value)||1.0;
-  _ttsU.onend=()=>{document.getElementById('ttsBtn').textContent='🔊 読み上げ';document.getElementById('ttsBtn').classList.remove('playing')};
-  document.getElementById('ttsBtn').textContent='⏸ 一時停止';
-  document.getElementById('ttsBtn').classList.add('playing');
-  ss.speak(_ttsU);
+// ── Memo formatting toolbar ──
+function memoInsert(before,after){
+  const ta=document.getElementById('memoFsTa');if(!ta)return;
+  const s=ta.selectionStart,e=ta.selectionEnd,v=ta.value;
+  const selected=v.slice(s,e);
+  const insert=before+(selected||'テキスト')+after;
+  ta.value=v.slice(0,s)+insert+v.slice(e);
+  ta.focus();
+  ta.selectionStart=s+before.length;
+  ta.selectionEnd=s+before.length+(selected||'テキスト').length;
 }
-function stopTTS(){const ss=window.speechSynthesis;if(ss){ss.cancel();document.getElementById('ttsBtn').textContent='🔊 読み上げ';document.getElementById('ttsBtn').classList.remove('playing')}}
-function updTTSRate(){
-  const v=document.getElementById('ttsSpd').value;
-  document.getElementById('ttsLbl').textContent=v+'x';
-  if(window.speechSynthesis?.speaking){stopTTS();toggleTTS();}
+function memoInsertLine(prefix){
+  const ta=document.getElementById('memoFsTa');if(!ta)return;
+  const s=ta.selectionStart,v=ta.value;
+  const lineStart=v.lastIndexOf('\n',s-1)+1;
+  const needNewline=lineStart<s&&v[s-1]!=='\n'?'\n':'';
+  ta.value=v.slice(0,s)+needNewline+prefix+v.slice(s);
+  ta.focus();
+  ta.selectionStart=ta.selectionEnd=s+needNewline.length+prefix.length;
 }
 
 // ── Markdown render (simple) ──
@@ -900,18 +906,6 @@ function renderMd(s){
   return h;
 }
 
-// ── Memo paste ──
-document.getElementById('memoPaste').addEventListener('click',async function(){
-  try{
-    const text=await navigator.clipboard.readText();
-    if(!text){sT('クリップボードが空です');return}
-    const ta=document.getElementById('memoFsTa');
-    const pos=ta.selectionStart||ta.value.length;
-    ta.value=ta.value.slice(0,pos)+text+ta.value.slice(pos);
-    ta.focus();
-    sT('貼り付けました');
-  }catch(e){sT('貼り付け権限がありません')}
-});
 
 // ── Word Lookup Dialog ──
 function wrapWords(text){
