@@ -227,11 +227,17 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 .imp-card-exists{color:var(--gr);font-weight:600}
 .imp-card-abs{display:none;padding:0 14px 12px;font-size:13px;color:var(--td);line-height:1.6;border-top:1px solid var(--bd);padding-top:10px}
 .imp-card-abs.open{display:block}
-.imp-card-actions{display:flex;justify-content:flex-end;padding:0 14px 12px;gap:8px}
+.imp-card-actions{display:flex;justify-content:flex-end;padding:0 14px 12px;gap:8px;align-items:center}
 .imp-ibtn{background:var(--ac);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer}
 .imp-ibtn:active{opacity:.7}
 .imp-ibtn:disabled{background:var(--tf);cursor:default}
 .imp-ibtn.done{background:var(--gr);color:#000}
+.imp-chk{width:18px;height:18px;accent-color:var(--ac)}
+.imp-bulk{position:sticky;bottom:0;background:var(--bgd);padding:12px var(--px);border-top:1px solid var(--bd);display:none}
+.imp-bulk.show{display:flex;gap:8px;align-items:center;justify-content:space-between}
+.imp-bulk-count{font-size:13px;color:var(--td)}
+.imp-bulk-btn{background:var(--ac);color:#fff;border:none;border-radius:10px;padding:12px 20px;font-size:14px;font-weight:700;cursor:pointer}
+.imp-bulk-btn:active{opacity:.7}
 .cfgmod{position:fixed;inset:0;z-index:300;background:var(--bgd);transform:translateY(100%);transition:transform .3s ease;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .cfgmod.open{transform:translateY(0)}
 .cfgmod-hd{position:sticky;top:0;z-index:10;background:var(--bgd);border-bottom:1px solid var(--bd);padding:0 var(--px) 12px;padding-top:var(--ht);text-align:center}
@@ -401,26 +407,26 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
   <div class="impmod-hd"><div class="vmod-handle"></div><div class="vmod-hd-row"><span class="vmod-title">📥 論文をインポート</span><button class="vmod-close" onclick="closeImport()">閉じる ✕</button></div></div>
   <div class="impmod-body">
     <div class="imp-row"><input class="imp-inp" id="imp-q" placeholder="PMID / DOI / URL / PubMed検索式"/><button class="imp-go" onclick="doImportSearch()">検索</button></div>
-    <div class="imp-ai-sec">
+    <div class="imp-ai-sec" id="imp-ai-sec">
       <div style="font-size:12px;font-weight:600;color:var(--td);margin-bottom:6px">🤖 AIで検索式を作成</div>
       <input class="imp-inp" id="imp-ai-kw" placeholder="キーワード（例: SBMA 骨代謝）" style="margin-bottom:6px;font-size:14px"/>
-      <div class="imp-ai-row">
+      <div class="imp-ai-row" style="margin-bottom:6px">
         <select class="imp-fsel" id="imp-ai-type">
-          <option value="general">一般検索</option>
-          <option value="rct">RCT</option>
-          <option value="review">SR/メタ解析</option>
-          <option value="cohort">コホート研究</option>
-          <option value="guideline">ガイドライン</option>
-          <option value="caseReport">症例報告</option>
+          <option value="general">一般</option><option value="rct">RCT</option>
+          <option value="review">SR/MA</option><option value="cohort">コホート</option>
+          <option value="guideline">GL</option><option value="caseReport">症例</option>
         </select>
         <select class="imp-fsel" id="imp-ai-scope">
-          <option value="broad">幅広く（高感度）</option>
-          <option value="balanced">バランス型</option>
-          <option value="narrow">絞り込み（高特異度）</option>
+          <option value="broad">高感度</option><option value="balanced" selected>バランス</option><option value="narrow">高特異度</option>
         </select>
+        <select class="imp-fsel" id="imp-ai-species">
+          <option value="any">種: 指定なし</option><option value="human">ヒト</option><option value="mouse">マウス</option><option value="both">ヒト+マウス</option>
+        </select>
+      </div>
+      <div class="imp-ai-row">
+        <label style="font-size:12px;color:var(--td);display:flex;align-items:center;gap:4px"><input type="checkbox" id="imp-ai-journal" class="imp-chk"/> 高IF誌限定</label>
         <button class="imp-ai-btn" onclick="buildAiPrompt()">🤖 AI起動</button>
       </div>
-      <div style="font-size:10px;color:var(--tf);margin-top:4px">キーワード入力 → AI起動 → 検索式をコピー → 上の欄に貼り付け</div>
     </div>
     <div class="imp-filters">
       <span style="font-size:12px;color:var(--td)">期間:</span>
@@ -430,9 +436,17 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
       <span style="font-size:12px;color:var(--td)">件数:</span>
       <select class="imp-fsel" id="imp-max"><option value="10">10</option><option value="20" selected>20</option><option value="50">50</option></select>
     </div>
-    <div class="imp-labels" id="imp-labels"></div>
+    <div style="margin-bottom:8px">
+      <div style="font-size:12px;color:var(--td);margin-bottom:4px">ラベル:</div>
+      <div class="imp-labels" id="imp-labels"></div>
+      <div class="imp-row" style="margin-top:6px"><input class="imp-inp" id="imp-newlabel" placeholder="新規ラベル追加" style="font-size:14px"/><button class="imp-go" style="font-size:12px" onclick="addImpLabel()">追加</button></div>
+    </div>
     <div class="imp-status" id="imp-status"></div>
     <div id="imp-results"></div>
+  </div>
+  <div class="imp-bulk" id="imp-bulk">
+    <span class="imp-bulk-count" id="imp-bulk-count">0件選択</span>
+    <button class="imp-bulk-btn" onclick="doBulkImport()">📥 まとめてインポート</button>
   </div>
 </div>
 <div class="cfgmod" id="cfgmod">
@@ -464,6 +478,10 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
       <label class="cfg-lbl">単語帳機能</label>
       <select class="cfg-sel" id="cfg-vocab">
         <option value="on">ON</option><option value="off">OFF</option>
+      </select>
+      <label class="cfg-lbl">インポート画面のAI検索式パネル</label>
+      <select class="cfg-sel" id="cfg-showai">
+        <option value="on">表示</option><option value="off">非表示</option>
       </select>
     </div>
     <div class="cfg-sec">
@@ -545,7 +563,7 @@ async function dPB(s,items){if(!items.length)return;const d=await oDB();return n
 const _isPWA=window.matchMedia('(display-mode:standalone)').matches||!!window.navigator.standalone;
 let C={url:'',key:''},P=[],F=[],aF='all',cP=null,ol=navigator.onLine;
 // Settings (loaded from IndexedDB, defaults here)
-let S={newDays:7,minStar:4,defFilter:'all',sortOrder:'default',aiDest:'copy',vocabEnabled:true,
+let S={newDays:7,minStar:4,defFilter:'all',sortOrder:'default',aiDest:'copy',vocabEnabled:true,showAiSearch:true,
   aiPrompts:[{name:'翻訳＋臨床応用',prompt:'論文検索してヒットした論文をお渡しします。そのアブストラクトの翻訳、具体的な臨床への役立つ情報を抽出をして教えてください。さらに、関連する背景知識も検索し、簡潔に教えてください。さらに疑問となりそうな事について深掘りを提案してください。'}]
 };
 
@@ -1182,19 +1200,35 @@ async function saveSettings(){
 // ── Import ──
 const IF_TABLE={'The New England journal of medicine':176.1,'Lancet (London, England)':168.9,'JAMA':120.7,'BMJ (Clinical research ed.)':105.7,'Annals of internal medicine':51.6,'The Lancet. Neurology':46.5,'JAMA neurology':29.0,'Nature reviews. Neurology':28.1,'Brain : a journal of neurology':14.5,'Annals of neurology':11.2,'Neurology':9.9,'Journal of neurology, neurosurgery, and psychiatry':8.8,'The Lancet. Oncology':51.1,'Journal of clinical oncology':45.3,'JAMA oncology':28.4,'Annals of oncology':32.0,'Circulation':37.8,'European heart journal':37.6,'Journal of the American College of Cardiology':24.0,'JAMA cardiology':14.8,'Cochrane database of systematic reviews':8.4,'Nature medicine':82.9,'Nature reviews. Disease primers':76.9,'Nature':64.8,'Science':56.9,'Cell':64.5};
 
-let _impLabel='手動追加';
+let _impLabel='手動追加';let _impChecked=new Set();
 function openImport(){
   const m=document.getElementById('impmod');
   document.getElementById('imp-q').value='';
   document.getElementById('imp-results').innerHTML='';
   document.getElementById('imp-status').textContent='';
+  document.getElementById('imp-bulk').classList.remove('show');
+  _impChecked=new Set();
+  // Auto-set keyword as label option
   const labels=['手動追加',...new Set(P.map(p=>p.queryLabel).filter(Boolean))];
-  document.getElementById('imp-labels').innerHTML=labels.map(l=>`<span class="imp-lbl${l===_impLabel?' sel':''}" data-l="${E(l)}">${E(l)}</span>`).join('');
+  renderImpLabels(labels);
+  // Show/hide AI section based on settings
+  const aiSec=document.getElementById('imp-ai-sec');
+  if(aiSec)aiSec.style.display=(S.showAiSearch===false)?'none':'';
   m.style.transform='';m.style.transition='transform .3s ease';m.classList.add('open');
 }
 function closeImport(){const m=document.getElementById('impmod');m.style.transition='transform .3s ease';m.style.transform='translateY(100%)';setTimeout(()=>{m.classList.remove('open');m.style.transform=''},350)}
+function renderImpLabels(labels){
+  const u=[...new Set(labels)];
+  document.getElementById('imp-labels').innerHTML=u.map(l=>`<span class="imp-lbl${l===_impLabel?' sel':''}" data-l="${E(l)}">${E(l)}</span>`).join('');
+}
+function addImpLabel(){
+  const inp=document.getElementById('imp-newlabel');
+  const v=inp.value.trim();if(!v)return;
+  _impLabel=v;inp.value='';
+  const labels=['手動追加',v,...new Set(P.map(p=>p.queryLabel).filter(Boolean))];
+  renderImpLabels(labels);
+}
 
-// Label selection
 document.getElementById('imp-labels')?.addEventListener('click',function(e){
   const lbl=e.target.closest('.imp-lbl');if(!lbl)return;
   _impLabel=lbl.dataset.l;
@@ -1207,8 +1241,13 @@ async function doImportSearch(){
   const days=+document.getElementById('imp-days').value||0;
   const max=+document.getElementById('imp-max').value||20;
   const sort=document.getElementById('imp-sort').value||'date';
+  _impChecked=new Set();
+  document.getElementById('imp-bulk').classList.remove('show');
   document.getElementById('imp-status').innerHTML='';
   document.getElementById('imp-results').innerHTML='<div class="imp-loading"><div class="imp-spinner"></div><div class="imp-loading-text">PubMedを検索中...</div></div>';
+  // Auto-add keyword as label option
+  const kw=document.getElementById('imp-ai-kw')?.value.trim()||q.split(/[\s\[\]"()]+/).filter(w=>w.length>2&&!/AND|OR|NOT|tiab|MeSH|Majr|pt/.test(w)).slice(0,2).join(' ');
+  if(kw&&kw.length>1){const labels=['手動追加',kw,...new Set(P.map(p=>p.queryLabel).filter(Boolean))];_impLabel=kw;renderImpLabels(labels)}
   try{
     const data=await jp({action:'searchImport',data:JSON.stringify({action:'searchImport',query:q,daysBack:days,maxResults:max,sort}),key:C.key});
     if(data.error){document.getElementById('imp-results').innerHTML='';document.getElementById('imp-status').textContent='エラー: '+data.error;return}
@@ -1223,23 +1262,53 @@ async function doImportSearch(){
       const titleJa=r.titleJa?`<div style="font-size:13px;color:var(--td);margin-top:2px">${E(r.titleJa)}</div>`:'';
       return`<div class="imp-card${exists?' exists':''}" data-idx="${i}">
         <div class="imp-card-hd" onclick="toggleImpAbs(${i})">
-          <div class="imp-card-title">${E(r.titleEn)}</div>
-          ${titleJa}
+          <div style="display:flex;gap:8px;align-items:flex-start">
+            ${exists?'':`<input type="checkbox" class="imp-chk" data-idx="${i}" onclick="event.stopPropagation();toggleImpCheck(${i})"${_impChecked.has(i)?' checked':''}>`}
+            <div style="flex:1"><div class="imp-card-title">${E(r.titleEn)}</div>${titleJa}</div>
+          </div>
           <div class="imp-card-meta"><span>${E(r.journal)}</span><span>${r.pubDate}</span>${ifStr}<span>PMID:${r.pmid}</span>${exStr}</div>
         </div>
         <div class="imp-card-abs" id="imp-abs-${i}">${E(r.abstractEn||'(No abstract)')}</div>
         <div class="imp-card-actions" id="imp-act-${i}">
-          ${exists?'<button class="imp-ibtn done" disabled>登録済</button>':`<button class="imp-ibtn" onclick="doImportOne(${i})">📥 インポート</button>`}
+          ${exists?'<button class="imp-ibtn done" disabled>登録済</button>':`<button class="imp-ibtn" onclick="doImportOne(${i})">📥 個別インポート</button>`}
         </div>
       </div>`;
     }).join('');
     window._impResults=results;
+    updateBulkBar();
   }catch(e){document.getElementById('imp-results').innerHTML='';document.getElementById('imp-status').textContent='検索エラー: '+e.message}
 }
 
-function toggleImpAbs(i){
-  const el=document.getElementById('imp-abs-'+i);
-  if(el)el.classList.toggle('open');
+function toggleImpAbs(i){const el=document.getElementById('imp-abs-'+i);if(el)el.classList.toggle('open')}
+function toggleImpCheck(i){if(_impChecked.has(i))_impChecked.delete(i);else _impChecked.add(i);updateBulkBar()}
+function updateBulkBar(){
+  const bar=document.getElementById('imp-bulk');
+  if(_impChecked.size>0){bar.classList.add('show');document.getElementById('imp-bulk-count').textContent=_impChecked.size+'件選択'}
+  else bar.classList.remove('show');
+}
+
+async function doBulkImport(){
+  if(!_impChecked.size)return;
+  const results=window._impResults;if(!results)return;
+  const btn=document.querySelector('.imp-bulk-btn');
+  btn.textContent='インポート中...';btn.disabled=true;
+  let ok=0,fail=0;
+  for(const i of _impChecked){
+    const art=results[i];if(!art)continue;
+    try{
+      const data=await jp({action:'importPaper',data:JSON.stringify({action:'importPaper',article:art,label:_impLabel}),key:C.key});
+      if(data.success){
+        ok++;
+        P.push({pmid:art.pmid,titleEn:art.titleEn,titleJa:data.titleJa||art.titleJa||'',abstractEn:art.abstractEn,abstractJa:'',authors:art.authors,journal:art.journal,pubDate:art.pubDate,doi:art.doi,queryLabel:_impLabel,fetchedDate:new Date().toISOString(),checked:false,memo:'',rating:0,readAt:''});
+        const actEl=document.getElementById('imp-act-'+i);
+        if(actEl)actEl.innerHTML='<button class="imp-ibtn done" disabled>✓ 完了</button>';
+        const chk=document.querySelector(`.imp-chk[data-idx="${i}"]`);if(chk)chk.remove();
+      }else fail++;
+    }catch(e){fail++}
+  }
+  _impChecked.clear();updateBulkBar();sortP();rF();rL();
+  btn.textContent='📥 まとめてインポート';btn.disabled=false;
+  sT(`${ok}件インポート完了${fail?' ('+fail+'件失敗)':''}`);
 }
 
 // AI search prompt builder
@@ -1256,14 +1325,25 @@ const AI_SCOPES={
   balanced:'MeSH用語（Majorトピック推奨）と主要な自由語をバランスよく組み合わせてください。',
   narrow:'MeSH Major Topicと限定的な自由語のみを使い、AND演算子で特異度の高い検索式にしてください。',
 };
+const AI_SPECIES={
+  any:'',
+  human:'\n【対象種】ヒト研究に限定。フィルタ: AND "Humans"[MeSH]',
+  mouse:'\n【対象種】マウス研究に限定。フィルタ: AND "Mice"[MeSH]',
+  both:'\n【対象種】ヒトまたはマウス。フィルタ: AND ("Humans"[MeSH] OR "Mice"[MeSH])',
+};
+const HIGH_IF_JOURNALS='NEJM, JAMA, Lancet, BMJ, Nature Medicine, Nature, Science, Cell, Annals of Internal Medicine, Circulation, European Heart Journal, Journal of Clinical Oncology, Lancet Neurology, JAMA Neurology, Brain, Annals of Neurology, Neurology';
 
 function buildAiPrompt(){
   const kw=document.getElementById('imp-ai-kw').value.trim();
   if(!kw){sT('キーワードを入力してください');return}
   const type=document.getElementById('imp-ai-type').value;
   const scope=document.getElementById('imp-ai-scope').value;
+  const species=document.getElementById('imp-ai-species').value;
+  const journalFilter=document.getElementById('imp-ai-journal').checked;
   const typeInfo=AI_TYPES[type]||AI_TYPES.general;
   const scopeInfo=AI_SCOPES[scope]||AI_SCOPES.balanced;
+  const speciesInfo=AI_SPECIES[species]||'';
+  const journalInfo=journalFilter?`\n【ジャーナル制限】以下の高IF誌のみに限定するフィルタを追加:\n${HIGH_IF_JOURNALS}\n対応するPubMedジャーナル略語を使い、OR演算子で結合して [ta] タグ付きで追加。`:'';
 
   const prompt=`あなたはPubMed検索の専門家です。以下の条件でPubMed検索式を作成してください。
 
@@ -1273,6 +1353,7 @@ ${kw}
 【研究デザイン】
 ${typeInfo.label}
 ${typeInfo.filter?'使用するフィルタ: '+typeInfo.filter:'デザインの制限なし'}
+${speciesInfo}${journalInfo}
 
 【検索戦略】
 ${scopeInfo}
@@ -1290,12 +1371,8 @@ ${scopeInfo}
   cc(prompt);
   const urls={claude:'https://claude.ai/new',chatgpt:'https://chatgpt.com/',gemini:'https://gemini.google.com/app'};
   const dest=S.aiDest||'copy';
-  if(dest!=='copy'&&urls[dest]){
-    sT('プロンプトをコピー → AI起動');
-    setTimeout(()=>window.open(urls[dest],'_blank'),500);
-  }else{
-    sT('プロンプトをコピーしました。AIに貼り付けてください');
-  }
+  if(dest!=='copy'&&urls[dest]){sT('プロンプトをコピー → AI起動');setTimeout(()=>window.open(urls[dest],'_blank'),500)}
+  else sT('プロンプトをコピーしました。AIに貼り付けてください');
 }
 
 async function doImportOne(i){
@@ -1307,21 +1384,16 @@ async function doImportOne(i){
     if(data.success){
       if(btn){btn.textContent='✓ 完了';btn.classList.add('done')}
       sT('📥 インポート完了: '+art.pmid);
-      // Add to local data
-      P.push({pmid:art.pmid,titleEn:art.titleEn,titleJa:data.titleJa||'',abstractEn:art.abstractEn,abstractJa:'',authors:art.authors,journal:art.journal,pubDate:art.pubDate,doi:art.doi,queryLabel:_impLabel,fetchedDate:new Date().toISOString(),checked:false,memo:'',rating:0,readAt:''});
+      P.push({pmid:art.pmid,titleEn:art.titleEn,titleJa:data.titleJa||art.titleJa||'',abstractEn:art.abstractEn,abstractJa:'',authors:art.authors,journal:art.journal,pubDate:art.pubDate,doi:art.doi,queryLabel:_impLabel,fetchedDate:new Date().toISOString(),checked:false,memo:'',rating:0,readAt:''});
       sortP();rF();rL();
-    }else if(data.error==='already_exists'){
-      if(btn){btn.textContent='登録済';btn.classList.add('done')}
-      sT('既に登録済みです');
-    }else{
-      if(btn){btn.textContent='エラー';btn.disabled=false}
-      sT('インポートエラー');
-    }
+    }else if(data.error==='already_exists'){if(btn){btn.textContent='登録済';btn.classList.add('done')}sT('既に登録済みです')}
+    else{if(btn){btn.textContent='エラー';btn.disabled=false}sT('インポートエラー')}
   }catch(e){if(btn){btn.textContent='エラー';btn.disabled=false}sT('インポートエラー: '+e.message)}
 }
 
 addModalSwipe('impmod',closeImport);
 document.getElementById('imp-q')?.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();doImportSearch()}});
+
 
 function openCfg(){
   const m=document.getElementById('cfgmod');
@@ -1332,6 +1404,7 @@ function openCfg(){
   document.getElementById('cfg-deffilter').value=S.defFilter;
   document.getElementById('cfg-sort').value=S.sortOrder;
   document.getElementById('cfg-vocab').value=S.vocabEnabled?'on':'off';
+  document.getElementById('cfg-showai').value=S.showAiSearch!==false?'on':'off';
   document.getElementById('cfg-aidest').value=S.aiDest;
   renderCfgPrompts(S.aiPrompts||[]);
   document.getElementById('cfg-daysback').value='';
@@ -1447,6 +1520,7 @@ async function saveCfgAll(){
   S.defFilter=document.getElementById('cfg-deffilter').value||'all';
   S.sortOrder=document.getElementById('cfg-sort').value||'default';
   S.vocabEnabled=document.getElementById('cfg-vocab').value==='on';
+  S.showAiSearch=document.getElementById('cfg-showai').value==='on';
   S.aiDest=document.getElementById('cfg-aidest').value||'copy';
   S.aiPrompts=getCfgPrompts();
   dP('config',{key:'settings',data:{...S}});// fire-and-forget
@@ -1482,6 +1556,7 @@ async function pullSettingsFromServer(){
       document.getElementById('cfg-deffilter').value=S.defFilter;
       document.getElementById('cfg-sort').value=S.sortOrder;
       document.getElementById('cfg-vocab').value=S.vocabEnabled?'on':'off';
+      document.getElementById('cfg-showai').value=S.showAiSearch!==false?'on':'off';
       document.getElementById('cfg-aidest').value=S.aiDest;
       renderCfgPrompts(S.aiPrompts||[]);
       sT('📥 サーバーから設定を取得しました');
