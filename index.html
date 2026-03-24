@@ -192,6 +192,38 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 .toast.show{transform:translateX(-50%) translateY(0)}
 /* ── Settings ── */
 .cfgbtn{background:none;border:none;font-size:20px;cursor:pointer;padding:4px;-webkit-tap-highlight-color:transparent;opacity:.7}
+.addbtn{background:var(--acd);border:none;color:#fff;font-size:16px;font-weight:700;cursor:pointer;padding:4px 10px;border-radius:8px;line-height:1}
+.addbtn:active{opacity:.7}
+/* Import modal */
+.impmod{position:fixed;inset:0;z-index:300;background:var(--bgd);transform:translateY(100%);transition:transform .3s ease;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.impmod.open{transform:translateY(0)}
+.impmod-hd{position:sticky;top:0;z-index:10;background:var(--bgd);border-bottom:1px solid var(--bd);padding:0 var(--px) 12px;padding-top:var(--ht);text-align:center}
+.impmod-body{padding:16px var(--px) calc(var(--sb)+40px)}
+.imp-row{display:flex;gap:8px;margin-bottom:10px}
+.imp-inp{flex:1;background:var(--bgi);border:1px solid var(--bd);border-radius:8px;padding:10px 12px;color:var(--tx);font-size:16px;outline:none}
+.imp-inp:focus{border-color:var(--ac)}.imp-inp::placeholder{color:var(--tf)}
+.imp-go{background:var(--ac);color:#fff;border:none;border-radius:8px;padding:10px 16px;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap}
+.imp-go:active{opacity:.7}
+.imp-filters{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+.imp-fsel{background:var(--bgi);border:1px solid var(--bd);border-radius:6px;color:var(--tx);font-size:13px;padding:6px 8px}
+.imp-labels{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.imp-lbl{padding:5px 12px;border-radius:16px;border:1px solid var(--bd);font-size:12px;font-weight:500;cursor:pointer;color:var(--td);background:transparent}
+.imp-lbl.sel{background:var(--acd);color:#fff;border-color:var(--acd)}
+.imp-status{font-size:12px;color:var(--tf);margin-bottom:10px}
+.imp-card{background:var(--bgc);border:1px solid var(--bd);border-radius:10px;margin-bottom:8px;overflow:hidden}
+.imp-card.exists{opacity:.5;border-left:3px solid var(--gr)}
+.imp-card-hd{padding:12px 14px;cursor:pointer}
+.imp-card-title{font-size:14px;font-weight:600;color:var(--tx);line-height:1.4}
+.imp-card-meta{font-size:11px;color:var(--td);margin-top:4px;display:flex;gap:8px;flex-wrap:wrap}
+.imp-card-if{color:var(--am);font-weight:700}
+.imp-card-exists{color:var(--gr);font-weight:600}
+.imp-card-abs{display:none;padding:0 14px 12px;font-size:13px;color:var(--td);line-height:1.6;border-top:1px solid var(--bd);padding-top:10px}
+.imp-card-abs.open{display:block}
+.imp-card-actions{display:flex;justify-content:flex-end;padding:0 14px 12px;gap:8px}
+.imp-ibtn{background:var(--ac);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer}
+.imp-ibtn:active{opacity:.7}
+.imp-ibtn:disabled{background:var(--tf);cursor:default}
+.imp-ibtn.done{background:var(--gr);color:#000}
 .cfgmod{position:fixed;inset:0;z-index:300;background:var(--bgd);transform:translateY(100%);transition:transform .3s ease;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .cfgmod.open{transform:translateY(0)}
 .cfgmod-hd{position:sticky;top:0;z-index:10;background:var(--bgd);border-bottom:1px solid var(--bd);padding:0 var(--px) 12px;padding-top:var(--ht);text-align:center}
@@ -297,7 +329,7 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 <div id="ma" style="display:none">
   <div class="lb" id="lb" style="width:0"></div>
   <div class="hd">
-    <div class="ht"><div class="htl">📄 Paper Reader</div><div class="ha"><div class="sd" id="sd"></div><button class="sybtn" id="sy" onclick="syncData()"><span class="si">↻</span> 同期</button><button class="cfgbtn" onclick="openCfg()">⚙️</button></div></div>
+    <div class="ht"><div class="htl">📄 Paper Reader</div><div class="ha"><div class="sd" id="sd"></div><button class="addbtn" onclick="openImport()">＋</button><button class="sybtn" id="sy" onclick="syncData()"><span class="si">↻</span> 同期</button><button class="cfgbtn" onclick="openCfg()">⚙️</button></div></div>
     <div class="sbar"><span class="sico">🔍</span><input class="sinp" id="si" placeholder="タイトル・キーワードで検索"/><button class="sortbtn" id="sortBtn" onclick="cycleSort()">↕</button></div>
     <div class="fl" id="fl"></div>
   </div>
@@ -356,6 +388,21 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 <div class="stmod" id="stmod">
   <div class="stmod-hd"><div class="stmod-handle"></div><div class="stmod-hd-row"><span class="stmod-title">📊 読書記録</span><button class="stmod-close" onclick="closeStats()">閉じる ✕</button></div></div>
   <div class="stmod-body" id="stmod-body"></div>
+</div>
+<div class="impmod" id="impmod">
+  <div class="impmod-hd"><div class="vmod-handle"></div><div class="vmod-hd-row"><span class="vmod-title">📥 論文をインポート</span><button class="vmod-close" onclick="closeImport()">閉じる ✕</button></div></div>
+  <div class="impmod-body">
+    <div class="imp-row"><input class="imp-inp" id="imp-q" placeholder="PMID / DOI / URL / キーワード"/><button class="imp-go" onclick="doImportSearch()">検索</button></div>
+    <div class="imp-filters">
+      <span style="font-size:12px;color:var(--td)">期間:</span>
+      <select class="imp-fsel" id="imp-days"><option value="0">全期間</option><option value="365" selected>1年</option><option value="1825">5年</option><option value="90">3ヶ月</option></select>
+      <span style="font-size:12px;color:var(--td)">件数:</span>
+      <select class="imp-fsel" id="imp-max"><option value="10">10</option><option value="20" selected>20</option><option value="50">50</option></select>
+    </div>
+    <div class="imp-labels" id="imp-labels"></div>
+    <div class="imp-status" id="imp-status"></div>
+    <div id="imp-results"></div>
+  </div>
 </div>
 <div class="cfgmod" id="cfgmod">
   <div class="cfgmod-hd"><div class="vmod-handle"></div><div class="vmod-hd-row"><span class="vmod-title">⚙️ 設定</span><button class="vmod-close" onclick="closeCfg()">閉じる ✕</button></div></div>
@@ -1100,6 +1147,95 @@ async function loadSettings(){
 async function saveSettings(){
   await dP('config',{key:'settings',data:{...S}});
 }
+
+// ── Import ──
+const IF_TABLE={'The New England journal of medicine':176.1,'Lancet (London, England)':168.9,'JAMA':120.7,'BMJ (Clinical research ed.)':105.7,'Annals of internal medicine':51.6,'The Lancet. Neurology':46.5,'JAMA neurology':29.0,'Nature reviews. Neurology':28.1,'Brain : a journal of neurology':14.5,'Annals of neurology':11.2,'Neurology':9.9,'Journal of neurology, neurosurgery, and psychiatry':8.8,'The Lancet. Oncology':51.1,'Journal of clinical oncology':45.3,'JAMA oncology':28.4,'Annals of oncology':32.0,'Circulation':37.8,'European heart journal':37.6,'Journal of the American College of Cardiology':24.0,'JAMA cardiology':14.8,'Cochrane database of systematic reviews':8.4,'Nature medicine':82.9,'Nature reviews. Disease primers':76.9,'Nature':64.8,'Science':56.9,'Cell':64.5};
+
+let _impLabel='手動追加';
+function openImport(){
+  const m=document.getElementById('impmod');
+  document.getElementById('imp-q').value='';
+  document.getElementById('imp-results').innerHTML='';
+  document.getElementById('imp-status').textContent='';
+  // Build label buttons
+  const labels=['手動追加',...new Set(P.map(p=>p.queryLabel).filter(Boolean))];
+  document.getElementById('imp-labels').innerHTML=labels.map(l=>`<span class="imp-lbl${l===_impLabel?' sel':''}" data-l="${E(l)}">${E(l)}</span>`).join('');
+  m.style.transform='';m.style.transition='transform .3s ease';m.classList.add('open');
+  document.getElementById('imp-q').focus();
+}
+function closeImport(){const m=document.getElementById('impmod');m.style.transition='transform .3s ease';m.style.transform='translateY(100%)';setTimeout(()=>{m.classList.remove('open');m.style.transform=''},350)}
+
+// Label selection
+document.getElementById('imp-labels')?.addEventListener('click',function(e){
+  const lbl=e.target.closest('.imp-lbl');if(!lbl)return;
+  _impLabel=lbl.dataset.l;
+  this.querySelectorAll('.imp-lbl').forEach(b=>b.classList.toggle('sel',b.dataset.l===_impLabel));
+});
+
+async function doImportSearch(){
+  const q=document.getElementById('imp-q').value.trim();
+  if(!q){sT('入力してください');return}
+  const days=+document.getElementById('imp-days').value||0;
+  const max=+document.getElementById('imp-max').value||20;
+  document.getElementById('imp-status').textContent='検索中...';
+  document.getElementById('imp-results').innerHTML='';
+  try{
+    const data=await jp({action:'searchImport',data:JSON.stringify({action:'searchImport',query:q,daysBack:days,maxResults:max}),key:C.key});
+    if(data.error){document.getElementById('imp-status').textContent='エラー: '+data.error;return}
+    const results=data.results||[];
+    // Also check local P for exists
+    const localPmids=new Set(P.map(p=>p.pmid));
+    document.getElementById('imp-status').textContent=results.length?results.length+'件の結果':'見つかりませんでした';
+    document.getElementById('imp-results').innerHTML=results.map((r,i)=>{
+      const exists=r.exists||localPmids.has(r.pmid);
+      const ifVal=IF_TABLE[r.journal];
+      const ifStr=ifVal?`<span class="imp-card-if">IF:${ifVal}</span>`:'';
+      const exStr=exists?`<span class="imp-card-exists">✓ 登録済</span>`:'';
+      return`<div class="imp-card${exists?' exists':''}" data-idx="${i}">
+        <div class="imp-card-hd" onclick="toggleImpAbs(${i})">
+          <div class="imp-card-title">${E(r.titleEn)}</div>
+          <div class="imp-card-meta"><span>${E(r.journal)}</span><span>${r.pubDate}</span>${ifStr}<span>PMID:${r.pmid}</span>${exStr}</div>
+        </div>
+        <div class="imp-card-abs" id="imp-abs-${i}">${E(r.abstractEn||'(No abstract)')}</div>
+        <div class="imp-card-actions" id="imp-act-${i}">
+          ${exists?'<button class="imp-ibtn done" disabled>登録済</button>':`<button class="imp-ibtn" onclick="doImportOne(${i})">📥 インポート</button>`}
+        </div>
+      </div>`;
+    }).join('');
+    // Store results for import
+    window._impResults=results;
+  }catch(e){document.getElementById('imp-status').textContent='検索エラー: '+e.message}
+}
+
+function toggleImpAbs(i){
+  const el=document.getElementById('imp-abs-'+i);
+  if(el)el.classList.toggle('open');
+}
+
+async function doImportOne(i){
+  const art=window._impResults?.[i];if(!art)return;
+  const btn=document.querySelector(`#imp-act-${i} .imp-ibtn`);
+  if(btn){btn.textContent='翻訳中...';btn.disabled=true}
+  try{
+    const data=await jp({action:'importPaper',data:JSON.stringify({action:'importPaper',article:art,label:_impLabel}),key:C.key});
+    if(data.success){
+      if(btn){btn.textContent='✓ 完了';btn.classList.add('done')}
+      sT('📥 インポート完了: '+art.pmid);
+      // Add to local data
+      P.push({pmid:art.pmid,titleEn:art.titleEn,titleJa:data.titleJa||'',abstractEn:art.abstractEn,abstractJa:'',authors:art.authors,journal:art.journal,pubDate:art.pubDate,doi:art.doi,queryLabel:_impLabel,fetchedDate:new Date().toISOString(),checked:false,memo:'',rating:0,readAt:''});
+      sortP();rF();rL();
+    }else if(data.error==='already_exists'){
+      if(btn){btn.textContent='登録済';btn.classList.add('done')}
+      sT('既に登録済みです');
+    }else{
+      if(btn){btn.textContent='エラー';btn.disabled=false}
+      sT('インポートエラー');
+    }
+  }catch(e){if(btn){btn.textContent='エラー';btn.disabled=false}sT('インポートエラー: '+e.message)}
+}
+
+addModalSwipe('impmod',closeImport);
+document.getElementById('imp-q')?.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();doImportSearch()}});
 
 function openCfg(){
   const m=document.getElementById('cfgmod');
