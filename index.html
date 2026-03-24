@@ -210,6 +210,14 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 .imp-lbl{padding:5px 12px;border-radius:16px;border:1px solid var(--bd);font-size:12px;font-weight:500;cursor:pointer;color:var(--td);background:transparent}
 .imp-lbl.sel{background:var(--acd);color:#fff;border-color:var(--acd)}
 .imp-status{font-size:12px;color:var(--tf);margin-bottom:10px}
+.imp-loading{display:flex;align-items:center;gap:10px;padding:20px 0;justify-content:center}
+.imp-spinner{width:24px;height:24px;border:3px solid var(--bd);border-top:3px solid var(--ac);border-radius:50%;animation:sp 1s linear infinite}
+.imp-loading-text{font-size:14px;color:var(--ac);font-weight:600}
+/* AI preset buttons */
+.imp-ai-sec{margin-bottom:12px}
+.imp-ai-row{display:flex;gap:6px;flex-wrap:wrap}
+.imp-ai-btn{background:var(--bgi);border:1px solid var(--bd);border-radius:8px;padding:6px 12px;font-size:12px;color:var(--tx);cursor:pointer;display:flex;align-items:center;gap:4px}
+.imp-ai-btn:active{background:var(--acd);border-color:var(--ac)}
 .imp-card{background:var(--bgc);border:1px solid var(--bd);border-radius:10px;margin-bottom:8px;overflow:hidden}
 .imp-card.exists{opacity:.5;border-left:3px solid var(--gr)}
 .imp-card-hd{padding:12px 14px;cursor:pointer}
@@ -392,7 +400,15 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 <div class="impmod" id="impmod">
   <div class="impmod-hd"><div class="vmod-handle"></div><div class="vmod-hd-row"><span class="vmod-title">📥 論文をインポート</span><button class="vmod-close" onclick="closeImport()">閉じる ✕</button></div></div>
   <div class="impmod-body">
-    <div class="imp-row"><input class="imp-inp" id="imp-q" placeholder="PMID / DOI / URL / キーワード"/><button class="imp-go" onclick="doImportSearch()">検索</button></div>
+    <div class="imp-row"><input class="imp-inp" id="imp-q" placeholder="PMID / DOI / URL / 検索式を貼り付け"/><button class="imp-go" onclick="doImportSearch()">検索</button></div>
+    <div class="imp-ai-sec">
+      <div style="font-size:11px;color:var(--tf);margin-bottom:4px">🤖 AIに検索式を作ってもらう → コピー → 上に貼り付け</div>
+      <div class="imp-ai-row">
+        <button class="imp-ai-btn" onclick="copyAiSearchPrompt('specific')">🔍 特定テーマ</button>
+        <button class="imp-ai-btn" onclick="copyAiSearchPrompt('rct')">💊 RCT検索</button>
+        <button class="imp-ai-btn" onclick="copyAiSearchPrompt('review')">📚 レビュー検索</button>
+      </div>
+    </div>
     <div class="imp-filters">
       <span style="font-size:12px;color:var(--td)">期間:</span>
       <select class="imp-fsel" id="imp-days"><option value="0">全期間</option><option value="365" selected>1年</option><option value="1825">5年</option><option value="90">3ヶ月</option></select>
@@ -1157,11 +1173,9 @@ function openImport(){
   document.getElementById('imp-q').value='';
   document.getElementById('imp-results').innerHTML='';
   document.getElementById('imp-status').textContent='';
-  // Build label buttons
   const labels=['手動追加',...new Set(P.map(p=>p.queryLabel).filter(Boolean))];
   document.getElementById('imp-labels').innerHTML=labels.map(l=>`<span class="imp-lbl${l===_impLabel?' sel':''}" data-l="${E(l)}">${E(l)}</span>`).join('');
   m.style.transform='';m.style.transition='transform .3s ease';m.classList.add('open');
-  document.getElementById('imp-q').focus();
 }
 function closeImport(){const m=document.getElementById('impmod');m.style.transition='transform .3s ease';m.style.transform='translateY(100%)';setTimeout(()=>{m.classList.remove('open');m.style.transform=''},350)}
 
@@ -1177,13 +1191,12 @@ async function doImportSearch(){
   if(!q){sT('入力してください');return}
   const days=+document.getElementById('imp-days').value||0;
   const max=+document.getElementById('imp-max').value||20;
-  document.getElementById('imp-status').textContent='検索中...';
-  document.getElementById('imp-results').innerHTML='';
+  document.getElementById('imp-status').innerHTML='';
+  document.getElementById('imp-results').innerHTML='<div class="imp-loading"><div class="imp-spinner"></div><div class="imp-loading-text">PubMedを検索中...</div></div>';
   try{
     const data=await jp({action:'searchImport',data:JSON.stringify({action:'searchImport',query:q,daysBack:days,maxResults:max}),key:C.key});
-    if(data.error){document.getElementById('imp-status').textContent='エラー: '+data.error;return}
+    if(data.error){document.getElementById('imp-results').innerHTML='';document.getElementById('imp-status').textContent='エラー: '+data.error;return}
     const results=data.results||[];
-    // Also check local P for exists
     const localPmids=new Set(P.map(p=>p.pmid));
     document.getElementById('imp-status').textContent=results.length?results.length+'件の結果':'見つかりませんでした';
     document.getElementById('imp-results').innerHTML=results.map((r,i)=>{
@@ -1191,9 +1204,11 @@ async function doImportSearch(){
       const ifVal=IF_TABLE[r.journal];
       const ifStr=ifVal?`<span class="imp-card-if">IF:${ifVal}</span>`:'';
       const exStr=exists?`<span class="imp-card-exists">✓ 登録済</span>`:'';
+      const titleJa=r.titleJa?`<div style="font-size:13px;color:var(--td);margin-top:2px">${E(r.titleJa)}</div>`:'';
       return`<div class="imp-card${exists?' exists':''}" data-idx="${i}">
         <div class="imp-card-hd" onclick="toggleImpAbs(${i})">
           <div class="imp-card-title">${E(r.titleEn)}</div>
+          ${titleJa}
           <div class="imp-card-meta"><span>${E(r.journal)}</span><span>${r.pubDate}</span>${ifStr}<span>PMID:${r.pmid}</span>${exStr}</div>
         </div>
         <div class="imp-card-abs" id="imp-abs-${i}">${E(r.abstractEn||'(No abstract)')}</div>
@@ -1202,9 +1217,8 @@ async function doImportSearch(){
         </div>
       </div>`;
     }).join('');
-    // Store results for import
     window._impResults=results;
-  }catch(e){document.getElementById('imp-status').textContent='検索エラー: '+e.message}
+  }catch(e){document.getElementById('imp-results').innerHTML='';document.getElementById('imp-status').textContent='検索エラー: '+e.message}
 }
 
 function toggleImpAbs(i){
@@ -1212,10 +1226,30 @@ function toggleImpAbs(i){
   if(el)el.classList.toggle('open');
 }
 
+// AI search prompt presets
+const AI_SEARCH_PROMPTS={
+  specific: `PubMedの検索式を作ってください。以下のテーマに関する論文を検索したいです。\n\nテーマ: [ここにテーマを入力]\n\n条件:\n- MeSH用語と自由語を組み合わせる\n- 感度と特異度のバランスが良い検索式\n- PubMedのE-utilities esearchでそのまま使える形式で出力\n- 検索式のみを出力（説明不要）`,
+  rct: `PubMedの検索式を作ってください。以下の疾患/介入に関するRCT（ランダム化比較試験）を検索したいです。\n\n疾患/介入: [ここに入力]\n\n条件:\n- 研究デザインフィルタ: Randomized Controlled Trial[pt]\n- MeSH用語と自由語を組み合わせる\n- PubMedのE-utilities esearchでそのまま使える形式で出力\n- 検索式のみを出力（説明不要）`,
+  review: `PubMedの検索式を作ってください。以下のテーマに関するシステマティックレビュー・メタアナリシスを検索したいです。\n\nテーマ: [ここに入力]\n\n条件:\n- 研究デザインフィルタ: Systematic Review[pt] OR Meta-Analysis[pt]\n- MeSH用語と自由語を組み合わせる\n- PubMedのE-utilities esearchでそのまま使える形式で出力\n- 検索式のみを出力（説明不要）`,
+};
+
+function copyAiSearchPrompt(type){
+  const prompt=AI_SEARCH_PROMPTS[type];if(!prompt)return;
+  cc(prompt);
+  const urls={claude:'https://claude.ai/new',chatgpt:'https://chatgpt.com/',gemini:'https://gemini.google.com/app'};
+  const dest=S.aiDest||'copy';
+  if(dest!=='copy'&&urls[dest]){
+    sT('プロンプトをコピーしました → AI起動');
+    setTimeout(()=>window.open(urls[dest],'_blank'),500);
+  }else{
+    sT('プロンプトをコピーしました。AIに貼り付けてください');
+  }
+}
+
 async function doImportOne(i){
   const art=window._impResults?.[i];if(!art)return;
   const btn=document.querySelector(`#imp-act-${i} .imp-ibtn`);
-  if(btn){btn.textContent='翻訳中...';btn.disabled=true}
+  if(btn){btn.innerHTML='<span class="imp-spinner" style="width:14px;height:14px;border-width:2px;display:inline-block;vertical-align:middle"></span> 翻訳中...';btn.disabled=true}
   try{
     const data=await jp({action:'importPaper',data:JSON.stringify({action:'importPaper',article:art,label:_impLabel}),key:C.key});
     if(data.success){
