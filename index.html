@@ -214,10 +214,10 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 .imp-spinner{width:24px;height:24px;border:3px solid var(--bd);border-top:3px solid var(--ac);border-radius:50%;animation:sp 1s linear infinite}
 .imp-loading-text{font-size:14px;color:var(--ac);font-weight:600}
 /* AI preset buttons */
-.imp-ai-sec{margin-bottom:12px}
-.imp-ai-row{display:flex;gap:6px;flex-wrap:wrap}
-.imp-ai-btn{background:var(--bgi);border:1px solid var(--bd);border-radius:8px;padding:6px 12px;font-size:12px;color:var(--tx);cursor:pointer;display:flex;align-items:center;gap:4px}
-.imp-ai-btn:active{background:var(--acd);border-color:var(--ac)}
+.imp-ai-sec{margin-bottom:12px;background:var(--bgc);border:1px solid var(--bd);border-radius:10px;padding:12px}
+.imp-ai-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.imp-ai-btn{background:var(--ac);border:none;border-radius:8px;padding:8px 14px;font-size:12px;color:#fff;cursor:pointer;display:flex;align-items:center;gap:4px;font-weight:600;white-space:nowrap}
+.imp-ai-btn:active{opacity:.7}
 .imp-card{background:var(--bgc);border:1px solid var(--bd);border-radius:10px;margin-bottom:8px;overflow:hidden}
 .imp-card.exists{opacity:.5;border-left:3px solid var(--gr)}
 .imp-card-hd{padding:12px 14px;cursor:pointer}
@@ -400,18 +400,33 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 <div class="impmod" id="impmod">
   <div class="impmod-hd"><div class="vmod-handle"></div><div class="vmod-hd-row"><span class="vmod-title">📥 論文をインポート</span><button class="vmod-close" onclick="closeImport()">閉じる ✕</button></div></div>
   <div class="impmod-body">
-    <div class="imp-row"><input class="imp-inp" id="imp-q" placeholder="PMID / DOI / URL / 検索式を貼り付け"/><button class="imp-go" onclick="doImportSearch()">検索</button></div>
+    <div class="imp-row"><input class="imp-inp" id="imp-q" placeholder="PMID / DOI / URL / PubMed検索式"/><button class="imp-go" onclick="doImportSearch()">検索</button></div>
     <div class="imp-ai-sec">
-      <div style="font-size:11px;color:var(--tf);margin-bottom:4px">🤖 AIに検索式を作ってもらう → コピー → 上に貼り付け</div>
+      <div style="font-size:12px;font-weight:600;color:var(--td);margin-bottom:6px">🤖 AIで検索式を作成</div>
+      <input class="imp-inp" id="imp-ai-kw" placeholder="キーワード（例: SBMA 骨代謝）" style="margin-bottom:6px;font-size:14px"/>
       <div class="imp-ai-row">
-        <button class="imp-ai-btn" onclick="copyAiSearchPrompt('specific')">🔍 特定テーマ</button>
-        <button class="imp-ai-btn" onclick="copyAiSearchPrompt('rct')">💊 RCT検索</button>
-        <button class="imp-ai-btn" onclick="copyAiSearchPrompt('review')">📚 レビュー検索</button>
+        <select class="imp-fsel" id="imp-ai-type">
+          <option value="general">一般検索</option>
+          <option value="rct">RCT</option>
+          <option value="review">SR/メタ解析</option>
+          <option value="cohort">コホート研究</option>
+          <option value="guideline">ガイドライン</option>
+          <option value="caseReport">症例報告</option>
+        </select>
+        <select class="imp-fsel" id="imp-ai-scope">
+          <option value="broad">幅広く（高感度）</option>
+          <option value="balanced">バランス型</option>
+          <option value="narrow">絞り込み（高特異度）</option>
+        </select>
+        <button class="imp-ai-btn" onclick="buildAiPrompt()">🤖 AI起動</button>
       </div>
+      <div style="font-size:10px;color:var(--tf);margin-top:4px">キーワード入力 → AI起動 → 検索式をコピー → 上の欄に貼り付け</div>
     </div>
     <div class="imp-filters">
       <span style="font-size:12px;color:var(--td)">期間:</span>
-      <select class="imp-fsel" id="imp-days"><option value="0">全期間</option><option value="365" selected>1年</option><option value="1825">5年</option><option value="90">3ヶ月</option></select>
+      <select class="imp-fsel" id="imp-days"><option value="0">全期間</option><option value="90">3ヶ月</option><option value="365" selected>1年</option><option value="1825">5年</option></select>
+      <span style="font-size:12px;color:var(--td)">並び:</span>
+      <select class="imp-fsel" id="imp-sort"><option value="date">最新順</option><option value="relevance">関連度順</option></select>
       <span style="font-size:12px;color:var(--td)">件数:</span>
       <select class="imp-fsel" id="imp-max"><option value="10">10</option><option value="20" selected>20</option><option value="50">50</option></select>
     </div>
@@ -1191,10 +1206,11 @@ async function doImportSearch(){
   if(!q){sT('入力してください');return}
   const days=+document.getElementById('imp-days').value||0;
   const max=+document.getElementById('imp-max').value||20;
+  const sort=document.getElementById('imp-sort').value||'date';
   document.getElementById('imp-status').innerHTML='';
   document.getElementById('imp-results').innerHTML='<div class="imp-loading"><div class="imp-spinner"></div><div class="imp-loading-text">PubMedを検索中...</div></div>';
   try{
-    const data=await jp({action:'searchImport',data:JSON.stringify({action:'searchImport',query:q,daysBack:days,maxResults:max}),key:C.key});
+    const data=await jp({action:'searchImport',data:JSON.stringify({action:'searchImport',query:q,daysBack:days,maxResults:max,sort}),key:C.key});
     if(data.error){document.getElementById('imp-results').innerHTML='';document.getElementById('imp-status').textContent='エラー: '+data.error;return}
     const results=data.results||[];
     const localPmids=new Set(P.map(p=>p.pmid));
@@ -1226,20 +1242,56 @@ function toggleImpAbs(i){
   if(el)el.classList.toggle('open');
 }
 
-// AI search prompt presets
-const AI_SEARCH_PROMPTS={
-  specific: `PubMedの検索式を作ってください。以下のテーマに関する論文を検索したいです。\n\nテーマ: [ここにテーマを入力]\n\n条件:\n- MeSH用語と自由語を組み合わせる\n- 感度と特異度のバランスが良い検索式\n- PubMedのE-utilities esearchでそのまま使える形式で出力\n- 検索式のみを出力（説明不要）`,
-  rct: `PubMedの検索式を作ってください。以下の疾患/介入に関するRCT（ランダム化比較試験）を検索したいです。\n\n疾患/介入: [ここに入力]\n\n条件:\n- 研究デザインフィルタ: Randomized Controlled Trial[pt]\n- MeSH用語と自由語を組み合わせる\n- PubMedのE-utilities esearchでそのまま使える形式で出力\n- 検索式のみを出力（説明不要）`,
-  review: `PubMedの検索式を作ってください。以下のテーマに関するシステマティックレビュー・メタアナリシスを検索したいです。\n\nテーマ: [ここに入力]\n\n条件:\n- 研究デザインフィルタ: Systematic Review[pt] OR Meta-Analysis[pt]\n- MeSH用語と自由語を組み合わせる\n- PubMedのE-utilities esearchでそのまま使える形式で出力\n- 検索式のみを出力（説明不要）`,
+// AI search prompt builder
+const AI_TYPES={
+  general:{label:'一般検索',filter:''},
+  rct:{label:'RCT',filter:'AND ("Randomized Controlled Trial"[pt] OR randomized[tiab])'},
+  review:{label:'SR/メタ解析',filter:'AND ("Systematic Review"[pt] OR "Meta-Analysis"[pt])'},
+  cohort:{label:'コホート研究',filter:'AND (cohort[tiab] OR "longitudinal study"[tiab] OR "prospective study"[tiab])'},
+  guideline:{label:'ガイドライン',filter:'AND ("Practice Guideline"[pt] OR guideline[ti])'},
+  caseReport:{label:'症例報告',filter:'AND ("Case Reports"[pt])'},
+};
+const AI_SCOPES={
+  broad:'検索漏れを最小限にするため、MeSH用語の上位概念と多くの同義語・自由語を使い、OR演算子で幅広く網羅してください。',
+  balanced:'MeSH用語（Majorトピック推奨）と主要な自由語をバランスよく組み合わせてください。',
+  narrow:'MeSH Major Topicと限定的な自由語のみを使い、AND演算子で特異度の高い検索式にしてください。',
 };
 
-function copyAiSearchPrompt(type){
-  const prompt=AI_SEARCH_PROMPTS[type];if(!prompt)return;
+function buildAiPrompt(){
+  const kw=document.getElementById('imp-ai-kw').value.trim();
+  if(!kw){sT('キーワードを入力してください');return}
+  const type=document.getElementById('imp-ai-type').value;
+  const scope=document.getElementById('imp-ai-scope').value;
+  const typeInfo=AI_TYPES[type]||AI_TYPES.general;
+  const scopeInfo=AI_SCOPES[scope]||AI_SCOPES.balanced;
+
+  const prompt=`あなたはPubMed検索の専門家です。以下の条件でPubMed検索式を作成してください。
+
+【検索テーマ】
+${kw}
+
+【研究デザイン】
+${typeInfo.label}
+${typeInfo.filter?'使用するフィルタ: '+typeInfo.filter:'デザインの制限なし'}
+
+【検索戦略】
+${scopeInfo}
+
+【出力ルール】
+1. PubMedのE-utilities (esearch) でそのまま使える検索式のみを出力
+2. MeSH用語は [MeSH] または [Majr] タグ付き
+3. 自由語は [tiab] タグ付き
+4. 演算子は AND, OR, NOT を使用
+5. 適切にカッコで構造化
+6. 説明は不要、検索式のみを1行で出力
+
+検索式:`;
+
   cc(prompt);
   const urls={claude:'https://claude.ai/new',chatgpt:'https://chatgpt.com/',gemini:'https://gemini.google.com/app'};
   const dest=S.aiDest||'copy';
   if(dest!=='copy'&&urls[dest]){
-    sT('プロンプトをコピーしました → AI起動');
+    sT('プロンプトをコピー → AI起動');
     setTimeout(()=>window.open(urls[dest],'_blank'),500);
   }else{
     sT('プロンプトをコピーしました。AIに貼り付けてください');
