@@ -610,14 +610,14 @@ let S={newDays:7,minStar:4,defFilter:'all',sortOrder:'default',aiDest:'copy',voc
 function getLabels(p){return(p.queryLabel||'').split(',').map(s=>s.trim()).filter(Boolean)}
 function setLabels(p,arr){p.queryLabel=[...new Set(arr)].join(',')}
 function ensureLabel(name){
-  if(!name)return;
+  if(!name)return;if(!Array.isArray(S.labels))S.labels=[];
   if(!S.labels.find(l=>l.name===name)){
     S.labels.push({name,color:LABEL_COLORS[S.labels.length%LABEL_COLORS.length],visible:true});
   }
 }
-function getLabelColor(name){const l=S.labels.find(x=>x.name===name);return l?l.color:'#9193a0'}
+function getLabelColor(name){const l=(S.labels||[]).find(x=>x.name===name);return l?l.color:'#9193a0'}
 function initLabels(){
-  // Auto-register labels from existing papers
+  if(!Array.isArray(S.labels))S.labels=[];
   const existing=new Set(S.labels.map(l=>l.name));
   for(const p of P){for(const l of getLabels(p)){if(!existing.has(l)){ensureLabel(l);existing.add(l)}}}
 }
@@ -854,9 +854,9 @@ function updateBanner(){const nc=P.filter(p=>isNew(p)).length;const ban=document
 
 function gF(f){switch(f){case'all':return P;case'unread':return P.filter(p=>!p.checked);case'interested':return P.filter(p=>p.rating>=S.minStar);case'new':return P.filter(p=>isNew(p));default:return P.filter(p=>getLabels(p).includes(f))}}
 function rF(){
-  const c=document.getElementById('fl');
+  const c=document.getElementById('fl');if(!c)return;
   let h=fc('all','すべて',P.length,'')+fc('unread','未読',P.filter(p=>!p.checked).length,'aa')+fc('new','新着',P.filter(p=>isNew(p)).length,'ap')+fc('interested','興味あり',P.filter(p=>p.rating>=S.minStar).length,'ag');
-  for(const l of S.labels){if(l.visible)h+=fc(l.name,l.name,gF(l.name).length,'',l.color)}
+  for(const l of (S.labels||[])){if(l.visible)h+=fc(l.name,l.name,gF(l.name).length,'',l.color)}
   c.innerHTML=h;
 }
 function fc(id,lb,n,ac,color){const sel=aF===id;const bg=color&&sel?`background:${color};color:#fff;border-color:${color}`:(color?`border-color:${color};color:${color}`:'');return`<button class="fc${sel?' '+(ac||'a'):''}" data-f="${id}" style="${bg}">${E(lb)}<span class="fb">${n}</span></button>`}
@@ -1270,6 +1270,13 @@ async function loadSettings(){
     const s=configs.find(x=>x.key==='settings');
     if(s&&s.data){Object.assign(S,s.data)}
   }catch(e){}
+  // Ensure required fields exist (migration safety)
+  if(!Array.isArray(S.labels))S.labels=[];
+  if(!Array.isArray(S.aiPrompts))S.aiPrompts=[];
+  if(S.newDays===undefined)S.newDays=7;
+  if(S.minStar===undefined)S.minStar=4;
+  if(S.vocabEnabled===undefined)S.vocabEnabled=true;
+  if(S.showAiSearch===undefined)S.showAiSearch=true;
 }
 async function saveSettings(){
   await dP('config',{key:'settings',data:{...S}});
@@ -1293,7 +1300,7 @@ function openImport(){
 }
 function closeImport(){const m=document.getElementById('impmod');m.style.transition='transform .3s ease';m.style.transform='translateY(100%)';setTimeout(()=>{m.classList.remove('open');m.style.transform=''},350)}
 function renderImpLabels(){
-  const all=[...new Set([...S.labels.map(l=>l.name),'手動追加'])];
+  const all=[...new Set([...(S.labels||[]).map(l=>l.name),'手動追加'])];
   document.getElementById('imp-labels').innerHTML=all.map(l=>`<span class="imp-lbl${_impLabels.has(l)?' sel':''}" data-l="${E(l)}" style="${_impLabels.has(l)?'background:'+getLabelColor(l)+'33;color:'+getLabelColor(l)+';border-color:'+getLabelColor(l):''}">${E(l)}</span>`).join('');
 }
 function addImpLabel(){
@@ -1480,7 +1487,7 @@ function showLabelPicker(){
   const p=P.find(x=>x.pmid===cP);if(!p)return;
   const current=new Set(getLabels(p));
   el.innerHTML=`<div class="dtag-dd">
-    ${S.labels.map(l=>{const has=current.has(l.name);
+    ${(S.labels||[]).map(l=>{const has=current.has(l.name);
       return`<div class="dtag-opt" onclick="toggleDetailLabel('${E(l.name)}')"><span class="dtag-opt-dot" style="background:${l.color}"></span><span style="flex:1">${E(l.name)}</span>${has?'<span style="color:var(--gr)">✓</span>':''}</div>`;
     }).join('')}
     <input class="dtag-newinp" id="newLabelInp" placeholder="新規ラベル名" onkeydown="if(event.key==='Enter')addDetailLabel()"/>
@@ -1516,7 +1523,7 @@ document.addEventListener('click',function(e){
 // ── Label management (settings) ──
 function renderCfgLabels(){
   const c=document.getElementById('cfg-labels');if(!c)return;
-  c.innerHTML=S.labels.map((l,i)=>`<div class="lbl-card" data-li="${i}">
+  c.innerHTML=(S.labels||[]).map((l,i)=>`<div class="lbl-card" data-li="${i}">
     <div class="lbl-dot" style="background:${l.color}" onclick="toggleLblColors(${i})"></div>
     <span class="lbl-name" id="lbln-${i}" ondblclick="startLblRename(${i})">${E(l.name)}</span>
     <span class="lbl-vis${l.visible?'':' off'}" onclick="toggleLblVis(${i})">${l.visible?'👁':'👁‍🗨'}</span>
@@ -1746,14 +1753,21 @@ async function pullSettingsFromServer(){
 
 async function init(){
   if('serviceWorker'in navigator)try{await navigator.serviceWorker.register('./sw.js')}catch(e){}
-  const hideSplash=()=>{const sp=document.getElementById('splash');sp.classList.add('hide');setTimeout(()=>sp.remove(),500)};
-  if(!await lC()){document.getElementById('su').style.display='';hideSplash();return}
-  document.getElementById('ma').style.display='';uSD();reqNotif();
-  await loadSettings();
-  aF=S.defFilter;updSortLabel();
-  await loadL();initLabels();await loadVocab();
-  hideSplash();
-  if(ol)syncData();
+  const hideSplash=()=>{const sp=document.getElementById('splash');if(sp){sp.classList.add('hide');setTimeout(()=>sp.remove(),500)}};
+  try{
+    if(!await lC()){document.getElementById('su').style.display='';hideSplash();return}
+    document.getElementById('ma').style.display='';uSD();reqNotif();
+    await loadSettings();
+    aF=S.defFilter;updSortLabel();
+    await loadL();initLabels();await loadVocab();
+    hideSplash();
+    if(ol)syncData();
+  }catch(e){
+    console.error('Init error:',e);
+    const sp=document.getElementById('splash');
+    if(sp){sp.innerHTML=`<div class="splash-icon">⚠️</div><div class="splash-title">起動エラー</div><div class="splash-sub" style="max-width:80%;word-break:break-all">${e.message||e}</div><div style="margin-top:20px;font-size:12px;color:var(--tf)">ブラウザのキャッシュを消去して<br>再読み込みしてください</div>`}
+    else sT('起動エラー: '+e.message);
+  }
 }
 init();
 </script>
