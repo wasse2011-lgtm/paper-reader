@@ -114,7 +114,8 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 .cd{position:relative;z-index:1;background:var(--bgc);border-radius:var(--r);padding:14px 16px;cursor:pointer;border:1px solid transparent;touch-action:pan-y}
 .cd.rd{border-left:3px solid var(--gr)}.cd.rd .ptt{color:var(--td)}.cd.rd .pjn{color:var(--tf)}.cd.rd .plb{opacity:.5}
 .ch{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:4px}
-.plb{flex-shrink:0;font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;background:var(--acd);color:var(--ac);letter-spacing:.03em}
+.plbs{display:flex;flex-wrap:wrap;gap:4px;flex-shrink:1;min-width:0}
+.plb{flex-shrink:0;font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;letter-spacing:.03em}
 .nwb{font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;background:var(--nw);color:#fff;margin-left:4px}
 .pdt{font-size:11px;color:var(--tf);flex-shrink:0}
 .ptt{font-size:14px;font-weight:600;line-height:1.5;margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;color:var(--tx)}
@@ -154,6 +155,17 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 .dsb{background:none;border:none;font-size:24px;padding:2px;cursor:pointer;color:var(--tf);-webkit-tap-highlight-color:transparent}.dsb.on{color:var(--am)}
 .mt{width:100%;min-height:100px;background:var(--bgi);border:1px solid var(--bd);border-radius:10px;padding:12px;color:var(--tx);font-size:14px;font-family:inherit;line-height:1.6;resize:vertical;outline:none}
 .mt:focus{border-color:var(--ac)}.mt::placeholder{color:var(--tf)}.mh{font-size:11px;color:var(--tf);margin-top:6px}
+/* Detail label tags */
+.dtags{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px;margin-bottom:12px}
+.dtag{font-size:12px;font-weight:600;padding:4px 10px;border-radius:6px;cursor:pointer;display:flex;align-items:center;gap:4px}
+.dtag-x{font-size:10px;opacity:.6}
+.dtag-add{font-size:12px;padding:4px 10px;border-radius:6px;border:1px dashed var(--bd);color:var(--ac);cursor:pointer;background:none}
+.dtag-dd{position:absolute;z-index:50;background:var(--bgd);border:1px solid var(--bd);border-radius:10px;padding:8px;box-shadow:0 8px 24px rgba(0,0,0,.4);max-height:200px;overflow-y:auto;min-width:200px}
+.dtag-opt{padding:6px 10px;border-radius:6px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px}
+.dtag-opt:active{background:var(--bgi)}
+.dtag-opt-dot{width:10px;height:10px;border-radius:50%}
+.dtag-newinp{width:100%;padding:6px 8px;background:var(--bgi);border:1px solid var(--bd);border-radius:6px;color:var(--tx);font-size:13px;margin-top:4px;outline:none}
+.dtag-newinp:focus{border-color:var(--ac)}
 /* Fullscreen memo */
 .memo-fs{display:none;position:fixed;inset:0;z-index:280;background:var(--bgd);flex-direction:column}
 .memo-fs.open{display:flex}
@@ -272,6 +284,16 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 .cfg-savebtn:active{opacity:.8}
 .cfg-syncbtn{flex:1;background:var(--bgi);color:var(--tx);border:1px solid var(--bd);border-radius:10px;padding:10px;font-size:12px;font-weight:600;cursor:pointer}
 .cfg-syncbtn:active{background:var(--acd)}
+/* Label management */
+.lbl-card{background:var(--bgc);border:1px solid var(--bd);border-radius:8px;padding:10px;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.lbl-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0;cursor:pointer}
+.lbl-name{flex:1;font-size:14px;font-weight:600;color:var(--tx)}
+.lbl-name-inp{flex:1;background:var(--bgi);border:1px solid var(--ac);border-radius:4px;padding:2px 6px;color:var(--tx);font-size:14px;outline:none}
+.lbl-vis{font-size:18px;cursor:pointer;opacity:.6;padding:0 4px}
+.lbl-vis.off{opacity:.25}
+.lbl-colors{display:flex;gap:6px;padding:4px 0;margin-left:22px}
+.lbl-cpick{width:22px;height:22px;border-radius:50%;cursor:pointer;border:2px solid transparent}
+.lbl-cpick.sel{border-color:#fff;box-shadow:0 0 0 2px var(--ac)}
 
 
 /* ── Select All ── */
@@ -496,6 +518,11 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
       </select>
     </div>
     <div class="cfg-sec">
+      <div class="cfg-sec-title">ラベル管理</div>
+      <div id="cfg-labels"></div>
+      <button class="cfg-addq" onclick="cfgAddLabel()">＋ 新規ラベル作成</button>
+    </div>
+    <div class="cfg-sec">
       <div class="cfg-sec-title">AI連携</div>
       <label class="cfg-lbl">AI送信先（コピー後に自動で開く）</label>
       <select class="cfg-sel" id="cfg-aidest">
@@ -574,35 +601,65 @@ async function dPB(s,items){if(!items.length)return;const d=await oDB();return n
 const _isPWA=window.matchMedia('(display-mode:standalone)').matches||!!window.navigator.standalone;
 let C={url:'',key:''},P=[],F=[],aF='all',cP=null,ol=navigator.onLine;
 // Settings (loaded from IndexedDB, defaults here)
+const LABEL_COLORS=['#60a5fa','#4ade80','#f59e0b','#f87171','#a78bfa','#9193a0'];
 let S={newDays:7,minStar:4,defFilter:'all',sortOrder:'default',aiDest:'copy',vocabEnabled:true,showAiSearch:true,
+  labels:[],
   aiPrompts:[{name:'翻訳＋臨床応用',prompt:'論文検索してヒットした論文をお渡しします。そのアブストラクトの翻訳、具体的な臨床への役立つ情報を抽出をして教えてください。さらに、関連する背景知識も検索し、簡潔に教えてください。さらに疑問となりそうな事について深掘りを提案してください。'}]
 };
+// Label helpers
+function getLabels(p){return(p.queryLabel||'').split(',').map(s=>s.trim()).filter(Boolean)}
+function setLabels(p,arr){p.queryLabel=[...new Set(arr)].join(',')}
+function ensureLabel(name){
+  if(!name)return;
+  if(!S.labels.find(l=>l.name===name)){
+    S.labels.push({name,color:LABEL_COLORS[S.labels.length%LABEL_COLORS.length],visible:true});
+  }
+}
+function getLabelColor(name){const l=S.labels.find(x=>x.name===name);return l?l.color:'#9193a0'}
+function initLabels(){
+  // Auto-register labels from existing papers
+  const existing=new Set(S.labels.map(l=>l.name));
+  for(const p of P){for(const l of getLabels(p)){if(!existing.has(l)){ensureLabel(l);existing.add(l)}}}
+}
 
 async function lC(){try{const c=await dGA('config');const o=c.find(x=>x.key==='ac');if(o&&o.u&&o.k){C.url=o.u;C.key=o.k;return true}}catch(e){}return false}
 async function saveSetup(){const u=document.getElementById('suUrl').value.trim(),k=document.getElementById('suKey').value.trim();if(!u||!k){sT('URLとAPIキーを入力');return}C.url=u;C.key=k;await dP('config',{key:'ac',u,k});document.getElementById('su').style.display='none';document.getElementById('ma').style.display='';syncData()}
 
 let _jc=0;
-function jp(p){return new Promise((r,j)=>{const cb='_j'+ _jc++;const tm=setTimeout(()=>{cl();j(new Error('Timeout'))},15000);function cl(){clearTimeout(tm);delete window[cb];const e=document.getElementById(cb);if(e)e.remove()}window[cb]=d=>{cl();r(d)};const q=new URLSearchParams({...p,key:C.key,callback:cb});const s=document.createElement('script');s.id=cb;s.src=C.url+'?'+q;s.onerror=()=>{cl();j(new Error('JSONP failed'))};document.head.appendChild(s)})}
+function jp(p){return new Promise((r,j)=>{const cb='_j'+ _jc++;const tm=setTimeout(()=>{cl();j(new Error('Timeout'))},60000);function cl(){clearTimeout(tm);delete window[cb];const e=document.getElementById(cb);if(e)e.remove()}window[cb]=d=>{cl();r(d)};const q=new URLSearchParams({...p,key:C.key,callback:cb});const s=document.createElement('script');s.id=cb;s.src=C.url+'?'+q;s.onerror=()=>{cl();j(new Error('JSONP failed'))};document.head.appendChild(s)})}
 
 function reqNotif(){if('Notification'in window&&Notification.permission==='default')Notification.requestPermission()}
 function sendNotif(n){if('Notification'in window&&Notification.permission==='granted')new Notification('📄 Paper Reader',{body:`新着 ${n} 件の論文が追加されました`})}
 
 async function syncData(){
   if(!ol){sT('オフラインです');return}
-  const btn=document.getElementById('sy');btn.classList.add('sy');sL(20);
+  const btn=document.getElementById('sy');btn.classList.add('sy');sL(10);
   try{
-    // 1. Pending upload + list fetch in parallel
+    // 1. Pending upload
     const pend=await dGA('pending');
-    const pendP=pend.length?jp({action:'bulkUpdate',data:JSON.stringify({action:'bulkUpdate',updates:pend}),key:C.key}).then(()=>dC('pending')).catch(()=>{}):Promise.resolve();
-    const listP=jp({action:'list',key:C.key});
-    const [,data]=await Promise.all([pendP,listP]);
-    sL(70);
-    if(data.papers){
+    if(pend.length)try{await jp({action:'bulkUpdate',data:JSON.stringify({action:'bulkUpdate',updates:pend}),key:C.key});await dC('pending')}catch(e){}
+    sL(20);
+    // 2. Fetch papers with pagination (200 per page)
+    const allPapers=[];
+    let page=1,hasMore=true;
+    while(hasMore){
+      sT(`同期中... ページ${page}`);
+      const data=await jp({action:'list',page:String(page),limit:'200',key:C.key});
+      if(data.papers&&data.papers.length>0){
+        allPapers.push(...data.papers);
+        sL(20+Math.min(60,Math.round(allPapers.length/(data.total||1)*60)));
+      }
+      hasMore=!!data.hasMore;
+      page++;
+      if(page>50)break;// safety limit
+    }
+    sL(80);
+    if(allPapers.length>0){
       const localMap=new Map();for(const lp of P)localMap.set(lp.pmid,lp);
       const pendSet=new Set(pend.map(x=>x.pmid));
       const oldPmids=new Set(P.map(p=>p.pmid));
       let newCount=0;
-      const merged=data.papers.map(sp=>{
+      const merged=allPapers.map(sp=>{
         const lp=localMap.get(sp.pmid);
         const item={...sp,rating:Number(sp.rating)||0,checked:!!sp.checked,readAt:sp.readAt||''};
         if(lp&&!item.readAt&&lp.readAt)item.readAt=lp.readAt;
@@ -612,12 +669,12 @@ async function syncData(){
         if(!oldPmids.has(sp.pmid))newCount++;
         return item;
       });
-      dPB('papers',merged);// fire-and-forget IDB write
+      dPB('papers',merged);
       P=merged;sortP();rF();rL();rSt();updateBanner();
       if(newCount>0&&oldPmids.size>0)sendNotif(newCount);
       sT('同期完了: '+P.length+'件'+(newCount?' (新着'+newCount+'件)':''));
-    }
-    // 2. Vocab sync in background (non-blocking)
+    }else{sT('同期完了: 0件')}
+    // 3. Vocab sync in background
     vocabSyncBg();
   }catch(e){sT('同期エラー: '+e.message)}
   finally{btn.classList.remove('sy');sL(100);setTimeout(()=>sL(0),200)}
@@ -795,15 +852,14 @@ addModalSwipe('stmod',closeStats);
 
 function updateBanner(){const nc=P.filter(p=>isNew(p)).length;const ban=document.getElementById('nban');if(nc>0){ban.innerHTML=`🆕 新着 ${nc} 件<span>直近7日間</span>`;ban.classList.add('show')}else ban.classList.remove('show')}
 
-function gF(f){switch(f){case'all':return P;case'unread':return P.filter(p=>!p.checked);case'interested':return P.filter(p=>p.rating>=S.minStar);case'new':return P.filter(p=>isNew(p));default:return P.filter(p=>p.queryLabel===f)}}
+function gF(f){switch(f){case'all':return P;case'unread':return P.filter(p=>!p.checked);case'interested':return P.filter(p=>p.rating>=S.minStar);case'new':return P.filter(p=>isNew(p));default:return P.filter(p=>getLabels(p).includes(f))}}
 function rF(){
   const c=document.getElementById('fl');
-  const ls=[...new Set(P.map(p=>p.queryLabel).filter(Boolean))];
   let h=fc('all','すべて',P.length,'')+fc('unread','未読',P.filter(p=>!p.checked).length,'aa')+fc('new','新着',P.filter(p=>isNew(p)).length,'ap')+fc('interested','興味あり',P.filter(p=>p.rating>=S.minStar).length,'ag');
-  for(const l of ls)h+=fc(l,l,gF(l).length,'');
+  for(const l of S.labels){if(l.visible)h+=fc(l.name,l.name,gF(l.name).length,'',l.color)}
   c.innerHTML=h;
 }
-function fc(id,lb,n,ac){return`<button class="fc${aF===id?' '+(ac||'a'):''}" data-f="${id}">${E(lb)}<span class="fb">${n}</span></button>`}
+function fc(id,lb,n,ac,color){const sel=aF===id;const bg=color&&sel?`background:${color};color:#fff;border-color:${color}`:(color?`border-color:${color};color:${color}`:'');return`<button class="fc${sel?' '+(ac||'a'):''}" data-f="${id}" style="${bg}">${E(lb)}<span class="fb">${n}</span></button>`}
 
 function rL(){
   const c=document.getElementById('pl'),s=document.getElementById('si').value.trim().toLowerCase();
@@ -819,8 +875,9 @@ function rL(){
     const memo=p.memo?'<span class="pm">📝</span>':'';
     const rdAt=p.readAt?`<span class="prd">既読 ${fD(p.readAt)}</span>`:'';
     const nwBadge=isNew(p)?`<span class="nwb">NEW ${fD(p.fetchedDate)}</span>`:'';
+    const lbls=getLabels(p).map(l=>`<span class="plb" style="background:${getLabelColor(l)}22;color:${getLabelColor(l)};border:1px solid ${getLabelColor(l)}44">${E(l)}</span>`).join('');
     let stars='';for(let j=1;j<=5;j++)stars+=`<button class="st${j<=p.rating?' on':''}" data-p="${p.pmid}" data-s="${j}">★</button>`;
-    a[i+1]=`<div class="cw" data-p="${p.pmid}">${swBg}<div class="cd${rc}" data-p="${p.pmid}"><div class="ch"><span class="plb">${E(p.queryLabel||'')}${nwBadge}</span><span class="pdt">${fD(p.pubDate)}</span></div><div class="ptt">${E(p.titleJa||p.titleEn||'(No title)')}</div><div class="pjn">${E(p.journal||'')}</div><div class="pbt"><div class="sr">${stars}</div><div>${memo}${rdAt}</div></div></div></div>`;
+    a[i+1]=`<div class="cw" data-p="${p.pmid}">${swBg}<div class="cd${rc}" data-p="${p.pmid}"><div class="ch"><div class="plbs">${lbls}${nwBadge}</div><span class="pdt">${fD(p.pubDate)}</span></div><div class="ptt">${E(p.titleJa||p.titleEn||'(No title)')}</div><div class="pjn">${E(p.journal||'')}</div><div class="pbt"><div class="sr">${stars}</div><div>${memo}${rdAt}</div></div></div></div>`;
   }
   c.innerHTML=a.join('');
 }
@@ -852,13 +909,16 @@ function nextPapers(pm){const i=F.findIndex(p=>p.pmid===pm);return i<0?[]:F.slic
 function openD(pm){
   const p=P.find(x=>x.pmid===pm);if(!p)return;cP=pm;
   const ov=document.getElementById('dov'),body=document.getElementById('dbdy');
-  document.getElementById('dht').textContent=p.queryLabel||'';
+  document.getElementById('dht').textContent=getLabels(p).join(', ')||'';
   const pu=`https://pubmed.ncbi.nlm.nih.gov/${p.pmid}/`,doi=p.doi?`https://doi.org/${p.doi}`:'';
   const nx=nextPapers(pm);
   let nxH='';if(nx.length){nxH=`<div class="nxsec"><div class="dl">次の論文</div>`;for(const n of nx)nxH+=`<div class="nxcard" data-p="${n.pmid}"><div class="ptt">${E(n.titleJa||n.titleEn||'')}</div><div class="pjn">${E(n.journal||'')} · ${fD(n.pubDate)}</div></div>`;nxH+=`</div>`}
+  const dTagsHtml=getLabels(p).map(l=>`<span class="dtag" style="background:${getLabelColor(l)}22;color:${getLabelColor(l)}" onclick="removeDetailLabel('${E(l)}')">${E(l)} <span class="dtag-x">×</span></span>`).join('');
   body.innerHTML=`
 <div class="dti">${E(p.titleJa||p.titleEn||'')}</div>
 <div class="dm"><span class="di">${E(p.journal||'')}</span><span class="di">${fD(p.pubDate)}</span><span class="di">PMID:${p.pmid}</span>${p.readAt?`<span class="di">既読 ${fD(p.readAt)}</span>`:''}</div>
+<div class="dtags" id="dtagsArea">${dTagsHtml}<button class="dtag-add" onclick="showLabelPicker()">＋ ラベル</button></div>
+<div id="labelPicker" style="display:none;position:relative"></div>
 <div class="ds"><div class="dl">アブストラクト（日本語）</div><div class="da">${E(p.abstractJa||'(アブストラクトなし)')}</div></div>
 <div class="co"><button class="ct" onclick="this.classList.toggle('op');this.nextElementSibling.classList.toggle('op')"><span class="ca">▶</span> Abstract（原文）</button><div class="cb"><div class="sel-row"><button class="sel-btn" onclick="selectAbsText()">📋 全文選択</button>${_isPWA?'<span style="font-size:11px;color:var(--tf)">→ 選択後「読み上げ」で再生</span>':'<div class="tts-ctrl"><button class="sel-btn" id="ttsBtn" onclick="toggleTTS()">🔊 読み上げ</button><button class="sel-btn" onclick="stopTTS()">⏹</button><input type="range" class="tts-speed" id="ttsSpd" min="0.5" max="2.0" step="0.1" value="1.0" oninput="updTTSRate()"/><span class="tts-lbl" id="ttsLbl">1.0x</span></div>'}</div><div class="dae" id="absEn">${wrapWords(p.abstractEn||'(No abstract)')}</div></div></div>
 <div class="co"><button class="ct" onclick="this.classList.toggle('op');this.nextElementSibling.classList.toggle('op')"><span class="ca">▶</span> 原文タイトル</button><div class="cb"><div class="dae">${E(p.titleEn||'')}</div></div></div>
@@ -1218,40 +1278,35 @@ async function saveSettings(){
 // ── Import ──
 const IF_TABLE={'The New England journal of medicine':176.1,'Lancet (London, England)':168.9,'JAMA':120.7,'BMJ (Clinical research ed.)':105.7,'Annals of internal medicine':51.6,'The Lancet. Neurology':46.5,'JAMA neurology':29.0,'Nature reviews. Neurology':28.1,'Brain : a journal of neurology':14.5,'Annals of neurology':11.2,'Neurology':9.9,'Journal of neurology, neurosurgery, and psychiatry':8.8,'The Lancet. Oncology':51.1,'Journal of clinical oncology':45.3,'JAMA oncology':28.4,'Annals of oncology':32.0,'Circulation':37.8,'European heart journal':37.6,'Journal of the American College of Cardiology':24.0,'JAMA cardiology':14.8,'Cochrane database of systematic reviews':8.4,'Nature medicine':82.9,'Nature reviews. Disease primers':76.9,'Nature':64.8,'Science':56.9,'Cell':64.5};
 
-let _impLabel='手動追加';let _impChecked=new Set();
+let _impLabels=new Set(['手動追加']);let _impChecked=new Set();
 function openImport(){
   const m=document.getElementById('impmod');
   document.getElementById('imp-q').value='';
   document.getElementById('imp-results').innerHTML='';
   document.getElementById('imp-status').textContent='';
   document.getElementById('imp-bulk').classList.remove('show');
-  _impChecked=new Set();
-  // Auto-set keyword as label option
-  const labels=['手動追加',...new Set(P.map(p=>p.queryLabel).filter(Boolean))];
-  renderImpLabels(labels);
-  // Show/hide AI section based on settings
+  _impChecked=new Set();_impLabels=new Set(['手動追加']);
+  renderImpLabels();
   const aiSec=document.getElementById('imp-ai-sec');
   if(aiSec)aiSec.style.display=(S.showAiSearch===false)?'none':'';
   m.style.transform='';m.style.transition='transform .3s ease';m.classList.add('open');
 }
 function closeImport(){const m=document.getElementById('impmod');m.style.transition='transform .3s ease';m.style.transform='translateY(100%)';setTimeout(()=>{m.classList.remove('open');m.style.transform=''},350)}
-function renderImpLabels(labels){
-  const u=[...new Set(labels)];
-  document.getElementById('imp-labels').innerHTML=u.map(l=>`<span class="imp-lbl${l===_impLabel?' sel':''}" data-l="${E(l)}">${E(l)}</span>`).join('');
+function renderImpLabels(){
+  const all=[...new Set([...S.labels.map(l=>l.name),'手動追加'])];
+  document.getElementById('imp-labels').innerHTML=all.map(l=>`<span class="imp-lbl${_impLabels.has(l)?' sel':''}" data-l="${E(l)}" style="${_impLabels.has(l)?'background:'+getLabelColor(l)+'33;color:'+getLabelColor(l)+';border-color:'+getLabelColor(l):''}">${E(l)}</span>`).join('');
 }
 function addImpLabel(){
-  const inp=document.getElementById('imp-newlabel');
-  const v=inp.value.trim();if(!v)return;
-  _impLabel=v;inp.value='';
-  const labels=['手動追加',v,...new Set(P.map(p=>p.queryLabel).filter(Boolean))];
-  renderImpLabels(labels);
+  const inp=document.getElementById('imp-newlabel');const v=inp.value.trim();if(!v)return;
+  ensureLabel(v);_impLabels.add(v);inp.value='';renderImpLabels();
 }
-
 document.getElementById('imp-labels')?.addEventListener('click',function(e){
   const lbl=e.target.closest('.imp-lbl');if(!lbl)return;
-  _impLabel=lbl.dataset.l;
-  this.querySelectorAll('.imp-lbl').forEach(b=>b.classList.toggle('sel',b.dataset.l===_impLabel));
+  const name=lbl.dataset.l;
+  if(_impLabels.has(name))_impLabels.delete(name);else _impLabels.add(name);
+  renderImpLabels();
 });
+
 
 async function doImportSearch(){
   const q=document.getElementById('imp-q').value.trim();
@@ -1265,7 +1320,7 @@ async function doImportSearch(){
   document.getElementById('imp-results').innerHTML='<div class="imp-loading"><div class="imp-spinner"></div><div class="imp-loading-text">PubMedを検索中...</div></div>';
   // Auto-add keyword as label option
   const kw=document.getElementById('imp-ai-kw')?.value.trim()||q.split(/[\s\[\]"()]+/).filter(w=>w.length>2&&!/AND|OR|NOT|tiab|MeSH|Majr|pt/.test(w)).slice(0,2).join(' ');
-  if(kw&&kw.length>1){const labels=['手動追加',kw,...new Set(P.map(p=>p.queryLabel).filter(Boolean))];_impLabel=kw;renderImpLabels(labels)}
+  if(kw&&kw.length>1){ensureLabel(kw);_impLabels=new Set([kw]);renderImpLabels()}
   try{
     const data=await jp({action:'searchImport',data:JSON.stringify({action:'searchImport',query:q,daysBack:days,maxResults:max,sort}),key:C.key});
     if(data.error){document.getElementById('imp-results').innerHTML='';document.getElementById('imp-status').textContent='エラー: '+data.error;return}
@@ -1314,10 +1369,10 @@ async function doBulkImport(){
   for(const i of _impChecked){
     const art=results[i];if(!art)continue;
     try{
-      const data=await jp({action:'importPaper',data:JSON.stringify({action:'importPaper',article:art,label:_impLabel}),key:C.key});
+      const data=await jp({action:'importPaper',data:JSON.stringify({action:'importPaper',article:art,label:[..._impLabels].join(',')}),key:C.key});
       if(data.success){
         ok++;
-        P.push({pmid:art.pmid,titleEn:art.titleEn,titleJa:data.titleJa||art.titleJa||'',abstractEn:art.abstractEn,abstractJa:'',authors:art.authors,journal:art.journal,pubDate:art.pubDate,doi:art.doi,queryLabel:_impLabel,fetchedDate:new Date().toISOString(),checked:false,memo:'',rating:0,readAt:''});
+        P.push({pmid:art.pmid,titleEn:art.titleEn,titleJa:data.titleJa||art.titleJa||'',abstractEn:art.abstractEn,abstractJa:'',authors:art.authors,journal:art.journal,pubDate:art.pubDate,doi:art.doi,queryLabel:[..._impLabels].join(','),fetchedDate:new Date().toISOString(),checked:false,memo:'',rating:0,readAt:''});
         const actEl=document.getElementById('imp-act-'+i);
         if(actEl)actEl.innerHTML='<button class="imp-ibtn done" disabled>✓ 完了</button>';
         const chk=document.querySelector(`.imp-chk[data-idx="${i}"]`);if(chk)chk.remove();
@@ -1398,11 +1453,11 @@ async function doImportOne(i){
   const btn=document.querySelector(`#imp-act-${i} .imp-ibtn`);
   if(btn){btn.innerHTML='<span class="imp-spinner" style="width:14px;height:14px;border-width:2px;display:inline-block;vertical-align:middle"></span> 翻訳中...';btn.disabled=true}
   try{
-    const data=await jp({action:'importPaper',data:JSON.stringify({action:'importPaper',article:art,label:_impLabel}),key:C.key});
+    const data=await jp({action:'importPaper',data:JSON.stringify({action:'importPaper',article:art,label:[..._impLabels].join(',')}),key:C.key});
     if(data.success){
       if(btn){btn.textContent='✓ 完了';btn.classList.add('done')}
       sT('📥 インポート完了: '+art.pmid);
-      P.push({pmid:art.pmid,titleEn:art.titleEn,titleJa:data.titleJa||art.titleJa||'',abstractEn:art.abstractEn,abstractJa:'',authors:art.authors,journal:art.journal,pubDate:art.pubDate,doi:art.doi,queryLabel:_impLabel,fetchedDate:new Date().toISOString(),checked:false,memo:'',rating:0,readAt:''});
+      P.push({pmid:art.pmid,titleEn:art.titleEn,titleJa:data.titleJa||art.titleJa||'',abstractEn:art.abstractEn,abstractJa:'',authors:art.authors,journal:art.journal,pubDate:art.pubDate,doi:art.doi,queryLabel:[..._impLabels].join(','),fetchedDate:new Date().toISOString(),checked:false,memo:'',rating:0,readAt:''});
       sortP();rF();rL();
     }else if(data.error==='already_exists'){if(btn){btn.textContent='登録済';btn.classList.add('done')}sT('既に登録済みです')}
     else{if(btn){btn.textContent='エラー';btn.disabled=false}sT('インポートエラー')}
@@ -1412,6 +1467,97 @@ async function doImportOne(i){
 
 document.getElementById('imp-q')?.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();doImportSearch()}});
 
+
+// ── Label management (detail view) ──
+function removeDetailLabel(name){
+  if(!cP)return;const p=P.find(x=>x.pmid===cP);if(!p)return;
+  const arr=getLabels(p).filter(l=>l!==name);setLabels(p,arr);sC(p);
+  refreshDetailTags(p);rF();rL();
+}
+function showLabelPicker(){
+  const el=document.getElementById('labelPicker');
+  if(el.style.display==='block'){el.style.display='none';return}
+  const p=P.find(x=>x.pmid===cP);if(!p)return;
+  const current=new Set(getLabels(p));
+  el.innerHTML=`<div class="dtag-dd">
+    ${S.labels.map(l=>{const has=current.has(l.name);
+      return`<div class="dtag-opt" onclick="toggleDetailLabel('${E(l.name)}')"><span class="dtag-opt-dot" style="background:${l.color}"></span><span style="flex:1">${E(l.name)}</span>${has?'<span style="color:var(--gr)">✓</span>':''}</div>`;
+    }).join('')}
+    <input class="dtag-newinp" id="newLabelInp" placeholder="新規ラベル名" onkeydown="if(event.key==='Enter')addDetailLabel()"/>
+  </div>`;
+  el.style.display='block';
+}
+function toggleDetailLabel(name){
+  if(!cP)return;const p=P.find(x=>x.pmid===cP);if(!p)return;
+  const arr=getLabels(p);
+  if(arr.includes(name))setLabels(p,arr.filter(l=>l!==name));
+  else{arr.push(name);setLabels(p,arr)}
+  sC(p);refreshDetailTags(p);showLabelPicker();rF();rL();
+}
+function addDetailLabel(){
+  const inp=document.getElementById('newLabelInp');const name=inp?.value.trim();
+  if(!name||!cP)return;
+  ensureLabel(name);saveSettings();
+  const p=P.find(x=>x.pmid===cP);if(!p)return;
+  const arr=getLabels(p);if(!arr.includes(name))arr.push(name);
+  setLabels(p,arr);sC(p);refreshDetailTags(p);showLabelPicker();rF();rL();
+}
+function refreshDetailTags(p){
+  const area=document.getElementById('dtagsArea');if(!area)return;
+  area.innerHTML=getLabels(p).map(l=>`<span class="dtag" style="background:${getLabelColor(l)}22;color:${getLabelColor(l)}" onclick="removeDetailLabel('${E(l)}')">${E(l)} <span class="dtag-x">×</span></span>`).join('')+`<button class="dtag-add" onclick="showLabelPicker()">＋ ラベル</button>`;
+}
+// Close label picker on outside click
+document.addEventListener('click',function(e){
+  if(!e.target.closest('#labelPicker')&&!e.target.closest('.dtag-add')){
+    const el=document.getElementById('labelPicker');if(el)el.style.display='none';
+  }
+});
+
+// ── Label management (settings) ──
+function renderCfgLabels(){
+  const c=document.getElementById('cfg-labels');if(!c)return;
+  c.innerHTML=S.labels.map((l,i)=>`<div class="lbl-card" data-li="${i}">
+    <div class="lbl-dot" style="background:${l.color}" onclick="toggleLblColors(${i})"></div>
+    <span class="lbl-name" id="lbln-${i}" ondblclick="startLblRename(${i})">${E(l.name)}</span>
+    <span class="lbl-vis${l.visible?'':' off'}" onclick="toggleLblVis(${i})">${l.visible?'👁':'👁‍🗨'}</span>
+  </div>
+  <div class="lbl-colors" id="lblc-${i}" style="display:none">${LABEL_COLORS.map(c=>`<div class="lbl-cpick${l.color===c?' sel':''}" style="background:${c}" onclick="setLblColor(${i},'${c}')"></div>`).join('')}</div>`).join('');
+}
+function cfgAddLabel(){
+  const name=prompt('新しいラベル名:');if(!name||!name.trim())return;
+  ensureLabel(name.trim());renderCfgLabels();
+}
+function toggleLblColors(i){
+  const el=document.getElementById('lblc-'+i);
+  if(el)el.style.display=el.style.display==='none'?'flex':'none';
+}
+function setLblColor(i,color){
+  S.labels[i].color=color;renderCfgLabels();
+}
+function toggleLblVis(i){
+  S.labels[i].visible=!S.labels[i].visible;renderCfgLabels();
+}
+function startLblRename(i){
+  const el=document.getElementById('lbln-'+i);if(!el)return;
+  const old=S.labels[i].name;
+  el.outerHTML=`<input class="lbl-name-inp" id="lbln-${i}" value="${E(old)}" onblur="finishLblRename(${i})" onkeydown="if(event.key==='Enter')this.blur()"/>`;
+  document.getElementById('lbln-'+i).focus();
+}
+function finishLblRename(i){
+  const el=document.getElementById('lbln-'+i);if(!el)return;
+  const newName=el.value.trim();const oldName=S.labels[i].name;
+  if(newName&&newName!==oldName){
+    S.labels[i].name=newName;
+    // Rename in all papers
+    for(const p of P){
+      const arr=getLabels(p);
+      const idx=arr.indexOf(oldName);
+      if(idx>=0){arr[idx]=newName;setLabels(p,arr);dP('papers',{...p})}
+    }
+    rF();rL();
+  }
+  renderCfgLabels();
+}
 
 function openCfg(){
   const m=document.getElementById('cfgmod');
@@ -1425,6 +1571,7 @@ function openCfg(){
   document.getElementById('cfg-showai').value=S.showAiSearch!==false?'on':'off';
   document.getElementById('cfg-aidest').value=S.aiDest;
   renderCfgPrompts(S.aiPrompts||[]);
+  renderCfgLabels();
   document.getElementById('cfg-daysback').value='';
   document.getElementById('cfg-maxresults').value='';
   document.getElementById('cfg-queries').innerHTML='<div style="color:var(--tf);font-size:12px">読み込み中...</div>';
@@ -1604,7 +1751,7 @@ async function init(){
   document.getElementById('ma').style.display='';uSD();reqNotif();
   await loadSettings();
   aF=S.defFilter;updSortLabel();
-  await loadL();await loadVocab();
+  await loadL();initLabels();await loadVocab();
   hideSplash();
   if(ol)syncData();
 }
