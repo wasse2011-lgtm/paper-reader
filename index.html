@@ -672,7 +672,7 @@ async function syncData(){
         return item;
       });
       dPB('papers',merged);
-      P=merged;sortP();rF();rL();rSt();updateBanner();
+      P=merged;initLabels();sortP();rF();rL();rSt();updateBanner();
       if(newCount>0&&oldPmids.size>0)sendNotif(newCount);
       sT('同期完了: '+P.length+'件'+(newCount?' (新着'+newCount+'件)':''));
     }else{sT('同期完了: 0件')}
@@ -695,7 +695,7 @@ async function vocabSyncBg(){
     jp({action:'vocabSync',data:JSON.stringify({action:'vocabSync',vocab:merged}),key:C.key}).catch(()=>{});
   }catch(e){}
 }
-async function loadL(){try{P=(await dGA('papers')).map(p=>({...p,rating:p.rating||0,checked:!!p.checked,readAt:p.readAt||''}));sortP();rF();rL();rSt();updateBanner()}catch(e){}}
+async function loadL(){try{P=(await dGA('papers')).map(p=>({...p,rating:p.rating||0,checked:!!p.checked,readAt:p.readAt||''}));initLabels();sortP();rF();rL();rSt();updateBanner()}catch(e){}}
 const SORT_MODES=['default','pubDate','rating','readAt'];
 const SORT_LABELS={default:'未読優先・出版日順',pubDate:'出版日順',rating:'★順',readAt:'既読日順'};
 function sortP(){
@@ -1767,7 +1767,7 @@ async function init(){
     if(!Array.isArray(S.aiPrompts))S.aiPrompts=[];
     aF=S.defFilter;updSortLabel();
     await loadL();
-    try{initLabels()}catch(e){console.error('initLabels:',e)}
+    try{initLabels();await saveSettings()}catch(e){console.error('initLabels:',e)}
     sortP();rF();rL();
     await loadVocab();
     hideSplash();
