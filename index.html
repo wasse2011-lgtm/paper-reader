@@ -607,19 +607,21 @@ let S={newDays:7,minStar:4,defFilter:'all',sortOrder:'default',aiDest:'copy',voc
   aiPrompts:[{name:'翻訳＋臨床応用',prompt:'論文検索してヒットした論文をお渡しします。そのアブストラクトの翻訳、具体的な臨床への役立つ情報を抽出をして教えてください。さらに、関連する背景知識も検索し、簡潔に教えてください。さらに疑問となりそうな事について深掘りを提案してください。'}]
 };
 // Label helpers
-function getLabels(p){return(p.queryLabel||'').split(',').map(s=>s.trim()).filter(Boolean)}
-function setLabels(p,arr){p.queryLabel=[...new Set(arr)].join(',')}
+function getLabels(p){if(!p||!p.queryLabel)return[];return String(p.queryLabel).split(',').map(s=>s.trim()).filter(Boolean)}
+function setLabels(p,arr){if(!p)return;p.queryLabel=[...new Set(arr.filter(Boolean))].join(',')}
 function ensureLabel(name){
   if(!name)return;if(!Array.isArray(S.labels))S.labels=[];
   if(!S.labels.find(l=>l.name===name)){
     S.labels.push({name,color:LABEL_COLORS[S.labels.length%LABEL_COLORS.length],visible:true});
   }
 }
-function getLabelColor(name){const l=(S.labels||[]).find(x=>x.name===name);return l?l.color:'#9193a0'}
+function getLabelColor(name){if(!Array.isArray(S.labels))return'#9193a0';const l=S.labels.find(x=>x.name===name);return l?l.color:'#9193a0'}
 function initLabels(){
-  if(!Array.isArray(S.labels))S.labels=[];
-  const existing=new Set(S.labels.map(l=>l.name));
-  for(const p of P){for(const l of getLabels(p)){if(!existing.has(l)){ensureLabel(l);existing.add(l)}}}
+  try{
+    if(!Array.isArray(S.labels))S.labels=[];
+    const existing=new Set(S.labels.map(l=>l.name));
+    for(const p of P){for(const l of getLabels(p)){if(!existing.has(l)){ensureLabel(l);existing.add(l)}}}
+  }catch(e){console.error('initLabels error:',e);if(!Array.isArray(S.labels))S.labels=[]}
 }
 
 async function lC(){try{const c=await dGA('config');const o=c.find(x=>x.key==='ac');if(o&&o.u&&o.k){C.url=o.u;C.key=o.k;return true}}catch(e){}return false}
@@ -856,7 +858,7 @@ function gF(f){switch(f){case'all':return P;case'unread':return P.filter(p=>!p.c
 function rF(){
   const c=document.getElementById('fl');if(!c)return;
   let h=fc('all','すべて',P.length,'')+fc('unread','未読',P.filter(p=>!p.checked).length,'aa')+fc('new','新着',P.filter(p=>isNew(p)).length,'ap')+fc('interested','興味あり',P.filter(p=>p.rating>=S.minStar).length,'ag');
-  for(const l of (S.labels||[])){if(l.visible)h+=fc(l.name,l.name,gF(l.name).length,'',l.color)}
+  try{for(const l of (S.labels||[])){if(l&&l.visible)h+=fc(l.name,l.name,gF(l.name).length,'',l.color)}}catch(e){}
   c.innerHTML=h;
 }
 function fc(id,lb,n,ac,color){const sel=aF===id;const bg=color&&sel?`background:${color};color:#fff;border-color:${color}`:(color?`border-color:${color};color:${color}`:'');return`<button class="fc${sel?' '+(ac||'a'):''}" data-f="${id}" style="${bg}">${E(lb)}<span class="fb">${n}</span></button>`}
@@ -875,7 +877,7 @@ function rL(){
     const memo=p.memo?'<span class="pm">📝</span>':'';
     const rdAt=p.readAt?`<span class="prd">既読 ${fD(p.readAt)}</span>`:'';
     const nwBadge=isNew(p)?`<span class="nwb">NEW ${fD(p.fetchedDate)}</span>`:'';
-    const lbls=getLabels(p).map(l=>`<span class="plb" style="background:${getLabelColor(l)}22;color:${getLabelColor(l)};border:1px solid ${getLabelColor(l)}44">${E(l)}</span>`).join('');
+    const lbls=(()=>{try{return getLabels(p).map(l=>`<span class="plb" style="background:${getLabelColor(l)}22;color:${getLabelColor(l)};border:1px solid ${getLabelColor(l)}44">${E(l)}</span>`).join('')}catch(e){return''}})();
     let stars='';for(let j=1;j<=5;j++)stars+=`<button class="st${j<=p.rating?' on':''}" data-p="${p.pmid}" data-s="${j}">★</button>`;
     a[i+1]=`<div class="cw" data-p="${p.pmid}">${swBg}<div class="cd${rc}" data-p="${p.pmid}"><div class="ch"><div class="plbs">${lbls}${nwBadge}</div><span class="pdt">${fD(p.pubDate)}</span></div><div class="ptt">${E(p.titleJa||p.titleEn||'(No title)')}</div><div class="pjn">${E(p.journal||'')}</div><div class="pbt"><div class="sr">${stars}</div><div>${memo}${rdAt}</div></div></div></div>`;
   }
@@ -909,11 +911,11 @@ function nextPapers(pm){const i=F.findIndex(p=>p.pmid===pm);return i<0?[]:F.slic
 function openD(pm){
   const p=P.find(x=>x.pmid===pm);if(!p)return;cP=pm;
   const ov=document.getElementById('dov'),body=document.getElementById('dbdy');
-  document.getElementById('dht').textContent=getLabels(p).join(', ')||'';
+  document.getElementById('dht').textContent=(()=>{try{return getLabels(p).join(', ')}catch(e){return p.queryLabel||''}})();
   const pu=`https://pubmed.ncbi.nlm.nih.gov/${p.pmid}/`,doi=p.doi?`https://doi.org/${p.doi}`:'';
   const nx=nextPapers(pm);
   let nxH='';if(nx.length){nxH=`<div class="nxsec"><div class="dl">次の論文</div>`;for(const n of nx)nxH+=`<div class="nxcard" data-p="${n.pmid}"><div class="ptt">${E(n.titleJa||n.titleEn||'')}</div><div class="pjn">${E(n.journal||'')} · ${fD(n.pubDate)}</div></div>`;nxH+=`</div>`}
-  const dTagsHtml=getLabels(p).map(l=>`<span class="dtag" style="background:${getLabelColor(l)}22;color:${getLabelColor(l)}" onclick="removeDetailLabel('${E(l)}')">${E(l)} <span class="dtag-x">×</span></span>`).join('');
+  const dTagsHtml=(()=>{try{return getLabels(p).map(l=>`<span class="dtag" style="background:${getLabelColor(l)}22;color:${getLabelColor(l)}" onclick="removeDetailLabel('${E(l)}')">${E(l)} <span class="dtag-x">×</span></span>`).join('')}catch(e){return''}})();
   body.innerHTML=`
 <div class="dti">${E(p.titleJa||p.titleEn||'')}</div>
 <div class="dm"><span class="di">${E(p.journal||'')}</span><span class="di">${fD(p.pubDate)}</span><span class="di">PMID:${p.pmid}</span>${p.readAt?`<span class="di">既読 ${fD(p.readAt)}</span>`:''}</div>
@@ -1300,7 +1302,7 @@ function openImport(){
 }
 function closeImport(){const m=document.getElementById('impmod');m.style.transition='transform .3s ease';m.style.transform='translateY(100%)';setTimeout(()=>{m.classList.remove('open');m.style.transform=''},350)}
 function renderImpLabels(){
-  const all=[...new Set([...(S.labels||[]).map(l=>l.name),'手動追加'])];
+  const all=[...new Set([...(Array.isArray(S.labels)?S.labels.map(l=>l.name):[]),'手動追加'])];
   document.getElementById('imp-labels').innerHTML=all.map(l=>`<span class="imp-lbl${_impLabels.has(l)?' sel':''}" data-l="${E(l)}" style="${_impLabels.has(l)?'background:'+getLabelColor(l)+'33;color:'+getLabelColor(l)+';border-color:'+getLabelColor(l):''}">${E(l)}</span>`).join('');
 }
 function addImpLabel(){
@@ -1523,8 +1525,9 @@ document.addEventListener('click',function(e){
 // ── Label management (settings) ──
 function renderCfgLabels(){
   const c=document.getElementById('cfg-labels');if(!c)return;
-  c.innerHTML=(S.labels||[]).map((l,i)=>`<div class="lbl-card" data-li="${i}">
-    <div class="lbl-dot" style="background:${l.color}" onclick="toggleLblColors(${i})"></div>
+  if(!Array.isArray(S.labels)){S.labels=[];c.innerHTML='';return}
+  c.innerHTML=S.labels.map((l,i)=>`<div class="lbl-card" data-li="${i}">
+    <div class="lbl-dot" style="background:${l.color||'#9193a0'}" onclick="toggleLblColors(${i})"></div>
     <span class="lbl-name" id="lbln-${i}" ondblclick="startLblRename(${i})">${E(l.name)}</span>
     <span class="lbl-vis${l.visible?'':' off'}" onclick="toggleLblVis(${i})">${l.visible?'👁':'👁‍🗨'}</span>
   </div>
@@ -1539,12 +1542,13 @@ function toggleLblColors(i){
   if(el)el.style.display=el.style.display==='none'?'flex':'none';
 }
 function setLblColor(i,color){
-  S.labels[i].color=color;renderCfgLabels();
+  if(!S.labels||!S.labels[i])return;S.labels[i].color=color;renderCfgLabels();
 }
 function toggleLblVis(i){
-  S.labels[i].visible=!S.labels[i].visible;renderCfgLabels();
+  if(!S.labels||!S.labels[i])return;S.labels[i].visible=!S.labels[i].visible;renderCfgLabels();
 }
 function startLblRename(i){
+  if(!S.labels||!S.labels[i])return;
   const el=document.getElementById('lbln-'+i);if(!el)return;
   const old=S.labels[i].name;
   el.outerHTML=`<input class="lbl-name-inp" id="lbln-${i}" value="${E(old)}" onblur="finishLblRename(${i})" onkeydown="if(event.key==='Enter')this.blur()"/>`;
@@ -1552,6 +1556,7 @@ function startLblRename(i){
 }
 function finishLblRename(i){
   const el=document.getElementById('lbln-'+i);if(!el)return;
+  if(!S.labels||!S.labels[i]){renderCfgLabels();return}
   const newName=el.value.trim();const oldName=S.labels[i].name;
   if(newName&&newName!==oldName){
     S.labels[i].name=newName;
@@ -1758,14 +1763,19 @@ async function init(){
     if(!await lC()){document.getElementById('su').style.display='';hideSplash();return}
     document.getElementById('ma').style.display='';uSD();reqNotif();
     await loadSettings();
+    if(!Array.isArray(S.labels))S.labels=[];
+    if(!Array.isArray(S.aiPrompts))S.aiPrompts=[];
     aF=S.defFilter;updSortLabel();
-    await loadL();initLabels();await loadVocab();
+    await loadL();
+    try{initLabels()}catch(e){console.error('initLabels:',e)}
+    sortP();rF();rL();
+    await loadVocab();
     hideSplash();
     if(ol)syncData();
   }catch(e){
     console.error('Init error:',e);
     const sp=document.getElementById('splash');
-    if(sp){sp.innerHTML=`<div class="splash-icon">⚠️</div><div class="splash-title">起動エラー</div><div class="splash-sub" style="max-width:80%;word-break:break-all">${e.message||e}</div><div style="margin-top:20px;font-size:12px;color:var(--tf)">ブラウザのキャッシュを消去して<br>再読み込みしてください</div>`}
+    if(sp){sp.innerHTML=`<div class="splash-icon">⚠️</div><div class="splash-title">起動エラー</div><div class="splash-sub" style="max-width:80%;word-break:break-all;font-size:11px">${e.message||e}<br><br>${(e.stack||'').slice(0,300)}</div><div style="margin-top:20px;font-size:12px;color:var(--tf)">ブラウザのキャッシュを消去して<br>再読み込みしてください</div>`}
     else sT('起動エラー: '+e.message);
   }
 }
