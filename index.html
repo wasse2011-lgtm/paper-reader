@@ -660,7 +660,13 @@ async function syncData(){
         const lp=localMap.get(sp.pmid);
         const item={...sp,rating:Number(sp.rating)||0,checked:!!sp.checked,readAt:sp.readAt||''};
         if(lp&&!item.readAt&&lp.readAt)item.readAt=lp.readAt;
-        if(lp&&pendSet.has(sp.pmid)){item.checked=lp.checked;item.memo=lp.memo||sp.memo||'';item.rating=lp.rating;item.readAt=lp.readAt||item.readAt;item.queryLabel=lp.queryLabel||item.queryLabel}
+        if(lp&&pendSet.has(sp.pmid)){
+          item.checked=lp.checked;
+          item.memo=lp.memo!==undefined?lp.memo:sp.memo||'';
+          item.rating=lp.rating;
+          item.readAt=lp.readAt||item.readAt;
+          item.queryLabel=lp.queryLabel!==undefined?lp.queryLabel:item.queryLabel;
+        }
         if(lp&&item.rating===0&&lp.rating>0)item.rating=lp.rating;
         if(lp&&!item.checked&&lp.checked){item.checked=true;item.readAt=lp.readAt||item.readAt}
         if(!oldPmids.has(sp.pmid))newCount++;
