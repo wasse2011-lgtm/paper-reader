@@ -177,14 +177,6 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 .memo-fs-tbtn:active{background:var(--acd);border-color:var(--ac)}
 .memo-fs-ta{width:100%;background:var(--bgd);border:none;padding:12px var(--px);color:var(--tx);font-size:15px;font-family:inherit;line-height:1.8;resize:none;outline:none}
 .memo-fs-ta::placeholder{color:var(--tf)}
-.memo-fs-prev{border-top:1px solid var(--bd);padding:12px var(--px);overflow-y:auto;flex:1;min-height:30%;font-size:14px;line-height:1.6;color:var(--tx)}
-.memo-fs-prev strong,.memo-fs-prev b{font-weight:700;color:var(--ac)}
-.memo-fs-prev u{text-decoration:underline}
-.memo-fs-prev h1,.memo-fs-prev h2,.memo-fs-prev h3{font-weight:700;margin:8px 0 4px;color:var(--tx)}
-.memo-fs-prev h1{font-size:16px}.memo-fs-prev h2{font-size:15px}
-.memo-fs-prev ul{padding-left:20px;margin:4px 0}.memo-fs-prev li{margin:2px 0}
-.memo-fs-prev hr{border:none;border-top:1px solid var(--bd);margin:8px 0}
-.memo-fs-prev code{background:var(--bgc);padding:1px 4px;border-radius:3px;font-size:13px}
 /* Memo markdown preview */
 .mt-view{width:100%;min-height:60px;background:var(--bgi);border:1px solid var(--bd);border-radius:10px;padding:12px;color:var(--tx);font-size:14px;line-height:1.6;cursor:pointer;max-height:200px;overflow-y:auto}
 .mt-view:empty::before{content:'タップでメモ編集';color:var(--tf)}
@@ -404,8 +396,7 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
     <button class="memo-fs-tbtn" onclick="memoInsert('`','`')">&lt;/&gt;</button>
   </div>
   <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
-    <textarea class="memo-fs-ta" id="memoFsTa" placeholder="メモを入力..." style="flex:1;min-height:40%"></textarea>
-    <div id="memoPrev" class="memo-fs-prev"></div>
+    <textarea class="memo-fs-ta" id="memoFsTa" placeholder="メモを入力..." style="flex:1"></textarea>
   </div>
 </div>
 <div class="vmod" id="vmod">
@@ -970,7 +961,6 @@ function openMemoFs(){
   const fs=document.getElementById('memoFs');
   const ta=document.getElementById('memoFsTa');
   ta.value=p.memo||'';
-  updateMemoPreview();
   fs.style.transform='';fs.style.transition='';
   fs.classList.add('open');
   setTimeout(()=>ta.focus(),100);
@@ -1001,12 +991,6 @@ function closeMemoFs(){
   fs.style.transform='translateY(100%)';
   setTimeout(()=>{fs.classList.remove('open');fs.style.transform='';fs.style.transition=''},250);
 }
-function updateMemoPreview(){
-  const ta=document.getElementById('memoFsTa');
-  const prev=document.getElementById('memoPrev');
-  if(ta&&prev)prev.innerHTML=renderMd(ta.value)||'<span style="color:var(--tf)">プレビュー</span>';
-}
-document.getElementById('memoFsTa')?.addEventListener('input',updateMemoPreview);
 document.getElementById('memoFsClose').addEventListener('click',closeMemoFs);
 
 async function tRD(){if(!cP)return;const p=P.find(x=>x.pmid===cP);if(!p)return;p.checked=!p.checked;p.readAt=p.checked?new Date().toISOString():'';document.getElementById('tgl').classList.toggle('on',p.checked);await sC(p);sortP();rF();rL();rSt()}
