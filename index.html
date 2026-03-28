@@ -934,6 +934,7 @@ ${S.aiPrompts.length>1?`<div style="margin-top:6px"><select class="cfg-sel" id="
 <div class="dact">
   <div class="ar"><button class="tgl${p.checked?' on':''}" id="tgl"></button><span class="al">既読</span></div>
   <div class="ar"><span class="al" style="margin-right:4px">興味度</span><div class="dsr" id="dss">${dSt(pm,p.rating)}</div></div>
+  <div class="ar"><button class="tgl${getLabels(p).includes('後で精読')?' on':''}" id="tglSeido" onclick="toggleSeido()"></button><span class="al">後で精読</span></div>
   <div class="dl" style="margin-top:14px">メモ</div>
   <div class="mt-view" id="mt" onclick="openMemoFs()">${renderMd(p.memo||'')}</div>
   <div class="mh">タップで編集（ツールバーで書式設定）</div>
@@ -1000,6 +1001,14 @@ function closeMemoFs(){
 document.getElementById('memoFsClose').addEventListener('click',closeMemoFs);
 
 async function tRD(){if(!cP)return;const p=P.find(x=>x.pmid===cP);if(!p)return;p.checked=!p.checked;p.readAt=p.checked?new Date().toISOString():'';document.getElementById('tgl').classList.toggle('on',p.checked);await sC(p);sortP();rF();rL();rSt()}
+function toggleSeido(){
+  if(!cP)return;const p=P.find(x=>x.pmid===cP);if(!p)return;
+  const arr=getLabels(p);
+  if(arr.includes('後で精読'))setLabels(p,arr.filter(l=>l!=='後で精読'));
+  else{arr.push('後で精読');setLabels(p,arr)}
+  document.getElementById('tglSeido').classList.toggle('on',getLabels(p).includes('後で精読'));
+  sC(p);refreshDetailTags(p);rF();rL();
+}
 function cpA(){const p=P.find(x=>x.pmid===cP);if(!p)return;cc([`Title: ${p.titleEn}`,`Journal: ${p.journal}`,`PMID: ${p.pmid}`,p.doi?`DOI: ${p.doi}`:'',`Authors: ${p.authors}`,'','Abstract:',p.abstractEn||''].filter(Boolean).join('\n'));sT('コピーしました')}
 function cpP(){
   const p=P.find(x=>x.pmid===cP);if(!p)return;
