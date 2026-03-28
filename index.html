@@ -589,7 +589,7 @@ function normDate(s){
 function toKey(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function sL(p){document.getElementById('lb').style.width=p+'%'}
 let _tt;function sT(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),2500)}
-function isNew(p){if(!p.fetchedDate)return false;return(Date.now()-new Date(p.fetchedDate).getTime())<S.newDays*86400000}
+function isNew(p){if(!p.fetchedDate||p.checked)return false;return(Date.now()-new Date(p.fetchedDate).getTime())<S.newDays*86400000}
 
 const DBN='PaperReaderDB',DBV=4;
 function oDB(){return new Promise((r,j)=>{const q=indexedDB.open(DBN,DBV);q.onupgradeneeded=e=>{const d=e.target.result;['papers','pending','config'].forEach(n=>{if(!d.objectStoreNames.contains(n))d.createObjectStore(n,{keyPath:n==='config'?'key':'pmid'})});if(!d.objectStoreNames.contains('vocab'))d.createObjectStore('vocab',{keyPath:'id'})};q.onsuccess=()=>r(q.result);q.onerror=()=>j(q.error)})}
@@ -602,7 +602,7 @@ const _isPWA=window.matchMedia('(display-mode:standalone)').matches||!!window.na
 let C={url:'',key:''},P=[],F=[],aF='all',cP=null,ol=navigator.onLine;
 // Settings (loaded from IndexedDB, defaults here)
 const LABEL_COLORS=['#60a5fa','#4ade80','#f59e0b','#f87171','#a78bfa','#9193a0'];
-let S={newDays:7,minStar:4,defFilter:'all',sortOrder:'default',aiDest:'copy',vocabEnabled:true,showAiSearch:true,
+let S={newDays:3,minStar:4,defFilter:'all',sortOrder:'default',aiDest:'copy',vocabEnabled:true,showAiSearch:true,
   labels:[],
   aiPrompts:[{name:'翻訳＋臨床応用',prompt:'論文検索してヒットした論文をお渡しします。そのアブストラクトの翻訳、具体的な臨床への役立つ情報を抽出をして教えてください。さらに、関連する背景知識も検索し、簡潔に教えてください。さらに疑問となりそうな事について深掘りを提案してください。'}]
 };
@@ -619,6 +619,10 @@ function getLabelColor(name){if(!Array.isArray(S.labels))return'#9193a0';const l
 function initLabels(){
   try{
     if(!Array.isArray(S.labels))S.labels=[];
+    // Ensure default label exists
+    if(!S.labels.find(l=>l.name==='後で精読')){
+      S.labels.push({name:'後で精読',color:'#f59e0b',visible:true});
+    }
     const existing=new Set(S.labels.map(l=>l.name));
     for(const p of P){for(const l of getLabels(p)){if(!existing.has(l)){ensureLabel(l);existing.add(l)}}}
   }catch(e){console.error('initLabels error:',e);if(!Array.isArray(S.labels))S.labels=[]}
@@ -854,7 +858,7 @@ function addModalSwipe(elId,closeFn){
 }
 addModalSwipe('stmod',closeStats);
 
-function updateBanner(){const nc=P.filter(p=>isNew(p)).length;const ban=document.getElementById('nban');if(nc>0){ban.innerHTML=`🆕 新着 ${nc} 件<span>直近7日間</span>`;ban.classList.add('show')}else ban.classList.remove('show')}
+function updateBanner(){const nc=P.filter(p=>isNew(p)).length;const ban=document.getElementById('nban');if(nc>0){ban.innerHTML=`🆕 新着 ${nc} 件`;ban.classList.add('show')}else ban.classList.remove('show')}
 
 function gF(f){switch(f){case'all':return P;case'unread':return P.filter(p=>!p.checked);case'interested':return P.filter(p=>p.rating>=S.minStar);case'new':return P.filter(p=>isNew(p));default:return P.filter(p=>getLabels(p).includes(f))}}
 function rF(){
