@@ -665,7 +665,7 @@ async function syncData(){
         const lp=localMap.get(sp.pmid);
         const item={...sp,rating:Number(sp.rating)||0,checked:!!sp.checked,readAt:sp.readAt||''};
         if(lp&&!item.readAt&&lp.readAt)item.readAt=lp.readAt;
-        if(lp&&pendSet.has(sp.pmid)){item.checked=lp.checked;item.memo=lp.memo||sp.memo||'';item.rating=lp.rating;item.readAt=lp.readAt||item.readAt}
+        if(lp&&pendSet.has(sp.pmid)){item.checked=lp.checked;item.memo=lp.memo||sp.memo||'';item.rating=lp.rating;item.readAt=lp.readAt||item.readAt;item.queryLabel=lp.queryLabel||item.queryLabel}
         if(lp&&item.rating===0&&lp.rating>0)item.rating=lp.rating;
         if(lp&&!item.checked&&lp.checked){item.checked=true;item.readAt=lp.readAt||item.readAt}
         if(!oldPmids.has(sp.pmid))newCount++;
@@ -673,6 +673,8 @@ async function syncData(){
       });
       dPB('papers',merged);
       P=merged;initLabels();sortP();rF();rL();rSt();updateBanner();
+      // Auto-sync label settings to server
+      try{await saveSettings();await jp({action:'saveAppSettings',data:JSON.stringify({action:'saveAppSettings',settings:S}),key:C.key})}catch(e){}
       if(newCount>0&&oldPmids.size>0)sendNotif(newCount);
       sT('同期完了: '+P.length+'件'+(newCount?' (新着'+newCount+'件)':''));
     }else{sT('同期完了: 0件')}
@@ -980,7 +982,7 @@ function closeMemoFs(){
         p.memo=newVal;
         // Synchronous save - ensure data is written
         dP('papers',{...p});
-        const d={pmid:p.pmid,checked:p.checked,memo:p.memo,rating:p.rating,readAt:p.readAt||''};
+        const d={pmid:p.pmid,checked:p.checked,memo:p.memo,rating:p.rating,readAt:p.readAt||'',queryLabel:p.queryLabel||''};
         if(ol)jp({action:'update',data:JSON.stringify({action:'update',...d}),key:C.key}).catch(()=>dP('pending',d));
         else dP('pending',d);
         rL();
@@ -1039,7 +1041,7 @@ dov.addEventListener('touchmove',e=>{if(!tr)return;const dx=e.touches[0].clientX
 dov.addEventListener('touchend',e=>{if(!tr)return;tr=false;const dx=e.changedTouches[0].clientX-sx;dov.style.transition='transform .3s ease';dx>100?clD():dov.style.transform='translateX(0)'},{passive:true});
 })();
 
-function sC(p){dP('papers',{...p});const d={pmid:p.pmid,checked:p.checked,memo:p.memo,rating:p.rating,readAt:p.readAt||''};if(ol){jp({action:'update',data:JSON.stringify({action:'update',...d}),key:C.key}).catch(()=>dP('pending',d))}else dP('pending',d)}
+function sC(p){dP('papers',{...p});const d={pmid:p.pmid,checked:p.checked,memo:p.memo,rating:p.rating,readAt:p.readAt||'',queryLabel:p.queryLabel||''};if(ol){jp({action:'update',data:JSON.stringify({action:'update',...d}),key:C.key}).catch(()=>dP('pending',d))}else dP('pending',d)}
 // ── Select Abstract Text ──
 function selectAbsText(){
   const el=document.getElementById('absEn');if(!el)return;
@@ -1771,7 +1773,18 @@ async function init(){
     sortP();rF();rL();
     await loadVocab();
     hideSplash();
-    if(ol)syncData();
+    if(ol){
+      // Pull server settings to sync label colors across devices
+      try{
+        const srvData=await jp({action:'getAppSettings',key:C.key});
+        if(srvData.settings&&Array.isArray(srvData.settings.labels)){
+          const srvMap=new Map(srvData.settings.labels.map(l=>[l.name,l]));
+          for(const l of S.labels){const sv=srvMap.get(l.name);if(sv){l.color=sv.color;l.visible=sv.visible}}
+          await saveSettings();rF();
+        }
+      }catch(e){}
+      syncData();
+    }
   }catch(e){
     console.error('Init error:',e);
     const sp=document.getElementById('splash');
