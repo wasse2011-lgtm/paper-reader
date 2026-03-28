@@ -274,8 +274,11 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 .cfg-btns{margin-top:16px}
 .cfg-savebtn{width:100%;background:var(--ac);color:#fff;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:700;cursor:pointer}
 .cfg-savebtn:active{opacity:.8}
-.cfg-syncbtn{flex:1;background:var(--bgi);color:var(--tx);border:1px solid var(--bd);border-radius:10px;padding:10px;font-size:12px;font-weight:600;cursor:pointer}
+.cfg-syncbtn{flex:1;background:var(--bgi);color:var(--tx);border:1px solid var(--bd);border-radius:10px;padding:10px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}
 .cfg-syncbtn:active{background:var(--acd)}
+.cfg-syncbtn:disabled{opacity:.6;cursor:default}
+.cfg-syncbtn.ok{background:var(--gr);color:#000;border-color:var(--gr)}
+.cfg-syncbtn.err{background:var(--rd);color:#fff;border-color:var(--rd)}
 /* Label management */
 .lbl-card{background:var(--bgc);border:1px solid var(--bd);border-radius:8px;padding:10px;margin-bottom:6px;display:flex;align-items:center;gap:6px}
 .lbl-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0;cursor:pointer}
@@ -547,8 +550,8 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
     <div class="cfg-btns">
       <button class="cfg-savebtn" onclick="saveCfgAll()">💾 設定を保存</button>
       <div style="display:flex;gap:8px;margin-top:8px">
-        <button class="cfg-syncbtn" onclick="pushSettingsToServer()">☁️ 設定をサーバーに保存</button>
-        <button class="cfg-syncbtn" onclick="pullSettingsFromServer()">📥 サーバーから設定を取得</button>
+        <button class="cfg-syncbtn" id="btnPush" onclick="pushSettingsToServer()">☁️ サーバーに保存</button>
+        <button class="cfg-syncbtn" id="btnPull" onclick="pullSettingsFromServer()">📥 サーバーから取得</button>
       </div>
       <div class="cfg-lbl" style="margin-top:4px">iPhone/iPad/PC間で設定を共有できます</div>
     </div>
@@ -1753,22 +1756,38 @@ async function saveCfgAll(){
   }
 }
 
+function syncBtnState(btn,state,text){
+  if(!btn)return;
+  btn.disabled=state==='loading';
+  btn.className='cfg-syncbtn'+(state==='ok'?' ok':state==='err'?' err':'');
+  btn.textContent=text;
+}
 async function pushSettingsToServer(){
   if(!ol){sT('オフラインです');return}
+  const btn=document.getElementById('btnPush');
+  syncBtnState(btn,'loading','⏳ 保存中...');
   try{
     await jp({action:'saveAppSettings',data:JSON.stringify({action:'saveAppSettings',settings:S}),key:C.key});
-    sT('☁️ 設定をサーバーに保存しました');
-  }catch(e){sT('保存に失敗: '+e.message)}
+    syncBtnState(btn,'ok','✓ 保存完了');
+    setTimeout(()=>syncBtnState(btn,'','☁️ サーバーに保存'),2000);
+  }catch(e){
+    syncBtnState(btn,'err','✗ 失敗');
+    sT('保存に失敗: '+e.message);
+    setTimeout(()=>syncBtnState(btn,'','☁️ サーバーに保存'),2000);
+  }
 }
 async function pullSettingsFromServer(){
   if(!ol){sT('オフラインです');return}
+  const btn=document.getElementById('btnPull');
+  syncBtnState(btn,'loading','⏳ 取得中...');
   try{
     const data=await jp({action:'getAppSettings',key:C.key});
     if(data.settings){
       Object.assign(S,data.settings);
+      if(!Array.isArray(S.labels))S.labels=[];
+      if(!Array.isArray(S.aiPrompts))S.aiPrompts=[];
       await saveSettings();
       aF=S.defFilter;sortP();rF();rL();updSortLabel();updVmini();
-      // Refresh settings form
       document.getElementById('cfg-newdays').value=S.newDays;
       document.getElementById('cfg-minstar').value=S.minStar;
       document.getElementById('cfg-deffilter').value=S.defFilter;
@@ -1777,9 +1796,19 @@ async function pullSettingsFromServer(){
       document.getElementById('cfg-showai').value=S.showAiSearch!==false?'on':'off';
       document.getElementById('cfg-aidest').value=S.aiDest;
       renderCfgPrompts(S.aiPrompts||[]);
-      sT('📥 サーバーから設定を取得しました');
-    }else{sT('サーバーに設定が保存されていません')}
-  }catch(e){sT('取得に失敗: '+e.message)}
+      renderCfgLabels();
+      syncBtnState(btn,'ok','✓ 取得完了');
+      setTimeout(()=>syncBtnState(btn,'','📥 サーバーから取得'),2000);
+    }else{
+      syncBtnState(btn,'err','設定なし');
+      sT('サーバーに設定が保存されていません');
+      setTimeout(()=>syncBtnState(btn,'','📥 サーバーから取得'),2000);
+    }
+  }catch(e){
+    syncBtnState(btn,'err','✗ 失敗');
+    sT('取得に失敗: '+e.message);
+    setTimeout(()=>syncBtnState(btn,'','📥 サーバーから取得'),2000);
+  }
 }
 
 
