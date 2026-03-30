@@ -364,9 +364,11 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
 <div id="su" class="su" style="display:none">
   <div class="sut">PubMed Paper Reader</div>
   <div class="sud">GAS Web AppのURLとAPIキーを設定してください。</div>
-  <input id="suUrl" class="sui" placeholder="GAS Web App URL (https://script.google.com/...)"/>
-  <input id="suKey" class="sui" placeholder="API Secret Key"/>
-  <button class="sub" onclick="saveSetup()">設定を保存</button>
+  <form id="suForm" action="" method="post" autocomplete="on" onsubmit="event.preventDefault();saveSetup()">
+    <input id="suUrl" class="sui" name="username" autocomplete="username" placeholder="GAS Web App URL (https://script.google.com/...)" inputmode="url"/>
+    <input id="suKey" class="sui" name="password" type="password" autocomplete="current-password" placeholder="API Secret Key"/>
+    <button class="sub" type="submit">設定を保存</button>
+  </form>
   <div class="sun">GAS Web AppをデプロイしたURL（/exec）と、Config.gs の API_SECRET を入力。</div>
 </div>
 <div id="ma" style="display:none">
@@ -486,9 +488,9 @@ html,body{height:100%;background:var(--bg);color:var(--tx);
     <div class="cfg-sec">
       <div class="cfg-sec-title">接続設定</div>
       <label class="cfg-lbl">GAS Web App URL</label>
-      <input class="cfg-inp" id="cfg-url" placeholder="https://script.google.com/.../exec"/>
+      <input class="cfg-inp" id="cfg-url" name="username" autocomplete="username" placeholder="https://script.google.com/.../exec"/>
       <label class="cfg-lbl">API Secret Key</label>
-      <input class="cfg-inp" id="cfg-key" type="password" placeholder="APIキー"/>
+      <input class="cfg-inp" id="cfg-key" name="password" type="password" autocomplete="current-password" placeholder="APIキー"/>
     </div>
     <div class="cfg-sec">
       <div class="cfg-sec-title">表示設定</div>
